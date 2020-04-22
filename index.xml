@@ -1,0 +1,35 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ldsdsy</title>
+    <link>https://ldsdsy.github.io/</link>
+    <description>Recent content on ldsdsy</description>
+    <generator>Hugo - gohugo.io</generator>
+    <language>en</language>
+    <contact></contact>
+    <copyright></copyright>
+    
+        <atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Blogs</title>
+      <link>https://ldsdsy.github.io/blog/</link>
+      <pubDate>Thu, 23 Apr 2020 00:53:15 +0800</pubDate>
+      <author></author>
+      <guid>https://ldsdsy.github.io/blog/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>Posts</title>
+      <link>https://ldsdsy.github.io/post/</link>
+      <pubDate>Wed, 22 Apr 2020 19:06:58 +0800</pubDate>
+      <author></author>
+      <guid>https://ldsdsy.github.io/post/</guid>
+      <description></description>
+      
+    </item>
+    
+  </channel>
+</rss>
