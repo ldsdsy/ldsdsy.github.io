@@ -1,0 +1,152 @@
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en-us">
+
+    <head>
+
+        
+        <meta charset="UTF-8" />
+
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+                
+        <title> 
+             03_FlutterAndroid搭建  
+        </title>
+        
+        
+
+        
+        <link rel="stylesheet" href="/css/style.css"/>
+
+        
+        
+        
+    </head>
+
+    <body>
+
+
+
+<section class="section">
+  <div class="container">
+    <nav id="nav-main" class="nav">
+      <div id="nav-name" class="nav-left">
+        <a id="nav-anchor" class="nav-item" href="https://ldsdsy.github.io/">
+          <h1 id="nav-heading" class="title is-4">ldsdsy</h1>
+        </a>
+      </div>
+      <div class="nav-right">
+        
+        
+        <nav id="nav-items" class="nav-item level is-mobile"></nav>
+        
+      
+      </div>
+    </nav>
+
+    <nav class="nav">
+      
+
+      
+    </nav>
+
+  </div>
+</section>
+
+<section class="section">
+    
+    <div class="container">
+    
+        
+            
+<div class="subtitle tags is-6 is-pulled-right">
+    
+</div>
+
+
+
+<h2 class="subtitle is-6">
+    
+    
+        May 28, 2020 | 07:06
+    
+</h2>
+
+
+
+<h1 class="title">03_FlutterAndroid搭建</h1>
+
+<div class="content">
+
+    
+    <p>1.安装 jdk：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo apt-get install openjdk-8-jdk
+
+//JDK：java development kit （java 开发环境，包括 JVM，基础类库，开发工具）
+//JRE：java runtime environment （java 运行时环境）
+//JDK 包含 JRE
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ java
+$ javac
+
+//查看是否安装完成
+</code></pre></div><p>2.安装 Android Studio (有图形快捷键)：</p>
+<p>//下载并解压</p>
+<p><a href="https://www.jetbrains.com/toolbox-app/">https://www.jetbrains.com/toolbox-app/</a></p>
+<p>//安装完成后，在 JetBrains Toolbox 中安装 AS 稳定版。<br>
+//打开 AS 一路默认安装，先不要设置属性参数；<br>
+//安装完成导入插件: Plugins 中安装 Dart 和 Flutter ;<br>
+//重启 AS</p>
+<p>3.配置 Flutter 国内镜像：</p>
+<p>//选择镜像</p>
+<p><a href="https://flutter-io.cn/">https://flutter-io.cn/</a></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo vim /etc/profile  
+
+//文本末尾添加如下内容
+
+ export FLUTTER_STORAGE_BASE_URL<span style="color:#f92672">=</span>https://storage.flutter-io.cn
+ export PUB_HOSTED_URL<span style="color:#f92672">=</span>https://pub.flutter-io.cn
+
+//保存退出
+
+$ source /etc/profile  
+</code></pre></div><p>4.输入 flutter doctor 检测安装配置是否完成。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">出现 ✗ Unable to locate Android SDK.
+
+打开 AS -&gt; Tools -&gt; SDK Manager 安装 SDK
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">出现 ✗ Android licenses not accepted. 
+
+$ flutter doctor --android-licenses  
+
+//一路 y
+</code></pre></div><p>Adds: AS 中出现 adb bridge not found<br>
+//进入 File -&gt; Project instructure 菜单，Project 中能看到 No SDK;<br>
+//选中 Modules -&gt; flutter_app_android -&gt; Dependencies -&gt; Module SDK</p>
+
+
+    
+    
+
+</div>
+
+
+        
+
+    </div>
+
+</section>
+
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+    
+  </div>
+</section>
+
+</body>
+</html>
+

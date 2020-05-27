@@ -6,10 +6,30 @@
     <description>Recent content in Blogs on ldsdsy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 22 May 2020 09:58:25 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 28 May 2020 07:06:45 +0800</lastBuildDate>
     
 	<atom:link href="https://ldsdsy.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>03_FlutterAndroid搭建</title>
+      <link>https://ldsdsy.github.io/blog/03_flutterandroid%E6%90%AD%E5%BB%BA/</link>
+      <pubDate>Thu, 28 May 2020 07:06:45 +0800</pubDate>
+      
+      <guid>https://ldsdsy.github.io/blog/03_flutterandroid%E6%90%AD%E5%BB%BA/</guid>
+      <description>1.安装 jdk：
+$ sudo apt-get install openjdk-8-jdk //JDK：java development kit （java 开发环境，包括 JVM，基础类库，开发工具） //JRE：java runtime environment （java 运行时环境） //JDK 包含 JRE $ java $ javac //查看是否安装完成 2.安装 Android Studio (有图形快捷键)：
+//下载并解压
+https://www.jetbrains.com/toolbox-app/
+//安装完成后，在 JetBrains Toolbox 中安装 AS 稳定版。
+//打开 AS 一路默认安装，先不要设置属性参数；
+//安装完成导入插件: Plugins 中安装 Dart 和 Flutter ;
+//重启 AS
+3.配置 Flutter 国内镜像：
+//选择镜像
+https://flutter-io.cn/
+$ sudo vim /etc/profile //文本末尾添加如下内容 export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn export PUB_HOSTED_URL=https://pub.flutter-io.cn //保存退出 $ source /etc/profile 4.输入 flutter doctor 检测安装配置是否完成。</description>
+    </item>
     
     <item>
       <title>02_Flutter安装</title>
