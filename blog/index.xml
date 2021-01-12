@@ -6,7 +6,22 @@
     <description>Recent content in Blogs on ldsdsy</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 05 Jan 2021 10:30:42 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 11 Jan 2021 21:23:59 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Go_day03</title>
+      <link>https://ldsdsy.github.io/blog/go_day03/</link>
+      <pubDate>Mon, 11 Jan 2021 21:23:59 +0800</pubDate>
+      
+      <guid>https://ldsdsy.github.io/blog/go_day03/</guid>
+      <description>Go 项目目录格式的一些问题  1.一个项目只有一个 mian.go 作为入口。所以如何解决一个项目里存在多个 xxx.go 的问题呢？如下为一种方式：
+demo |___main.go |___exam |___01.go |___02.go //mian.go 作为整个项目入口，exam 为 package （包），exam 下面又包含多个函数，每个函数可在 main.go 中调用。 01.go
+package exam import &amp;#34;fmt&amp;#34; //Add is used to calculate the sum of two numbers func Add(a,b int) int { return a+b } //Go 要求公有函数以大写字母开头，并且需要在函数上方书写用于说明函数用处的注释，注释必须以函数名开头。 main.go
+package main import &amp;#34;demo/exam&amp;#34; func main() { sum := exam.Add(3,4) fmt.println(sum) } 2.尽量一开始养成编写测试函数的习惯。Go 语言拥有一套单元测试和性能测试系统，仅需要添加很少的代码就可以快速测试一段需求代码。
+go test 命令，会自动读取源码目录下面名为 *_test.go 的文件，生成并运行测试用的可执行文件。
+单元测试源码文件可以由多个测试用例组成，每个测试用例函数需要以 Test 为前缀，例如：
+package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.</description>
+    </item>
+    
     <item>
       <title>GO_day02</title>
       <link>https://ldsdsy.github.io/blog/go_day02/</link>
@@ -25,7 +40,7 @@ package main import &amp;#34;fmt&amp;#34; func main() { fmt.Println(&amp;#34;Hel
       <pubDate>Mon, 04 Jan 2021 22:03:04 +0800</pubDate>
       
       <guid>https://ldsdsy.github.io/blog/go_day01/</guid>
-      <description>Window 安装 Go 语言环境   进入以下网址  https://golang.google.cn/dl/ //选择 .msi 后缀的文件下载，下载完成后一路 next 安装即可。 进入 cmd  $ go version //能显示版本号即安装成功 在终端依次执行  $ go env -w GO111MODULE=on $ go env -w GOPROXY=https://goproxy.cn,direct //第一条使源代码可存储在任意位置，第二条为国内代理 </description>
+      <description>Window 安装 Go 语言环境   进入以下网址  https://golang.google.cn/dl/ //选择 .msi 后缀的文件下载，下载完成后一路 next 安装即可。 进入 cmd  $ go version //能显示版本号即安装成功 在终端依次执行  $ go env -w GO111MODULE=on $ go env -w GOPROXY=https://goproxy.cn,direct  //第一条使源代码可存储在任意位置，第二条为国内代理 </description>
     </item>
     
     <item>
