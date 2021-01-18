@@ -34,14 +34,5 @@
       <description></description>
     </item>
     
-    <item>
-      <title>Flutter,Exam</title>
-      <link>https://example.com/categories/flutterexam/</link>
-      <pubDate>Thu, 21 May 2020 19:43:18 +0800</pubDate>
-      
-      <guid>https://example.com/categories/flutterexam/</guid>
-      <description></description>
-    </item>
-    
   </channel>
 </rss>
