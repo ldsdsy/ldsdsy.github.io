@@ -1,106 +1,276 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title></title>
-    <link>/</link>
-    <description>Recent content on </description>
-    <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Mon, 11 Jan 2021 21:23:59 +0800</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Go_day03</title>
-      <link>/blog/go_day03/</link>
-      <pubDate>Mon, 11 Jan 2021 21:23:59 +0800</pubDate>
-      
-      <guid>/blog/go_day03/</guid>
-      <description>Go 项目目录格式的一些问题  1.一个项目只有一个 mian.go 作为入口。所以如何解决一个项目里存在多个 xxx.go 的问题呢？如下为一种方式：
-demo |___main.go |___exam |___01.go |___02.go //mian.go 作为整个项目入口，exam 为 package （包），exam 下面又包含多个函数，每个函数可在 main.go 中调用。 01.go
-package exam import &amp;#34;fmt&amp;#34; //Add is used to calculate the sum of two numbers func Add(a,b int) int { return a+b } //Go 要求公有函数以大写字母开头，并且需要在函数上方书写用于说明函数用处的注释，注释必须以函数名开头。 main.go
-package main import &amp;#34;demo/exam&amp;#34; func main() { sum := exam.Add(3,4) fmt.println(sum) } 2.尽量一开始养成编写测试函数的习惯。Go 语言拥有一套单元测试和性能测试系统，仅需要添加很少的代码就可以快速测试一段需求代码。
-go test 命令，会自动读取源码目录下面名为 *_test.go 的文件，生成并运行测试用的可执行文件。
-单元测试源码文件可以由多个测试用例组成，每个测试用例函数需要以 Test 为前缀，例如：
-package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.</description>
-    </item>
+    <channel>
+        <title>ldsdsy Site</title>
+        <link>https://example.com/</link>
+        <description>Recent content on ldsdsy Site</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Sun, 17 Jan 2021 23:10:26 +0800</lastBuildDate><atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Go_day03</title>
+        <link>https://example.com/posts/go_day03/</link>
+        <pubDate>Mon, 11 Jan 2021 21:23:59 +0800</pubDate>
+        
+        <guid>https://example.com/posts/go_day03/</guid>
+        <description>&lt;pre&gt;&lt;code&gt;Go 项目目录格式的一些问题  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;1.一个项目只有一个 mian.go 作为入口。所以如何解决一个项目里存在多个 xxx.go 的问题呢？如下为一种方式：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;demo&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;___main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt;
+   &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;___exam&lt;/span&gt;
+          &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;___01&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt;
+          &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;___02&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//mian.go 作为整个项目入口，exam 为 package （包），exam 下面又包含多个函数，每个函数可在 main.go 中调用。 
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;01.go&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;
+&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; 	&lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//Add is used to calculate the sum of two numbers
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Add&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;b&lt;/span&gt;
     
-    <item>
-      <title>GO_day02</title>
-      <link>/blog/go_day02/</link>
-      <pubDate>Tue, 05 Jan 2021 10:30:42 +0800</pubDate>
-      
-      <guid>/blog/go_day02/</guid>
-      <description>1.安装好 Go 之后需人为设置一个 GOPATH 文件夹，这个目录用来存放 Go 源码， Go 的可运行文件，以及相应的编译之后的包文件。所以这个目录下面有三个子目录：src、bin、pkg。（例如：在 D 盘下新建一个名为 GOPATH 文件夹）
-src :存放源代码 pkg :编译后生成的包文件 bin :编译后生成的可执行文件 //一般，bin 和 pkg 目录可以不创建，go 命令会自动创建（如 go install），只需要创建 src 目录即可。 2.配置 GOPATH 的环境变量，进入用户变量新建
-变量 ：GOPATH 值 ：D:\GOPATH 3.进入 vscode 安装 go 插件，然后就可以在 src 下面创建 Hello_world.go 并编译执行， vs 提示安装什么就安装什么。(相比较 GoLand , vs 免费且内存消耗小)
-package main import &amp;#34;fmt&amp;#34; func main() { fmt.Println(&amp;#34;Hello, World!&amp;#34;) } </description>
-    </item>
-    
-    <item>
-      <title>Go_day01</title>
-      <link>/blog/go_day01/</link>
-      <pubDate>Mon, 04 Jan 2021 22:03:04 +0800</pubDate>
-      
-      <guid>/blog/go_day01/</guid>
-      <description>Window 安装 Go 语言环境   进入以下网址  https://golang.google.cn/dl/ //选择 .msi 后缀的文件下载，下载完成后一路 next 安装即可。 进入 cmd  $ go version //能显示版本号即安装成功 在终端依次执行  $ go env -w GO111MODULE=on $ go env -w GOPROXY=https://goproxy.cn,direct  //第一条使源代码可存储在任意位置，第二条为国内代理 </description>
-    </item>
-    
-    <item>
-      <title>03_FlutterAndroid搭建</title>
-      <link>/blog/03_flutterandroid%E6%90%AD%E5%BB%BA/</link>
-      <pubDate>Thu, 28 May 2020 07:06:45 +0800</pubDate>
-      
-      <guid>/blog/03_flutterandroid%E6%90%AD%E5%BB%BA/</guid>
-      <description>1.安装 jdk：
-$ sudo apt-get install openjdk-8-jdk //JDK：java development kit （java 开发环境，包括 JVM，基础类库，开发工具） //JRE：java runtime environment （java 运行时环境） //JDK 包含 JRE $ java $ javac //查看是否安装完成 2.安装 Android Studio (有图形快捷键)：
-//下载并解压
-https://www.jetbrains.com/toolbox-app/
-//安装完成后，在 JetBrains Toolbox 中安装 AS 稳定版。
-//打开 AS 一路默认安装，先不要设置属性参数；
-//安装完成导入插件: Plugins 中安装 Dart 和 Flutter ;
-//重启 AS
-3.配置 Flutter 国内镜像：
-//选择镜像
-https://flutter-io.cn/
-$ sudo vim /etc/profile //文本末尾添加如下内容 export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn export PUB_HOSTED_URL=https://pub.flutter-io.cn //保存退出 $ source /etc/profile 4.输入 flutter doctor 检测安装配置是否完成。</description>
-    </item>
-    
-    <item>
-      <title>02_Flutter安装</title>
-      <link>/blog/02_flutter%E5%AE%89%E8%A3%85/</link>
-      <pubDate>Fri, 22 May 2020 09:58:25 +0800</pubDate>
-      
-      <guid>/blog/02_flutter%E5%AE%89%E8%A3%85/</guid>
-      <description>安装Flutter：
-1.点击链接，下载压缩包：
-https://flutter.dev/docs/get-started/install/linux
-2.选一个心仪的文件夹(例如 development )，解压缩:
-$ cd ~/development $ tar xf ~/Downloads/flutter_linux_1.17.1-stable.tar.xz 3.设置环境变量（永久设置）：
-//profile 是开机就会自启的文件,打开后编辑 $ sudo vim /etc/profile //文件末尾添加如下内容，路径为上一步 Flutter 解压后所在的地方 export PATH=$PATH:/home/ldsdsy/development/flutter/bin //强制执行 profile 或 重启 $ source /etc/profile //查看是否添加成功 $ echo $PATH 4.输入 flutter 检测是否安装完成。
-Adds:
-//若出现 Error: Unable to find git in your PATH.
-$ sudo apt-get install git </description>
-    </item>
-    
-    <item>
-      <title>01_dart安装</title>
-      <link>/blog/01_dart%E5%AE%89%E8%A3%85/</link>
-      <pubDate>Thu, 21 May 2020 19:43:18 +0800</pubDate>
-      
-      <guid>/blog/01_dart%E5%AE%89%E8%A3%85/</guid>
-      <description>安装 dart：（使用apt-get安装就不用配置环境变量）
-1.依次执行以下命令:
-$ sudo apt-get update $ sudo apt-get install apt-transport-https //科学上网 $ sudo sh -c &amp;#39;wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -&amp;#39; $ sudo sh -c &amp;#39;wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list &amp;gt; /etc/apt/sources.list.d/dart_stable.list&amp;#39; 2.安装 Dart SDK:
-$ sudo apt-get update $ sudo apt-get install dart 3.输入 dart 检测是否安装完成。
-Adds:
-//查看 dart 安装在何处 $ which dart //查看系统环境变量 $ echo $PATH </description>
-    </item>
-    
-    <item>
-      <title>My First Blog Post</title>
-      <link>/blog/my-first-blog-post/</link>
-      <pubDate>Thu, 23 Apr 2020 00:53:15 +0800</pubDate>
-      
-      <guid>/blog/my-first-blog-post/</guid>
-      <description>hello 林</description>
-    </item>
-    
-  </channel>
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//Go 要求公有函数以大写字母开头，并且需要在函数上方书写用于说明函数用处的注释，注释必须以函数名开头。
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;main.go&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;
+&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;main&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;demo/exam&amp;#34;&lt;/span&gt;
+
+&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;nx&#34;&gt;sum&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Add&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+    &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;sum&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.尽量一开始养成编写测试函数的习惯。Go 语言拥有一套单元测试和性能测试系统，仅需要添加很少的代码就可以快速测试一段需求代码。&lt;/p&gt;
+&lt;p&gt;go test 命令，会自动读取源码目录下面名为 *_test.go 的文件，生成并运行测试用的可执行文件。&lt;br&gt;
+单元测试源码文件可以由多个测试用例组成，每个测试用例函数需要以 Test 为前缀，例如：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;testing&amp;#34;&lt;/span&gt;
+
+&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;TestAdd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;t&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;testing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;T&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;res&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:=&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;addadd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;res&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;7&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+		&lt;span class=&#34;nx&#34;&gt;t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Error&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;计算错误&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+
+&lt;span class=&#34;c1&#34;&gt;//测试用例文件不会参与正常源码编译，不会被包含到可执行文件中。
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//测试用例文件使用 go test 指令来执行，没有也不需要 main() 作为函数入口。所有在以 _test 结尾的源码内以 Test 开头的函数会自动被执行。
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//测试用例可以不传入 *testing.T 参数。
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+        </item>
+        <item>
+        <title>GO_day02</title>
+        <link>https://example.com/posts/go_day02/</link>
+        <pubDate>Tue, 05 Jan 2021 10:30:42 +0800</pubDate>
+        
+        <guid>https://example.com/posts/go_day02/</guid>
+        <description>&lt;p&gt;1.安装好 Go 之后需人为设置一个 GOPATH 文件夹，这个目录用来存放 Go 源码， Go 的可运行文件，以及相应的编译之后的包文件。所以这个目录下面有三个子目录：src、bin、pkg。（例如：在 D 盘下新建一个名为 GOPATH 文件夹）&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;src&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;存放源代码&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;pkg&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;编译后生成的包文件&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;bin&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;编译后生成的可执行文件&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//一般，bin 和 pkg 目录可以不创建，go 命令会自动创建（如 go install），只需要创建 src 目录即可。
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.配置 GOPATH 的环境变量，进入用户变量新建&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;变量&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;：&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;GOPATH&lt;/span&gt;
+&lt;span class=&#34;nx&#34;&gt;值&lt;/span&gt;   &lt;span class=&#34;err&#34;&gt;：&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;D&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;\&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;GOPATH&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.进入 vscode 安装 go 插件，然后就可以在 src 下面创建 Hello_world.go 并编译执行， vs 提示安装什么就安装什么。(相比较 GoLand , vs 免费且内存消耗小)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;main&lt;/span&gt;
+
+&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
+
+&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+   &lt;span class=&#34;nx&#34;&gt;fmt&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nf&#34;&gt;Println&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;Hello, World!&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+        </item>
+        <item>
+        <title>Go_day01</title>
+        <link>https://example.com/posts/go_day01/</link>
+        <pubDate>Mon, 04 Jan 2021 22:03:04 +0800</pubDate>
+        
+        <guid>https://example.com/posts/go_day01/</guid>
+        <description>&lt;pre&gt;&lt;code&gt;Window 安装 Go 语言环境
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ol&gt;
+&lt;li&gt;进入以下网址&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;https://golang.google.cn/dl/  
+
+//选择 .msi 后缀的文件下载，下载完成后一路 next 安装即可。
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;进入 cmd&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;  &lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;version&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;//能显示版本号即安装成功
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;在终端依次执行&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;err&#34;&gt;$&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;env&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;GO111MODULE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;on&lt;/span&gt;
+&lt;span class=&#34;err&#34;&gt;$&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;env&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;GOPROXY&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;https&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//goproxy.cn,direct
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt; 
+&lt;span class=&#34;c1&#34;&gt;//第一条使源代码可存储在任意位置，第二条为国内代理
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+        </item>
+        <item>
+        <title>04_Flutter项目基础了解</title>
+        <link>https://example.com/posts/04_flutter%E9%A1%B9%E7%9B%AE%E5%9F%BA%E7%A1%80%E4%BA%86%E8%A7%A3/</link>
+        <pubDate>Thu, 11 Jun 2020 21:38:42 +0800</pubDate>
+        
+        <guid>https://example.com/posts/04_flutter%E9%A1%B9%E7%9B%AE%E5%9F%BA%E7%A1%80%E4%BA%86%E8%A7%A3/</guid>
+        <description>&lt;ol&gt;
+&lt;li&gt;Flutter 项目目录介绍：&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;android: android 平台相关代码；&lt;br&gt;
+ios: ios 平台相关代码；
+lib: flutter 相关代码，开发者编写代码的所在地；
+test: 用于存放测试代码；&lt;br&gt;
+pubspec.yaml: 存放配置文件，一般是第三方库的依赖。&lt;/p&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;Flutter 入口文件，入口方法：
+lib 目录下的 main.dart 就是 Flutter 的入口文件；&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;main.dart :&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;void main&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+    runApp&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;MyApp&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;  
+
+或者简写为：  
+
+void main&lt;span class=&#34;o&#34;&gt;()=&lt;/span&gt;&amp;gt;runApp&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;MyApp&lt;span class=&#34;o&#34;&gt;())&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+//main&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;是 dart 的入口方法；
+//runApp&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt;是 flutter 的入口方法；  
+//MyApp 是一个自定义组件。
+
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+        </item>
+        <item>
+        <title>03_FlutterAndroid搭建</title>
+        <link>https://example.com/posts/03_flutterandroid%E6%90%AD%E5%BB%BA/</link>
+        <pubDate>Thu, 28 May 2020 07:06:45 +0800</pubDate>
+        
+        <guid>https://example.com/posts/03_flutterandroid%E6%90%AD%E5%BB%BA/</guid>
+        <description>&lt;p&gt;1.安装 jdk：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get install openjdk-8-jdk
+
+//JDK：java development kit （java 开发环境，包括 JVM，基础类库，开发工具）
+//JRE：java runtime environment （java 运行时环境）
+//JDK 包含 JRE
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ java
+$ javac
+
+//查看是否安装完成
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.安装 Android Studio (有图形快捷键)：&lt;/p&gt;
+&lt;p&gt;//下载并解压&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.jetbrains.com/toolbox-app/&#34;&gt;https://www.jetbrains.com/toolbox-app/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;//安装完成后，在 JetBrains Toolbox 中安装 AS 稳定版。&lt;br&gt;
+//打开 AS 一路默认安装，先不要设置属性参数；&lt;br&gt;
+//安装完成导入插件: Plugins 中安装 Dart 和 Flutter ;&lt;br&gt;
+//重启 AS&lt;/p&gt;
+&lt;p&gt;3.配置 Flutter 国内镜像：&lt;/p&gt;
+&lt;p&gt;//选择镜像&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://flutter-io.cn/&#34;&gt;https://flutter-io.cn/&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo vim /etc/profile  
+
+//文本末尾添加如下内容
+
+ &lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;FLUTTER_STORAGE_BASE_URL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;https://storage.flutter-io.cn
+ &lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;PUB_HOSTED_URL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;https://pub.flutter-io.cn
+
+//保存退出
+
+$ &lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; /etc/profile  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;4.输入 flutter doctor 检测安装配置是否完成。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;出现 ✗ Unable to locate Android SDK.
+
+打开 AS -&amp;gt; Tools -&amp;gt; SDK Manager 安装 SDK
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;出现 ✗ Android licenses not accepted. 
+
+$ flutter doctor --android-licenses  
+
+//一路 y
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Adds: AS 中出现 adb bridge not found&lt;br&gt;
+//进入 File -&amp;gt; Project instructure 菜单，Project 中能看到 No SDK;&lt;br&gt;
+//选中 Modules -&amp;gt; flutter_app_android -&amp;gt; Dependencies -&amp;gt; Module SDK&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>02_Flutter安装</title>
+        <link>https://example.com/posts/02_flutter%E5%AE%89%E8%A3%85/</link>
+        <pubDate>Fri, 22 May 2020 09:58:25 +0800</pubDate>
+        
+        <guid>https://example.com/posts/02_flutter%E5%AE%89%E8%A3%85/</guid>
+        <description>&lt;p&gt;安装Flutter：&lt;/p&gt;
+&lt;p&gt;1.点击链接，下载压缩包：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://flutter.dev/docs/get-started/install/linux&#34;&gt;https://flutter.dev/docs/get-started/install/linux&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;2.选一个心仪的文件夹(例如 development )，解压缩:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ~/development
+
+$ tar xf ~/Downloads/flutter_linux_1.17.1-stable.tar.xz
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.设置环境变量（永久设置）：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;//profile 是开机就会自启的文件,打开后编辑
+$ sudo vim /etc/profile    
+
+//文件末尾添加如下内容，路径为上一步 Flutter 解压后所在的地方
+&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;PATH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$PATH&lt;/span&gt;:/home/ldsdsy/development/flutter/bin
+
+//强制执行 profile 或 重启
+$ &lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; /etc/profile
+
+//查看是否添加成功
+$ &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$PATH&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;4.输入 flutter 检测是否安装完成。&lt;/p&gt;
+&lt;p&gt;Adds:&lt;br&gt;
+//若出现 Error: Unable to find git in your PATH.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get install git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+        </item>
+        <item>
+        <title>01_dart安装</title>
+        <link>https://example.com/posts/01_dart%E5%AE%89%E8%A3%85/</link>
+        <pubDate>Thu, 21 May 2020 19:43:18 +0800</pubDate>
+        
+        <guid>https://example.com/posts/01_dart%E5%AE%89%E8%A3%85/</guid>
+        <description>&lt;p&gt;安装 dart：（使用apt-get安装就不用配置环境变量）&lt;/p&gt;
+&lt;p&gt;1.依次执行以下命令:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get update
+
+$ sudo apt-get install apt-transport-https
+
+ //科学上网
+$ sudo sh -c &lt;span class=&#34;s1&#34;&gt;&amp;#39;wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -&amp;#39;&lt;/span&gt;
+
+$ sudo sh -c &lt;span class=&#34;s1&#34;&gt;&amp;#39;wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list &amp;gt; /etc/apt/sources.list.d/dart_stable.list&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.安装 Dart SDK:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get update
+
+$ sudo apt-get install dart
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.输入 dart 检测是否安装完成。&lt;/p&gt;
+&lt;p&gt;Adds:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;//查看 dart 安装在何处    
+ $ which dart    
+
+//查看系统环境变量  
+ $ &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$PATH&lt;/span&gt;   
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+        </item>
+        <item>
+        <title>My First Blog Post</title>
+        <link>https://example.com/posts/my-first-blog-post/</link>
+        <pubDate>Thu, 23 Apr 2020 00:53:15 +0800</pubDate>
+        
+        <guid>https://example.com/posts/my-first-blog-post/</guid>
+        <description>&lt;p&gt;hello 林&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
 </rss>

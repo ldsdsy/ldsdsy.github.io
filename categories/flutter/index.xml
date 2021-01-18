@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Flutter on ldsdsy Site</title>
+    <link>https://example.com/categories/flutter/</link>
+    <description>Recent content in Flutter on ldsdsy Site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 17 Jan 2021 22:22:16 +0800</lastBuildDate><atom:link href="https://example.com/categories/flutter/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>04_Flutter项目基础了解</title>
+      <link>https://example.com/posts/04_flutter%E9%A1%B9%E7%9B%AE%E5%9F%BA%E7%A1%80%E4%BA%86%E8%A7%A3/</link>
+      <pubDate>Thu, 11 Jun 2020 21:38:42 +0800</pubDate>
+      
+      <guid>https://example.com/posts/04_flutter%E9%A1%B9%E7%9B%AE%E5%9F%BA%E7%A1%80%E4%BA%86%E8%A7%A3/</guid>
+      <description> Flutter 项目目录介绍：  android: android 平台相关代码；
+ios: ios 平台相关代码； lib: flutter 相关代码，开发者编写代码的所在地； test: 用于存放测试代码；
+pubspec.yaml: 存放配置文件，一般是第三方库的依赖。
+Flutter 入口文件，入口方法： lib 目录下的 main.dart 就是 Flutter 的入口文件；  main.dart :
+void main(){ runApp(MyApp); } 或者简写为： void main()=&amp;gt;runApp(MyApp()); //main()是 dart 的入口方法； //runApp()是 flutter 的入口方法； //MyApp 是一个自定义组件。 </description>
+    </item>
+    
+    <item>
+      <title>03_FlutterAndroid搭建</title>
+      <link>https://example.com/posts/03_flutterandroid%E6%90%AD%E5%BB%BA/</link>
+      <pubDate>Thu, 28 May 2020 07:06:45 +0800</pubDate>
+      
+      <guid>https://example.com/posts/03_flutterandroid%E6%90%AD%E5%BB%BA/</guid>
+      <description>1.安装 jdk：
+$ sudo apt-get install openjdk-8-jdk //JDK：java development kit （java 开发环境，包括 JVM，基础类库，开发工具） //JRE：java runtime environment （java 运行时环境） //JDK 包含 JRE $ java $ javac //查看是否安装完成 2.安装 Android Studio (有图形快捷键)：
+//下载并解压
+https://www.jetbrains.com/toolbox-app/
+//安装完成后，在 JetBrains Toolbox 中安装 AS 稳定版。
+//打开 AS 一路默认安装，先不要设置属性参数；
+//安装完成导入插件: Plugins 中安装 Dart 和 Flutter ;
+//重启 AS
+3.配置 Flutter 国内镜像：
+//选择镜像
+https://flutter-io.cn/
+$ sudo vim /etc/profile //文本末尾添加如下内容 export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn export PUB_HOSTED_URL=https://pub.flutter-io.cn //保存退出 $ source /etc/profile 4.输入 flutter doctor 检测安装配置是否完成。</description>
+    </item>
+    
+    <item>
+      <title>02_Flutter安装</title>
+      <link>https://example.com/posts/02_flutter%E5%AE%89%E8%A3%85/</link>
+      <pubDate>Fri, 22 May 2020 09:58:25 +0800</pubDate>
+      
+      <guid>https://example.com/posts/02_flutter%E5%AE%89%E8%A3%85/</guid>
+      <description>安装Flutter：
+1.点击链接，下载压缩包：
+https://flutter.dev/docs/get-started/install/linux
+2.选一个心仪的文件夹(例如 development )，解压缩:
+$ cd ~/development $ tar xf ~/Downloads/flutter_linux_1.17.1-stable.tar.xz 3.设置环境变量（永久设置）：
+//profile 是开机就会自启的文件,打开后编辑 $ sudo vim /etc/profile //文件末尾添加如下内容，路径为上一步 Flutter 解压后所在的地方 export PATH=$PATH:/home/ldsdsy/development/flutter/bin //强制执行 profile 或 重启 $ source /etc/profile //查看是否添加成功 $ echo $PATH 4.输入 flutter 检测是否安装完成。
+Adds:
+//若出现 Error: Unable to find git in your PATH.
+$ sudo apt-get install git </description>
+    </item>
+    
+    <item>
+      <title>01_dart安装</title>
+      <link>https://example.com/posts/01_dart%E5%AE%89%E8%A3%85/</link>
+      <pubDate>Thu, 21 May 2020 19:43:18 +0800</pubDate>
+      
+      <guid>https://example.com/posts/01_dart%E5%AE%89%E8%A3%85/</guid>
+      <description>安装 dart：（使用apt-get安装就不用配置环境变量）
+1.依次执行以下命令:
+$ sudo apt-get update $ sudo apt-get install apt-transport-https //科学上网 $ sudo sh -c &amp;#39;wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -&amp;#39; $ sudo sh -c &amp;#39;wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list &amp;gt; /etc/apt/sources.list.d/dart_stable.list&amp;#39; 2.安装 Dart SDK:
+$ sudo apt-get update $ sudo apt-get install dart 3.输入 dart 检测是否安装完成。
+Adds:
+//查看 dart 安装在何处 $ which dart //查看系统环境变量 $ echo $PATH </description>
+    </item>
+    
+  </channel>
+</rss>
