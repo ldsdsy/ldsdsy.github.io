@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Blogs on ldsdsy</title>
-    <link>https://ldsdsy.github.io/blog/</link>
-    <description>Recent content in Blogs on ldsdsy</description>
+    <title>Blogs on </title>
+    <link>/blog/</link>
+    <description>Recent content in Blogs on </description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Mon, 11 Jan 2021 21:23:59 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 11 Jan 2021 21:23:59 +0800</lastBuildDate><atom:link href="/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Go_day03</title>
-      <link>https://ldsdsy.github.io/blog/go_day03/</link>
+      <link>/blog/go_day03/</link>
       <pubDate>Mon, 11 Jan 2021 21:23:59 +0800</pubDate>
       
-      <guid>https://ldsdsy.github.io/blog/go_day03/</guid>
+      <guid>/blog/go_day03/</guid>
       <description>Go 项目目录格式的一些问题  1.一个项目只有一个 mian.go 作为入口。所以如何解决一个项目里存在多个 xxx.go 的问题呢？如下为一种方式：
 demo |___main.go |___exam |___01.go |___02.go //mian.go 作为整个项目入口，exam 为 package （包），exam 下面又包含多个函数，每个函数可在 main.go 中调用。 01.go
 package exam import &amp;#34;fmt&amp;#34; //Add is used to calculate the sum of two numbers func Add(a,b int) int { return a+b } //Go 要求公有函数以大写字母开头，并且需要在函数上方书写用于说明函数用处的注释，注释必须以函数名开头。 main.go
@@ -24,10 +23,10 @@ package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.</descript
     
     <item>
       <title>GO_day02</title>
-      <link>https://ldsdsy.github.io/blog/go_day02/</link>
+      <link>/blog/go_day02/</link>
       <pubDate>Tue, 05 Jan 2021 10:30:42 +0800</pubDate>
       
-      <guid>https://ldsdsy.github.io/blog/go_day02/</guid>
+      <guid>/blog/go_day02/</guid>
       <description>1.安装好 Go 之后需人为设置一个 GOPATH 文件夹，这个目录用来存放 Go 源码， Go 的可运行文件，以及相应的编译之后的包文件。所以这个目录下面有三个子目录：src、bin、pkg。（例如：在 D 盘下新建一个名为 GOPATH 文件夹）
 src :存放源代码 pkg :编译后生成的包文件 bin :编译后生成的可执行文件 //一般，bin 和 pkg 目录可以不创建，go 命令会自动创建（如 go install），只需要创建 src 目录即可。 2.配置 GOPATH 的环境变量，进入用户变量新建
 变量 ：GOPATH 值 ：D:\GOPATH 3.进入 vscode 安装 go 插件，然后就可以在 src 下面创建 Hello_world.go 并编译执行， vs 提示安装什么就安装什么。(相比较 GoLand , vs 免费且内存消耗小)
@@ -36,19 +35,19 @@ package main import &amp;#34;fmt&amp;#34; func main() { fmt.Println(&amp;#34;Hel
     
     <item>
       <title>Go_day01</title>
-      <link>https://ldsdsy.github.io/blog/go_day01/</link>
+      <link>/blog/go_day01/</link>
       <pubDate>Mon, 04 Jan 2021 22:03:04 +0800</pubDate>
       
-      <guid>https://ldsdsy.github.io/blog/go_day01/</guid>
+      <guid>/blog/go_day01/</guid>
       <description>Window 安装 Go 语言环境   进入以下网址  https://golang.google.cn/dl/ //选择 .msi 后缀的文件下载，下载完成后一路 next 安装即可。 进入 cmd  $ go version //能显示版本号即安装成功 在终端依次执行  $ go env -w GO111MODULE=on $ go env -w GOPROXY=https://goproxy.cn,direct  //第一条使源代码可存储在任意位置，第二条为国内代理 </description>
     </item>
     
     <item>
       <title>03_FlutterAndroid搭建</title>
-      <link>https://ldsdsy.github.io/blog/03_flutterandroid%E6%90%AD%E5%BB%BA/</link>
+      <link>/blog/03_flutterandroid%E6%90%AD%E5%BB%BA/</link>
       <pubDate>Thu, 28 May 2020 07:06:45 +0800</pubDate>
       
-      <guid>https://ldsdsy.github.io/blog/03_flutterandroid%E6%90%AD%E5%BB%BA/</guid>
+      <guid>/blog/03_flutterandroid%E6%90%AD%E5%BB%BA/</guid>
       <description>1.安装 jdk：
 $ sudo apt-get install openjdk-8-jdk //JDK：java development kit （java 开发环境，包括 JVM，基础类库，开发工具） //JRE：java runtime environment （java 运行时环境） //JDK 包含 JRE $ java $ javac //查看是否安装完成 2.安装 Android Studio (有图形快捷键)：
 //下载并解压
@@ -65,10 +64,10 @@ $ sudo vim /etc/profile //文本末尾添加如下内容 export FLUTTER_STORAGE_
     
     <item>
       <title>02_Flutter安装</title>
-      <link>https://ldsdsy.github.io/blog/02_flutter%E5%AE%89%E8%A3%85/</link>
+      <link>/blog/02_flutter%E5%AE%89%E8%A3%85/</link>
       <pubDate>Fri, 22 May 2020 09:58:25 +0800</pubDate>
       
-      <guid>https://ldsdsy.github.io/blog/02_flutter%E5%AE%89%E8%A3%85/</guid>
+      <guid>/blog/02_flutter%E5%AE%89%E8%A3%85/</guid>
       <description>安装Flutter：
 1.点击链接，下载压缩包：
 https://flutter.dev/docs/get-started/install/linux
@@ -82,10 +81,10 @@ $ sudo apt-get install git </description>
     
     <item>
       <title>01_dart安装</title>
-      <link>https://ldsdsy.github.io/blog/01_dart%E5%AE%89%E8%A3%85/</link>
+      <link>/blog/01_dart%E5%AE%89%E8%A3%85/</link>
       <pubDate>Thu, 21 May 2020 19:43:18 +0800</pubDate>
       
-      <guid>https://ldsdsy.github.io/blog/01_dart%E5%AE%89%E8%A3%85/</guid>
+      <guid>/blog/01_dart%E5%AE%89%E8%A3%85/</guid>
       <description>安装 dart：（使用apt-get安装就不用配置环境变量）
 1.依次执行以下命令:
 $ sudo apt-get update $ sudo apt-get install apt-transport-https //科学上网 $ sudo sh -c &amp;#39;wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -&amp;#39; $ sudo sh -c &amp;#39;wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list &amp;gt; /etc/apt/sources.list.d/dart_stable.list&amp;#39; 2.安装 Dart SDK:
@@ -96,10 +95,10 @@ Adds:
     
     <item>
       <title>My First Blog Post</title>
-      <link>https://ldsdsy.github.io/blog/my-first-blog-post/</link>
+      <link>/blog/my-first-blog-post/</link>
       <pubDate>Thu, 23 Apr 2020 00:53:15 +0800</pubDate>
       
-      <guid>https://ldsdsy.github.io/blog/my-first-blog-post/</guid>
+      <guid>/blog/my-first-blog-post/</guid>
       <description>hello 林</description>
     </item>
     

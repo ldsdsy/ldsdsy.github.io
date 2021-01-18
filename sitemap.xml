@@ -3,56 +3,56 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://ldsdsy.github.io/blog/</loc>
+    <loc>/</loc>
     <lastmod>2021-01-11T21:23:59+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ldsdsy.github.io/blog/go_day03/</loc>
+    <loc>/blog/</loc>
     <lastmod>2021-01-11T21:23:59+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ldsdsy.github.io/</loc>
+    <loc>/blog/go_day03/</loc>
     <lastmod>2021-01-11T21:23:59+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ldsdsy.github.io/blog/go_day02/</loc>
+    <loc>/blog/go_day02/</loc>
     <lastmod>2021-01-05T10:30:42+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ldsdsy.github.io/blog/go_day01/</loc>
+    <loc>/blog/go_day01/</loc>
     <lastmod>2021-01-04T22:03:04+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ldsdsy.github.io/blog/03_flutterandroid%E6%90%AD%E5%BB%BA/</loc>
+    <loc>/blog/03_flutterandroid%E6%90%AD%E5%BB%BA/</loc>
     <lastmod>2020-05-28T07:06:45+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ldsdsy.github.io/blog/02_flutter%E5%AE%89%E8%A3%85/</loc>
+    <loc>/blog/02_flutter%E5%AE%89%E8%A3%85/</loc>
     <lastmod>2020-05-22T09:58:25+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ldsdsy.github.io/blog/01_dart%E5%AE%89%E8%A3%85/</loc>
+    <loc>/blog/01_dart%E5%AE%89%E8%A3%85/</loc>
     <lastmod>2020-05-21T19:43:18+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ldsdsy.github.io/blog/my-first-blog-post/</loc>
+    <loc>/blog/my-first-blog-post/</loc>
     <lastmod>2020-04-23T00:53:15+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ldsdsy.github.io/categories/</loc>
+    <loc>/categories/</loc>
   </url>
   
   <url>
-    <loc>https://ldsdsy.github.io/tags/</loc>
+    <loc>/tags/</loc>
   </url>
   
 </urlset>
