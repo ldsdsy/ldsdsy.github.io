@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Mon, 18 Jan 2021 10:23:50 +0800</lastBuildDate><atom:link href="https://example.com/categories/exam/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Exam2001A</title>
+      <link>https://example.com/posts/exam2001a/</link>
+      <pubDate>Fri, 22 Jan 2021 21:17:37 +0800</pubDate>
+      
+      <guid>https://example.com/posts/exam2001a/</guid>
+      <description>1.编写程序，计算下列分段函数 y=f(x)的值。
+y = -x + 2.5 , 0 &amp;lt;= x &amp;lt; 2 y = 2 - 1.5 * (x-3) * (x-3) ， 2 &amp;lt;= x &amp;lt; 4 y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6 C++
+#include &amp;lt;iostream&amp;gt;using namespace std; int main() { double x,y; cout&amp;lt;&amp;lt;&amp;#34;input the x:&amp;#34;&amp;lt;&amp;lt;endl; cin&amp;gt;&amp;gt;x; if(x&amp;lt;0||x&amp;gt;=6) { cout&amp;lt;&amp;lt;&amp;#34;x out of the bounds&amp;#34;&amp;lt;&amp;lt;endl; return 0; } if(x&amp;gt;=0&amp;amp;&amp;amp;x&amp;lt;2) { y=-x+2.5; } else if(x&amp;gt;=2&amp;amp;&amp;amp;x&amp;lt;4) { y=2-1.</description>
+    </item>
+    
+    <item>
       <title>Exam2000</title>
       <link>https://example.com/posts/exam2000/</link>
       <pubDate>Tue, 19 Jan 2021 16:21:45 +0800</pubDate>
