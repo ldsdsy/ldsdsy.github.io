@@ -8,6 +8,18 @@
     <language>en-us</language>
     <lastBuildDate>Mon, 18 Jan 2021 10:23:50 +0800</lastBuildDate><atom:link href="https://example.com/categories/exam/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Exam2001B</title>
+      <link>https://example.com/posts/exam2001b/</link>
+      <pubDate>Sun, 24 Jan 2021 17:09:05 +0800</pubDate>
+      
+      <guid>https://example.com/posts/exam2001b/</guid>
+      <description>1.请输入高度 h，输出一个高为 h，上底边长为 h 的等腰梯形（同 * 表示）。
+C++
+#include &amp;lt;iostream&amp;gt;using namespace std; int main() { int h; cout&amp;lt;&amp;lt;&amp;#34;input h:&amp;#34;&amp;lt;&amp;lt;endl; cin&amp;gt;&amp;gt;h; for(int i=1;i&amp;lt;=h;i++) { for(int j=1;j&amp;lt;=3*h-2;j++) { if(j&amp;gt;=h-(i-1)&amp;amp;&amp;amp;j&amp;lt;=(2*h-1)+(i-1)) { cout&amp;lt;&amp;lt;&amp;#34;*&amp;#34;; } else { cout&amp;lt;&amp;lt;&amp;#34; &amp;#34;; } } cout&amp;lt;&amp;lt;endl; } return 0; } Go
+package exam2001b import &amp;#34;fmt&amp;#34; //Trapezoidal is used to output a trapezoidal func Trapezoidal(h int) { for i := 1; i &amp;lt;= h; i++ { for j := 1; j &amp;lt;= 3*h-2; j++ { if j &amp;gt;= h-(i-1) &amp;amp;&amp;amp; j &amp;lt;= (2*h-1)+(i-1) { fmt.</description>
+    </item>
+    
+    <item>
       <title>Exam2001A</title>
       <link>https://example.com/posts/exam2001a/</link>
       <pubDate>Fri, 22 Jan 2021 21:17:37 +0800</pubDate>
