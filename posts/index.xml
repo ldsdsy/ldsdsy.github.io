@@ -6,7 +6,19 @@
     <description>Recent content in Posts on ldsdsy Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 27 Jan 2021 14:02:43 +0800</lastBuildDate><atom:link href="https://example.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 30 Jan 2021 15:03:09 +0800</lastBuildDate><atom:link href="https://example.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Exam2002B</title>
+      <link>https://example.com/posts/exam2002b/</link>
+      <pubDate>Sat, 30 Jan 2021 15:03:09 +0800</pubDate>
+      
+      <guid>https://example.com/posts/exam2002b/</guid>
+      <description>1.打印所有不超过 n（ n &amp;lt; 256）的，其平方具有对称性质的数。如 11*11=121。
+C++
+#include &amp;lt;iostream&amp;gt;#include &amp;lt;cmath&amp;gt;using namespace std; bool HuiWen(int n) { n=n*n; int a[10]={0}; int t=n; int i=0; while(t!=0) { a[i]=t%10; t/=10; i++; } i--; int j=0; while(i&amp;gt;=0) { t+=a[i]*pow(10,j); i--; j++; } if(t==n) { return true; } return false; } int main() { for(int i=0;i&amp;lt;256;i++) { if(HuiWen(i)) { cout&amp;lt;&amp;lt;i&amp;lt;&amp;lt;&amp;#34; &amp;#34;; } } return 0; } Go
+package exam2002b import &amp;#34;fmt&amp;#34; //Huiwen is used to output the number of replies func Huiwen() { var a [10]int for i := 0; i &amp;lt; 256; i++ { n := i * i t := n j := 0 for ; t !</description>
+    </item>
+    
     <item>
       <title>Exam2002A</title>
       <link>https://example.com/posts/exam2002a/</link>
