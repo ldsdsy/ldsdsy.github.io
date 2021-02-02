@@ -8,6 +8,18 @@
     <language>en-us</language>
     <lastBuildDate>Mon, 18 Jan 2021 10:23:50 +0800</lastBuildDate><atom:link href="https://example.com/categories/exam/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Exam2003</title>
+      <link>https://example.com/posts/exam2003/</link>
+      <pubDate>Tue, 02 Feb 2021 12:26:30 +0800</pubDate>
+      
+      <guid>https://example.com/posts/exam2003/</guid>
+      <description>1.输入球的中心点和球上某一点的坐标，计算球半径和体积。
+C++
+#include &amp;lt;iostream&amp;gt;#include &amp;lt;cmath&amp;gt;using namespace std; double const PI=3.14; int main() { double a,b,c,x,y,z,r,v; cout&amp;lt;&amp;lt;&amp;#34;input circle center coordinates:&amp;#34;; cin&amp;gt;&amp;gt;a&amp;gt;&amp;gt;b&amp;gt;&amp;gt;c; cout&amp;lt;&amp;lt;&amp;#34;input coordinates of any point:&amp;#34;; cin&amp;gt;&amp;gt;x&amp;gt;&amp;gt;y&amp;gt;&amp;gt;z; r=sqrt(pow(x-a,2)+pow(y-b,2)+pow(z-c,2)); v=4/3.0*PI*pow(r,3);	//注意：4/3=1,所以要除以 3.0 	cout&amp;lt;&amp;lt;&amp;#34;Radius is:&amp;#34;&amp;lt;&amp;lt;r&amp;lt;&amp;lt;endl; cout&amp;lt;&amp;lt;&amp;#34;Volume is:&amp;#34;&amp;lt;&amp;lt;v&amp;lt;&amp;lt;endl; return 0; } Go
+package exam2003 import ( &amp;#34;fmt&amp;#34; &amp;#34;math&amp;#34; ) //Sphere is used to calculate the radius and volume of a certain sphere func Sphere() { var a, b, c, x, y, z, r, v float64 fmt.</description>
+    </item>
+    
+    <item>
       <title>Exam2002B</title>
       <link>https://example.com/posts/exam2002b/</link>
       <pubDate>Sat, 30 Jan 2021 15:03:09 +0800</pubDate>
