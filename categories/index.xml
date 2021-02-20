@@ -6,7 +6,16 @@
     <description>Recent content in Categories on ldsdsy Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 02 Feb 2021 12:26:30 +0800</lastBuildDate><atom:link href="https://example.com/categories/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 20 Feb 2021 15:23:32 +0800</lastBuildDate><atom:link href="https://example.com/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ComputerNetwork</title>
+      <link>https://example.com/categories/computernetwork/</link>
+      <pubDate>Sat, 20 Feb 2021 15:23:32 +0800</pubDate>
+      
+      <guid>https://example.com/categories/computernetwork/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>Exam</title>
       <link>https://example.com/categories/exam/</link>
