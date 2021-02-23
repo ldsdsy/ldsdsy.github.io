@@ -6,7 +6,78 @@
         <description>Recent content on ldsdsy Site</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sat, 20 Feb 2021 15:37:07 +0800</lastBuildDate><atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 22 Feb 2021 10:00:51 +0800</lastBuildDate><atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Network_two</title>
+        <link>https://example.com/posts/network_two/</link>
+        <pubDate>Mon, 22 Feb 2021 10:00:51 +0800</pubDate>
+        
+        <guid>https://example.com/posts/network_two/</guid>
+        <description>&lt;h1 id=&#34;物理层&#34;&gt;物理层&lt;/h1&gt;
+&lt;p&gt;&lt;em&gt;物理层用于透明传输比特流&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-基本概念&#34;&gt;1 基本概念&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;1） 码元： 指用一个固定时长的信号波形表示一位 K 进制数字。
+2） 单工通信： 只有一个方向的通信而没有反方向的交互，仅需一条信道。
+3） 半双工通信： 通信双方都可以发送或接受信息，但同一时间只能一个发一个接，需要两条信道。
+4） 全双工通信： 通信双方都可以同时发送和接收信息，需要两条信道。
+5） 码元速率： 单位为波特，1 波特表示一秒传输一个码元。
+6） 信息传输率： 单位为 b/s ,单位时间传输的比特数。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;2-四种特性&#34;&gt;2 四种特性&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;1） 机械特性： 规定物理连接时所采用的规格，接口形状，引线数目，引脚数量等。
+2） 电气特性： 规定传输二进制时，线路上信号的电压范围，阻抗匹配，传输速率和传输距离等。
+3） 功能特性： 指明某线路上某一电平表示何种意义，接口部件信号线的用途。
+4） 规程特性： 又叫过程特性，定义各条物理线路的工作规程和时序关系。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;3-奈氏准则香农定理&#34;&gt;3 奈氏准则，香农定理&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;1. 奈氏准则 指出在理想低通（无噪声，带宽有限）的情况下，码元的极限传输率是 2W 。
+// 可推出 数据极限传输率 = 2W * log2(V) ,V 表示有 v 种码元。
+
+2. 香农定理 给出了带宽受限且有高斯白噪声干扰的信道的极限数据传输率，W * log2（1+S/N）。
+// S/N 为信噪比，（ X 分贝 = 10*log10（S/N）。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;4-编码调制&#34;&gt;4 编码，调制&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;1 数字数据编码为数字信号：
+    1）非归零编码：高电平 1，低电平 0 （反之亦可）。
+    2）归零编码：信号电平在一个码元内都要恢复到零（低电平 0，高——&amp;gt;低 1）。
+    3）反向非归零编码：信号电平反转为 0，不变为 1。
+    4）曼彻斯特编码：一个码元分成两个相等间隔，高低为 1，低高为 0。
+    5）差分曼彻斯编码：遇 0 前半个码元反转，遇 1 前半个码元不变（同 1 异 0）。
+    6）4B/5B 编码：数据分为 4 个一组，按照 4B/5B 编码规则转换为 5 位码。
+
+2 数字数据调制为模拟信号：
+    1）幅移键控（调幅）：通过改变载波信号的振幅来表示数字信号 1 和 0 .
+    2）频移键控（调频）：通过改变载波信号的频率来表示数字信号 1 和 0 .
+    3）相移键控（调相）：通过改变载波信号的相位来表示数字信号 1 和 0 .
+    4）正交振幅调制（调幅+调相）：通过改变载波信号的振幅以及相位来表示数字信号 1 和 0 .
+
+3 模拟数据编码为数字信号：
+    常用于对音频信号进行编码，步骤：采样 ——&amp;gt; 量化 ——&amp;gt; 编码。
+
+4 模拟数据调制为模拟信号：
+    例如广播电台。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;5-电路交换报文交换分组交换&#34;&gt;5 电路交换，报文交换，分组交换&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;1 电路交换：
+    过程：建立连接 ——&amp;gt; 通信 ——&amp;gt; 释放连接。
+    特点：独占资源，用户始终占用端到端的固定传输带宽；适用于远程批处理信息传输或系统间实时性要求高的大量数据传输。
+
+2 报文交换：
+    过程：无需建立连接，动态分配线路，以报文为传输单位，在交换节点采用存储转发的方式，便于不同类型，规格，速率的计算机之间进行通信。
+    报文：表示站点单次要发送的数据块，长度不限且可变。
+
+3 分组交换：
+    同样采取存储转发，但限制了每次传输的数据块的上限，解决了大报文传输的问题，同时给小数据块增加了必要的控制信息。
+    两种方式：面向连接的虚电路方式，无连接的数据报方式。 
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;6-传输介质&#34;&gt;6 传输介质&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;    1）双绞线：由两根采用一定规则绞合的，相互绝缘的铜导线组成。
+    2）同轴电缆：由内导体，绝缘层，网状编织屏蔽层，塑料外层构成。
+    3）光纤：通过传递光脉冲来进行通信，分为单模光纤和多模光纤。
+    4）无线传输介质：无线电波，微波，红外线，激光。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;7-物理层设备&#34;&gt;7 物理层设备&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;1 中继器（转发器）：
+    功能：将信号整形放大再转发出去。
+    // 放大器是放大模拟信号（放大），中继器是放大数字信号（整形再生）。
+
+2 集线器（多口中继器）
+&lt;/code&gt;&lt;/pre&gt;</description>
+        </item>
+        <item>
         <title>Network_one</title>
         <link>https://example.com/posts/network_one/</link>
         <pubDate>Sat, 20 Feb 2021 15:37:07 +0800</pubDate>
