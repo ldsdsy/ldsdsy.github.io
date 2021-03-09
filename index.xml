@@ -6,7 +6,62 @@
         <description>Recent content on ldsdsy Site</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Thu, 04 Mar 2021 22:05:08 +0800</lastBuildDate><atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 08 Mar 2021 12:50:23 +0800</lastBuildDate><atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Network_six</title>
+        <link>https://example.com/posts/network_six/</link>
+        <pubDate>Mon, 08 Mar 2021 12:50:23 +0800</pubDate>
+        
+        <guid>https://example.com/posts/network_six/</guid>
+        <description>&lt;h1 id=&#34;应用层&#34;&gt;应用层&lt;/h1&gt;
+&lt;h2 id=&#34;1-网络应用模型&#34;&gt;1 网络应用模型&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;1. 客户/服务器模型（C/S）：
+    有一个总是打开的主机称为服务器，它服务于许多来自其他称为客户机的主机请求。
+
+2. P2P 模型：
+    每台机器既是服务器又是客户机。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;2-域名系统dns&#34;&gt;2 域名系统（DNS）&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;用于把主机名转换为 IP 地址；采用客户/服务器模型，其协议运行在 UDP 之上，使用 53 号端口。
+从概念上分为是三部分：层次域名空间，域名服务器，解析器。
+
+1. 域名服务器分类：
+    1）根域名服务器：知道所有顶级域名服务器的 IP 地址；
+    2）顶级域名服务器：负责管理在其服务器注册的所有二级域名；
+    3）授权域名服务器：能够将其管理的主机名转换为该主机的 IP 地址；
+    4）本地域名服务器：本地网络提供商负责的域名服务器。
+    
+2. 查询方式：
+    1）递归查询：
+        主机 &amp;lt;——&amp;gt; 本地域名服务器 &amp;lt;——&amp;gt; 根域名服务器 &amp;lt;——&amp;gt; 顶级域名服务器 &amp;lt;——&amp;gt; 权限域名服务器
+    2）递归与迭代相结合：
+        主机自身一次询问以上四种服务器。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;3-文件传输协议ftp&#34;&gt;3 文件传输协议（FTP）&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;FTP 采用 C/S 工作方式，使用 TCP 可靠传输；
+其服务器分为：一个主进程负责接受新的请求，若干从属进程负责处理单个请求。
+
+1. 控制连接：
+    服务器监听 21 号端口，等待客户连接，此连接为控制连接，传输控制信息（7 位 ASCII 格式），此连接在整个会话过程保持打开。
+2. 数据连接：
+    此连接用来连接客户端和服务器端的数据传送进程，传送完毕则关闭连接并结束运行。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;4-电子邮件&#34;&gt;4 电子邮件&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;一个邮件系统包含：用户代理，邮件服务器，协议。
+
+1. 过程：发送方使用 SMTP 协议发邮件到发送方邮件服务器，此服务器再用 SMTP 发送到接收方的邮件服务器，接收方用 POP3 读取邮件到本地。
+
+2. STMP :
+    用于往外发邮件，运行在 TCP 上，使用 25 号端口。
+
+3. POP3 :
+    用于接受邮件，运行在 TCP 上，使用 110 号端口。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;5-万维网&#34;&gt;5 万维网&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;万维网是一个资料空间，每一样资料都有“统一资源定位符”来标识，通过 HTTP 传输。
+
+1. HTTP :
+    运行在 TCP 上，使用 80 端口；
+    无状态，同一客户第二次访问仍和第一次访问时页面一样；
+    有非持久连接，也有持节连接；
+&lt;/code&gt;&lt;/pre&gt;</description>
+        </item>
+        <item>
         <title>Network_five</title>
         <link>https://example.com/posts/network_five/</link>
         <pubDate>Thu, 04 Mar 2021 22:05:08 +0800</pubDate>
