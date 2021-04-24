@@ -14,7 +14,7 @@
       
       <guid>https://example.com/posts/docker/</guid>
       <description>Docker 学习笔记 Docker 一种生成容器的工具。 一，镜像 Docker 镜像是一种特殊的文件系统，是一个静态概念，是容器的底层。
-1，获取镜像： &amp;amp; docker pull *** 2，显示镜像： $ docker image ls // 显示顶层镜像 $ docker image ls -a // 显示中间层镜像 $ docker image ls ** // 显示镜像 ** $ docker image ls -f since=** // 显示 ** 之后建立的镜像 $ docker image ls -f before=** // 显示 ** 之前的建立的镜像 $ docker image ls -f dangling=true // 显示虚悬镜像 $ docker image prune // 删除虚悬镜像 // 在发布镜像新版本时，旧镜像名转移到新镜像上，从而旧镜像出现仓库名，标签均为 &amp;lt;none&amp;gt; 情况，成为虚悬镜像。 $ docker image ls -q // 只显示镜像 ID $ docker image ls --format &amp;quot;{{.</description>
+1，获取镜像： $ docker pull *** 2，显示镜像： $ docker image ls // 显示顶层镜像 $ docker image ls -a // 显示中间层镜像 $ docker image ls ** // 显示镜像 ** $ docker image ls -f since=** // 显示 ** 之后建立的镜像 $ docker image ls -f before=** // 显示 ** 之前的建立的镜像 $ docker image ls -f dangling=true // 显示虚悬镜像 $ docker image prune // 删除虚悬镜像 // 在发布镜像新版本时，旧镜像名转移到新镜像上，从而旧镜像出现仓库名，标签均为 &amp;lt;none&amp;gt; 情况，成为虚悬镜像。 $ docker image ls -q // 只显示镜像 ID $ docker image ls --format &amp;quot;{{.</description>
     </item>
     
     <item>

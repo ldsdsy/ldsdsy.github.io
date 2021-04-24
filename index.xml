@@ -17,7 +17,7 @@
 &lt;h3 id=&#34;一镜像&#34;&gt;一，镜像&lt;/h3&gt;
 &lt;p&gt;&lt;em&gt;Docker 镜像是一种特殊的文件系统，是一个静态概念，是容器的底层。&lt;/em&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;1，获取镜像：
-    &amp;amp; docker pull ***
+    $ docker pull ***
     
 2，显示镜像：
     $ docker image ls    // 显示顶层镜像
@@ -78,7 +78,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
 5，删除容器：
     $ docker container rm [id]     // 删除终止态的容器
     $ docker container rm -f [id]    // 删除运行中的容器
-    &amp;amp; docker container prune    // 删除所有终止态的容器
+    $ docker container prune    // 删除所有终止态的容器
 &lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;三仓库&#34;&gt;三，仓库&lt;/h3&gt;
 &lt;p&gt;&lt;em&gt;集中存放镜像的地方&lt;/em&gt;&lt;/p&gt;
 </description>
