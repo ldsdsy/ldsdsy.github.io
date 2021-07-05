@@ -6,7 +6,18 @@
     <description>Recent content in Posts on ldsdsy Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 06 May 2021 21:41:20 +0800</lastBuildDate><atom:link href="https://example.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 05 Jul 2021 23:02:15 +0800</lastBuildDate><atom:link href="https://example.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>K8s_Clientset</title>
+      <link>https://example.com/posts/k8s_clientset/</link>
+      <pubDate>Mon, 05 Jul 2021 23:02:15 +0800</pubDate>
+      
+      <guid>https://example.com/posts/k8s_clientset/</guid>
+      <description>Clientset 访问 k8s 集群资源对象 Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。
+ 一，Clientset —— out of cluster 通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。
+1, 配置 config 文件（把 master 上的配置文件复制到本地） // 在本地执行 $ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/ // 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件 2, 编写代码 package main import ( &amp;quot;context&amp;quot; &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot;path/filepath&amp;quot; metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot; &amp;quot;k8s.io/client-go/kubernetes&amp;quot; &amp;quot;k8s.io/client-go/tools/clientcmd&amp;quot; &amp;quot;k8s.io/client-go/util/homedir&amp;quot; ) func main() { var kubeconfig *string // 默认会从 ~/.</description>
+    </item>
+    
     <item>
       <title>K8s_静态加密</title>
       <link>https://example.com/posts/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/</link>

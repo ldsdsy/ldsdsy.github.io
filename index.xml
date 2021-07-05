@@ -6,7 +6,82 @@
         <description>Recent content on ldsdsy Site</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Thu, 06 May 2021 21:41:20 +0800</lastBuildDate><atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 05 Jul 2021 23:02:15 +0800</lastBuildDate><atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>K8s_Clientset</title>
+        <link>https://example.com/posts/k8s_clientset/</link>
+        <pubDate>Mon, 05 Jul 2021 23:02:15 +0800</pubDate>
+        
+        <guid>https://example.com/posts/k8s_clientset/</guid>
+        <description>&lt;h1 id=&#34;clientset-访问-k8s-集群资源对象&#34;&gt;Clientset 访问 k8s 集群资源对象&lt;/h1&gt;
+&lt;p&gt;&lt;em&gt;Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;一clientset--out-of-cluster&#34;&gt;一，Clientset —— out of cluster&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。&lt;/em&gt;&lt;/p&gt;
+&lt;h3 id=&#34;1-配置-config-文件把-master-上的配置文件复制到本地&#34;&gt;1, 配置 config 文件（把 master 上的配置文件复制到本地）&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;// 在本地执行
+$ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/
+
+// 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;2-编写代码&#34;&gt;2, 编写代码&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;package main
+
+import (
+	&amp;quot;context&amp;quot;
+	&amp;quot;flag&amp;quot;
+	&amp;quot;fmt&amp;quot;
+	&amp;quot;path/filepath&amp;quot;
+
+	metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot;
+	&amp;quot;k8s.io/client-go/kubernetes&amp;quot;
+	&amp;quot;k8s.io/client-go/tools/clientcmd&amp;quot;
+	&amp;quot;k8s.io/client-go/util/homedir&amp;quot;
+)
+
+func main() {
+	var kubeconfig *string
+    // 默认会从 ~/.kube/config 路径下获取配置文件
+	if home := homedir.HomeDir(); home != &amp;quot;&amp;quot; {
+		kubeconfig = flag.String(&amp;quot;kubeconfig&amp;quot;, filepath.Join(home, &amp;quot;.kube&amp;quot;, &amp;quot;config&amp;quot;), &amp;quot;(optional) absolute path to the kubeconfig file&amp;quot;)
+	} else {
+		kubeconfig = flag.String(&amp;quot;kubeconfig&amp;quot;, &amp;quot;&amp;quot;, &amp;quot;absulute path to the kubeconfig file&amp;quot;)
+	}
+    // 把用户传递的命令行参数解析为对应变量的值
+	flag.Parse()
+
+	// 使用 k8s.io/client-go/tools/clientcmd 生成 config 的对象
+	config, err := clientcmd.BuildConfigFromFlags(&amp;quot;&amp;quot;, *kubeconfig)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// 使用 k8s.io/client-go/kubernetes 生成一个 ClientSet 的客户端
+    // 客户端生成后，就可以使用这个客户端与 k8s API server 进行交互了，进行 CRUD 操作。
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// get pod
+	pods, err := clientset.CoreV1().Pods(&amp;quot;&amp;quot;).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(err.Error())
+	}
+	for _, pod := range pods.Items {
+		fmt.Printf(&amp;quot;pod.name:%v\n&amp;quot;, pod.Name)
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;3-运行&#34;&gt;3, 运行&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;$ go run main.go
+pod.name:nfs-client-provisioner-6d9b86b854-pcb9v
+pod.name:coredns-545d6fc579-2kn79
+pod.name:coredns-545d6fc579-mpzqg
+pod.name:etcd-ml-k8s-1.novalocal
+pod.name:fabric-node-2gnjf
+pod.name:fabric-node-s92ds
+···
+&lt;/code&gt;&lt;/pre&gt;</description>
+        </item>
+        <item>
         <title>K8s_静态加密</title>
         <link>https://example.com/posts/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/</link>
         <pubDate>Thu, 06 May 2021 21:41:20 +0800</pubDate>
