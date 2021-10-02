@@ -5,13 +5,13 @@
  一，Clientset —— out of cluster 通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。
 1, 配置 config 文件（把 master 上的配置文件复制到本地） // 在本地执行 $ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/ // 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件 2, 编写代码 package main import ( &amp;quot;context&amp;quot; &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot;path/filepath&amp;quot; metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot; &amp;quot;k8s.io/client-go/kubernetes&amp;quot; &amp;quot;k8s.io/client-go/tools/clientcmd&amp;quot; &amp;quot;k8s.io/client-go/util/homedir&amp;quot; ) func main() { var kubeconfig *string // 默认会从 ~/.'><title>K8s_Clientset</title>
 
-<link rel='canonical' href='https://example.com/p/k8s_clientset/'>
+<link rel='canonical' href='https://ldsdsy.github.io/p/k8s_clientset/'>
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='K8s_Clientset'>
 <meta property='og:description' content='Clientset 访问 k8s 集群资源对象 Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。
  一，Clientset —— out of cluster 通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。
 1, 配置 config 文件（把 master 上的配置文件复制到本地） // 在本地执行 $ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/ // 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件 2, 编写代码 package main import ( &amp;quot;context&amp;quot; &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot;path/filepath&amp;quot; metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot; &amp;quot;k8s.io/client-go/kubernetes&amp;quot; &amp;quot;k8s.io/client-go/tools/clientcmd&amp;quot; &amp;quot;k8s.io/client-go/util/homedir&amp;quot; ) func main() { var kubeconfig *string // 默认会从 ~/.'>
-<meta property='og:url' content='https://example.com/p/k8s_clientset/'>
+<meta property='og:url' content='https://ldsdsy.github.io/p/k8s_clientset/'>
 <meta property='og:site_name' content='ldsdsy Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-07-05T23:02:15&#43;08:00'/><meta property='article:modified_time' content='2021-07-05T23:02:15&#43;08:00'/>
 <meta name="twitter:title" content="K8s_Clientset">
@@ -51,7 +51,7 @@
 ">
     
         <div id="article-toolbar">
-            <a href="https://example.com" class="back-home">
+            <a href="https://ldsdsy.github.io/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />

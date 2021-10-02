@@ -4,12 +4,12 @@
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='传输层 传输层为运行在不同主机上的进程提供逻辑通信
 1 提供的服务 1. 功能： 1）提供应用进程之间的逻辑通信（端到端的通信）。 2）复用和分用 复用：不同的进程使用同一个传输协议传送数据； 分用：接收方能把一同到来的数据正确交付到各自的目的进程。 3）差错检错：包括首部和数据部分（网络层只检测 IP 数据报的首部）。 4）提供两种协议：面向连接的 TCP 和无连接的 UDP(网络层只能提供其中一种)。 2. 寻址和端口： 1）端口：是传输层的服务访问点，类似网络层的 IP 地址（端口标识应用进程）。 2）端口号 长度 16bit，能表示 65536 个端口号； 服务器使用的端口号： 一类是熟知端口号（0~1023），这些端口号是分配给 TCP/IP 最重要的一些应用进程； 一类是登记端口号（1024~49151），这些端口号必须在 IANA 登记，以防重复。 客户端使用的端口号：49152~65535，仅在客户进程运行时才动态选择。 3）套接字：就是一个通信端点，即 ：主机 IP 地址 &#43; 端口号，唯一标识了一台主机上的一个应用（进程）。 3. 无连接服务和面向连接服务： 1）面向连接服务：通信前先建立连接，通信中整个连接情况一直被实时监控管理，通信结束后再释放连接。 2）无连接服务：不需要提前建立连接，直接将信息发送到出去，尽力送达。 3）TCP: 面向连接的传输控制协议； 提供一条全双工的可靠逻辑信道； 不提供组播和广播； 适用于可靠性高的场合（FTP,HTTP,TELNET）. 4) DUP: 无连接的用户数据报协议； 在 IP 之上仅提供：多路复用和对数据的检查。 速度较快，实时性较好，适用于小文件传输协议（DNS,SNMP）. 2 UDP 协议 1. UDP 数据报： 1）无需建立连接，因此不会引入建立连接的时延； 2）无连接状态，因此也免除了去维护连接的麻烦； 3）分组首部开销小，才 8B,而 TCP 首部是 20B； 4）常用于一次性传输较少数据的网络应用或是多媒体应用； 5）尽力交付不代表不可靠，可靠性工作在应用层完成； 6）报文是 UDP 数据报最小处理单位。 2.'><title>Network_five</title>
 
-<link rel='canonical' href='https://example.com/p/network_five/'>
+<link rel='canonical' href='https://ldsdsy.github.io/p/network_five/'>
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Network_five'>
 <meta property='og:description' content='传输层 传输层为运行在不同主机上的进程提供逻辑通信
 1 提供的服务 1. 功能： 1）提供应用进程之间的逻辑通信（端到端的通信）。 2）复用和分用 复用：不同的进程使用同一个传输协议传送数据； 分用：接收方能把一同到来的数据正确交付到各自的目的进程。 3）差错检错：包括首部和数据部分（网络层只检测 IP 数据报的首部）。 4）提供两种协议：面向连接的 TCP 和无连接的 UDP(网络层只能提供其中一种)。 2. 寻址和端口： 1）端口：是传输层的服务访问点，类似网络层的 IP 地址（端口标识应用进程）。 2）端口号 长度 16bit，能表示 65536 个端口号； 服务器使用的端口号： 一类是熟知端口号（0~1023），这些端口号是分配给 TCP/IP 最重要的一些应用进程； 一类是登记端口号（1024~49151），这些端口号必须在 IANA 登记，以防重复。 客户端使用的端口号：49152~65535，仅在客户进程运行时才动态选择。 3）套接字：就是一个通信端点，即 ：主机 IP 地址 &#43; 端口号，唯一标识了一台主机上的一个应用（进程）。 3. 无连接服务和面向连接服务： 1）面向连接服务：通信前先建立连接，通信中整个连接情况一直被实时监控管理，通信结束后再释放连接。 2）无连接服务：不需要提前建立连接，直接将信息发送到出去，尽力送达。 3）TCP: 面向连接的传输控制协议； 提供一条全双工的可靠逻辑信道； 不提供组播和广播； 适用于可靠性高的场合（FTP,HTTP,TELNET）. 4) DUP: 无连接的用户数据报协议； 在 IP 之上仅提供：多路复用和对数据的检查。 速度较快，实时性较好，适用于小文件传输协议（DNS,SNMP）. 2 UDP 协议 1. UDP 数据报： 1）无需建立连接，因此不会引入建立连接的时延； 2）无连接状态，因此也免除了去维护连接的麻烦； 3）分组首部开销小，才 8B,而 TCP 首部是 20B； 4）常用于一次性传输较少数据的网络应用或是多媒体应用； 5）尽力交付不代表不可靠，可靠性工作在应用层完成； 6）报文是 UDP 数据报最小处理单位。 2.'>
-<meta property='og:url' content='https://example.com/p/network_five/'>
+<meta property='og:url' content='https://ldsdsy.github.io/p/network_five/'>
 <meta property='og:site_name' content='ldsdsy Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-03-04T22:05:08&#43;08:00'/><meta property='article:modified_time' content='2021-03-04T22:05:08&#43;08:00'/>
 <meta name="twitter:title" content="Network_five">
@@ -48,7 +48,7 @@
 ">
     
         <div id="article-toolbar">
-            <a href="https://example.com" class="back-home">
+            <a href="https://ldsdsy.github.io/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />

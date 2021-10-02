@@ -4,12 +4,12 @@
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='物理层 物理层用于透明传输比特流
 1 基本概念 1） 码元： 指用一个固定时长的信号波形表示一位 K 进制数字。 2） 单工通信： 只有一个方向的通信而没有反方向的交互，仅需一条信道。 3） 半双工通信： 通信双方都可以发送或接受信息，但同一时间只能一个发一个接，需要两条信道。 4） 全双工通信： 通信双方都可以同时发送和接收信息，需要两条信道。 5） 码元速率： 单位为波特，1 波特表示一秒传输一个码元。 6） 信息传输率： 单位为 b/s ,单位时间传输的比特数。 2 四种特性 1） 机械特性： 规定物理连接时所采用的规格，接口形状，引线数目，引脚数量等。 2） 电气特性： 规定传输二进制时，线路上信号的电压范围，阻抗匹配，传输速率和传输距离等。 3） 功能特性： 指明某线路上某一电平表示何种意义，接口部件信号线的用途。 4） 规程特性： 又叫过程特性，定义各条物理线路的工作规程和时序关系。 3 奈氏准则，香农定理 1. 奈氏准则 指出在理想低通（无噪声，带宽有限）的情况下，码元的极限传输率是 2W 。 // 可推出 数据极限传输率 = 2W * log2(V) ,V 表示有 v 种码元。 2. 香农定理 给出了带宽受限且有高斯白噪声干扰的信道的极限数据传输率，W * log2（1&#43;S/N）。 // S/N 为信噪比，（ X 分贝 = 10*log10（S/N）。 4 编码，调制 1 数字数据编码为数字信号： 1）非归零编码：高电平 1，低电平 0 （反之亦可）。 2）归零编码：信号电平在一个码元内都要恢复到零（低电平 0，高——&amp;gt;低 1）。 3）反向非归零编码：信号电平反转为 0，不变为 1。 4）曼彻斯特编码：一个码元分成两个相等间隔，高低为 1，低高为 0。 5）差分曼彻斯编码：遇 0 前半个码元反转，遇 1 前半个码元不变（同 1 异 0）。 6）4B/5B 编码：数据分为 4 个一组，按照 4B/5B 编码规则转换为 5 位码。 2 数字数据调制为模拟信号： 1）幅移键控（调幅）：通过改变载波信号的振幅来表示数字信号 1 和 0 .'><title>Network_two</title>
 
-<link rel='canonical' href='https://example.com/p/network_two/'>
+<link rel='canonical' href='https://ldsdsy.github.io/p/network_two/'>
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Network_two'>
 <meta property='og:description' content='物理层 物理层用于透明传输比特流
 1 基本概念 1） 码元： 指用一个固定时长的信号波形表示一位 K 进制数字。 2） 单工通信： 只有一个方向的通信而没有反方向的交互，仅需一条信道。 3） 半双工通信： 通信双方都可以发送或接受信息，但同一时间只能一个发一个接，需要两条信道。 4） 全双工通信： 通信双方都可以同时发送和接收信息，需要两条信道。 5） 码元速率： 单位为波特，1 波特表示一秒传输一个码元。 6） 信息传输率： 单位为 b/s ,单位时间传输的比特数。 2 四种特性 1） 机械特性： 规定物理连接时所采用的规格，接口形状，引线数目，引脚数量等。 2） 电气特性： 规定传输二进制时，线路上信号的电压范围，阻抗匹配，传输速率和传输距离等。 3） 功能特性： 指明某线路上某一电平表示何种意义，接口部件信号线的用途。 4） 规程特性： 又叫过程特性，定义各条物理线路的工作规程和时序关系。 3 奈氏准则，香农定理 1. 奈氏准则 指出在理想低通（无噪声，带宽有限）的情况下，码元的极限传输率是 2W 。 // 可推出 数据极限传输率 = 2W * log2(V) ,V 表示有 v 种码元。 2. 香农定理 给出了带宽受限且有高斯白噪声干扰的信道的极限数据传输率，W * log2（1&#43;S/N）。 // S/N 为信噪比，（ X 分贝 = 10*log10（S/N）。 4 编码，调制 1 数字数据编码为数字信号： 1）非归零编码：高电平 1，低电平 0 （反之亦可）。 2）归零编码：信号电平在一个码元内都要恢复到零（低电平 0，高——&amp;gt;低 1）。 3）反向非归零编码：信号电平反转为 0，不变为 1。 4）曼彻斯特编码：一个码元分成两个相等间隔，高低为 1，低高为 0。 5）差分曼彻斯编码：遇 0 前半个码元反转，遇 1 前半个码元不变（同 1 异 0）。 6）4B/5B 编码：数据分为 4 个一组，按照 4B/5B 编码规则转换为 5 位码。 2 数字数据调制为模拟信号： 1）幅移键控（调幅）：通过改变载波信号的振幅来表示数字信号 1 和 0 .'>
-<meta property='og:url' content='https://example.com/p/network_two/'>
+<meta property='og:url' content='https://ldsdsy.github.io/p/network_two/'>
 <meta property='og:site_name' content='ldsdsy Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-02-22T10:00:51&#43;08:00'/><meta property='article:modified_time' content='2021-02-22T10:00:51&#43;08:00'/>
 <meta name="twitter:title" content="Network_two">
@@ -48,7 +48,7 @@
 ">
     
         <div id="article-toolbar">
-            <a href="https://example.com" class="back-home">
+            <a href="https://ldsdsy.github.io/" class="back-home">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
   <polyline points="15 6 9 12 15 18" />

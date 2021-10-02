@@ -6,14 +6,14 @@ C&#43;&#43;
 #include &amp;lt;iostream&amp;gt;#include &amp;lt;set&amp;gt;using namespace std; int main() { set&amp;lt;int&amp;gt; s;	//此题避免使用 double ，可能会因为精确度的问题造成相同的数不一致 	int t; for(int i=0;i&amp;lt;=5;i&#43;&#43;) { for(int j=0;j&amp;lt;=4;j&#43;&#43;) { for(int k=0;k&amp;lt;=6;k&#43;&#43;) { if(!(i==j &amp;amp;&amp;amp; j==k &amp;amp;&amp;amp; k==0))	//注意没有三种都为 0 的情况 	{ t=8*i&#43;10*j&#43;18*k; s.insert(t); } } } } cout&amp;lt;&amp;lt;&amp;#34;组合数为：&amp;#34;&amp;lt;&amp;lt;s.size()&amp;lt;&amp;lt;endl; return 0; } Go
 package exam2002a import &amp;#34;fmt&amp;#34; //Set is used to grouping the stamp func Set() { var a = [190]int{0} count := 0 for i := 0; i &amp;lt;= 5; i&#43;&#43; { for j := 0; j &amp;lt;= 4; j&#43;&#43; { for k := 0; k &amp;lt;= 6; k&#43;&#43; { t := 8*i &#43; 10*j &#43; 18*k a[t] = 1 } } } for i := 1; i &amp;lt; 190; i&#43;&#43; { if a[i] == 1 { count&#43;&#43; } } fmt.'><title>Exam2002A</title>
 
-<link rel='canonical' href='https://example.com/p/exam2002a/'>
+<link rel='canonical' href='https://ldsdsy.github.io/p/exam2002a/'>
 
 <link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Exam2002A'>
 <meta property='og:description' content='1.某人有 8 角的邮票 5 张，1 元的邮票 4 张，1 元 8 角的邮票 6 张，用这些邮票中的一张或若干张可以得到多少种不同的邮资？
 C&#43;&#43;
 #include &amp;lt;iostream&amp;gt;#include &amp;lt;set&amp;gt;using namespace std; int main() { set&amp;lt;int&amp;gt; s;	//此题避免使用 double ，可能会因为精确度的问题造成相同的数不一致 	int t; for(int i=0;i&amp;lt;=5;i&#43;&#43;) { for(int j=0;j&amp;lt;=4;j&#43;&#43;) { for(int k=0;k&amp;lt;=6;k&#43;&#43;) { if(!(i==j &amp;amp;&amp;amp; j==k &amp;amp;&amp;amp; k==0))	//注意没有三种都为 0 的情况 	{ t=8*i&#43;10*j&#43;18*k; s.insert(t); } } } } cout&amp;lt;&amp;lt;&amp;#34;组合数为：&amp;#34;&amp;lt;&amp;lt;s.size()&amp;lt;&amp;lt;endl; return 0; } Go
 package exam2002a import &amp;#34;fmt&amp;#34; //Set is used to grouping the stamp func Set() { var a = [190]int{0} count := 0 for i := 0; i &amp;lt;= 5; i&#43;&#43; { for j := 0; j &amp;lt;= 4; j&#43;&#43; { for k := 0; k &amp;lt;= 6; k&#43;&#43; { t := 8*i &#43; 10*j &#43; 18*k a[t] = 1 } } } for i := 1; i &amp;lt; 190; i&#43;&#43; { if a[i] == 1 { count&#43;&#43; } } fmt.'>
-<meta property='og:url' content='https://example.com/p/exam2002a/'>
+<meta property='og:url' content='https://ldsdsy.github.io/p/exam2002a/'>
 <meta property='og:site_name' content='ldsdsy Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-01-27T14:02:43&#43;08:00'/><meta property='article:modified_time' content='2021-01-27T14:02:43&#43;08:00'/>
 <meta name="twitter:title" content="Exam2002A">
@@ -80,7 +80,7 @@ package exam2002a import &amp;#34;fmt&amp;#34; //Set is used to grouping the sta
             </figure>
             
         
-        <h1 class="site-name"><a href="https://example.com">ldsdsy Site</a></h1>
+        <h1 class="site-name"><a href="https://ldsdsy.github.io/">ldsdsy Site</a></h1>
         <h2 class="site-description">花无凋零之日，意无传达之时。</h2>
     </header>
 

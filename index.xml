@@ -2,16 +2,16 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>ldsdsy Site</title>
-        <link>https://example.com/</link>
+        <link>https://ldsdsy.github.io/</link>
         <description>Recent content on ldsdsy Site</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Mon, 05 Jul 2021 23:02:15 +0800</lastBuildDate><atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 05 Jul 2021 23:02:15 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>K8s_Clientset</title>
-        <link>https://example.com/p/k8s_clientset/</link>
+        <link>https://ldsdsy.github.io/p/k8s_clientset/</link>
         <pubDate>Mon, 05 Jul 2021 23:02:15 +0800</pubDate>
         
-        <guid>https://example.com/p/k8s_clientset/</guid>
+        <guid>https://ldsdsy.github.io/p/k8s_clientset/</guid>
         <description>&lt;h1 id=&#34;clientset-访问-k8s-集群资源对象&#34;&gt;Clientset 访问 k8s 集群资源对象&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。&lt;/em&gt;&lt;/p&gt;
 &lt;hr&gt;
@@ -83,10 +83,10 @@ pod.name:fabric-node-s92ds
         </item>
         <item>
         <title>K8s_静态加密</title>
-        <link>https://example.com/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/</link>
+        <link>https://ldsdsy.github.io/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/</link>
         <pubDate>Thu, 06 May 2021 21:41:20 +0800</pubDate>
         
-        <guid>https://example.com/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/</guid>
+        <guid>https://ldsdsy.github.io/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/</guid>
         <description>&lt;h1 id=&#34;静态加密-secret-数据&#34;&gt;静态加密 Secret 数据&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;因为 secret 默认存储为 base64 编码的非加密字符串，所以启用静态加密来增加安全性。&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-创建配置文件--encryptconf&#34;&gt;1 创建配置文件  encrypt.conf&lt;/h2&gt;
@@ -396,10 +396,10 @@ secret/webhook-server-cert replaced
         </item>
         <item>
         <title>Docker</title>
-        <link>https://example.com/p/docker/</link>
+        <link>https://ldsdsy.github.io/p/docker/</link>
         <pubDate>Wed, 21 Apr 2021 16:55:52 +0800</pubDate>
         
-        <guid>https://example.com/p/docker/</guid>
+        <guid>https://ldsdsy.github.io/p/docker/</guid>
         <description>&lt;h1 id=&#34;docker-学习笔记&#34;&gt;Docker 学习笔记&lt;/h1&gt;
 &lt;h2 id=&#34;docker-一种生成容器的工具&#34;&gt;Docker 一种生成容器的工具。&lt;/h2&gt;
 &lt;h3 id=&#34;一镜像&#34;&gt;一，镜像&lt;/h3&gt;
@@ -473,10 +473,10 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         </item>
         <item>
         <title>Exam2019</title>
-        <link>https://example.com/p/exam2019/</link>
+        <link>https://ldsdsy.github.io/p/exam2019/</link>
         <pubDate>Sat, 20 Mar 2021 12:16:20 +0800</pubDate>
         
-        <guid>https://example.com/p/exam2019/</guid>
+        <guid>https://ldsdsy.github.io/p/exam2019/</guid>
         <description>&lt;p&gt;1.字符串由“碎片”组成，每个碎片为单一字母组成，如：“aaabbccaddd” 由碎片 &amp;ldquo;aaa&amp;rdquo;,&amp;ldquo;bb&amp;rdquo;,&amp;ldquo;cc&amp;rdquo;,&amp;ldquo;a&amp;rdquo;,&amp;ldquo;ddd&amp;rdquo; 组成。&lt;br&gt;
 输入：一个字符串&lt;br&gt;
 输出：按字典输出碎片，每个碎片一行，相同的碎片只输出一次&lt;/p&gt;
@@ -553,10 +553,10 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         </item>
         <item>
         <title>Network_six</title>
-        <link>https://example.com/p/network_six/</link>
+        <link>https://ldsdsy.github.io/p/network_six/</link>
         <pubDate>Mon, 08 Mar 2021 12:50:23 +0800</pubDate>
         
-        <guid>https://example.com/p/network_six/</guid>
+        <guid>https://ldsdsy.github.io/p/network_six/</guid>
         <description>&lt;h1 id=&#34;应用层&#34;&gt;应用层&lt;/h1&gt;
 &lt;h2 id=&#34;1-网络应用模型&#34;&gt;1 网络应用模型&lt;/h2&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 客户/服务器模型（C/S）：
@@ -608,10 +608,10 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         </item>
         <item>
         <title>Network_five</title>
-        <link>https://example.com/p/network_five/</link>
+        <link>https://ldsdsy.github.io/p/network_five/</link>
         <pubDate>Thu, 04 Mar 2021 22:05:08 +0800</pubDate>
         
-        <guid>https://example.com/p/network_five/</guid>
+        <guid>https://ldsdsy.github.io/p/network_five/</guid>
         <description>&lt;h1 id=&#34;传输层&#34;&gt;传输层&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;传输层为运行在不同主机上的进程提供逻辑通信&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-提供的服务&#34;&gt;1 提供的服务&lt;/h2&gt;
@@ -745,10 +745,10 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         </item>
         <item>
         <title>Network_four</title>
-        <link>https://example.com/p/network_four/</link>
+        <link>https://ldsdsy.github.io/p/network_four/</link>
         <pubDate>Sat, 27 Feb 2021 13:19:58 +0800</pubDate>
         
-        <guid>https://example.com/p/network_four/</guid>
+        <guid>https://ldsdsy.github.io/p/network_four/</guid>
         <description>&lt;h1 id=&#34;网络层&#34;&gt;网络层&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-功能&#34;&gt;1 功能&lt;/h2&gt;
@@ -949,10 +949,10 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         </item>
         <item>
         <title>Network_three</title>
-        <link>https://example.com/p/network_three/</link>
+        <link>https://ldsdsy.github.io/p/network_three/</link>
         <pubDate>Tue, 23 Feb 2021 11:20:17 +0800</pubDate>
         
-        <guid>https://example.com/p/network_three/</guid>
+        <guid>https://ldsdsy.github.io/p/network_three/</guid>
         <description>&lt;h1 id=&#34;数据链路层&#34;&gt;数据链路层&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;负责从一个节点到直接相连的相邻节点传输数据报&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-功能&#34;&gt;1 功能&lt;/h2&gt;
@@ -1095,10 +1095,10 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         </item>
         <item>
         <title>Network_two</title>
-        <link>https://example.com/p/network_two/</link>
+        <link>https://ldsdsy.github.io/p/network_two/</link>
         <pubDate>Mon, 22 Feb 2021 10:00:51 +0800</pubDate>
         
-        <guid>https://example.com/p/network_two/</guid>
+        <guid>https://ldsdsy.github.io/p/network_two/</guid>
         <description>&lt;h1 id=&#34;物理层&#34;&gt;物理层&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;物理层用于透明传输比特流&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-基本概念&#34;&gt;1 基本概念&lt;/h2&gt;
@@ -1166,10 +1166,10 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         </item>
         <item>
         <title>Network_one</title>
-        <link>https://example.com/p/network_one/</link>
+        <link>https://ldsdsy.github.io/p/network_one/</link>
         <pubDate>Sat, 20 Feb 2021 15:37:07 +0800</pubDate>
         
-        <guid>https://example.com/p/network_one/</guid>
+        <guid>https://ldsdsy.github.io/p/network_one/</guid>
         <description>&lt;h1 id=&#34;计算机网络概述&#34;&gt;计算机网络概述&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;简言之，计算机网络就是一些互联的，自治的计算机系统的集合。&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-计算机的网络的组成&#34;&gt;1 计算机的网络的组成&lt;/h2&gt;
@@ -1211,10 +1211,10 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         </item>
         <item>
         <title>社区贡献流程</title>
-        <link>https://example.com/p/%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B/</link>
+        <link>https://ldsdsy.github.io/p/%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B/</link>
         <pubDate>Sat, 06 Feb 2021 12:58:45 +0800</pubDate>
         
-        <guid>https://example.com/p/%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B/</guid>
+        <guid>https://ldsdsy.github.io/p/%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B/</guid>
         <description>&lt;h1 id=&#34;github-上有许多优秀的开源社区对于时间充裕的学生党来说平时在社区做做贡献是个不错的选择下面以-kubernetes-社区为例刚开始选择做一些简单的翻译贡献选择-kuberneteswebsite-&#34;&gt;github 上有许多优秀的开源社区，对于时间充裕的学生党来说，平时在社区做做贡献是个不错的选择。下面以 Kubernetes 社区为例（刚开始选择做一些简单的翻译贡献，选择 Kubernetes/website ）：&lt;/h1&gt;
 &lt;h2 id=&#34;1-fork-想要做贡献的项目&#34;&gt;1. fork 想要做贡献的项目&lt;/h2&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;在 GitHub 进入 Kubernetes/website 项目中，点击右上角的 Fork 按钮，此时就在你的个人仓库里生成了一个 yourname/website 的项目。
@@ -1280,10 +1280,10 @@ $   git push origin --delete translate1
         </item>
         <item>
         <title>Exam2003</title>
-        <link>https://example.com/p/exam2003/</link>
+        <link>https://ldsdsy.github.io/p/exam2003/</link>
         <pubDate>Tue, 02 Feb 2021 12:26:30 +0800</pubDate>
         
-        <guid>https://example.com/p/exam2003/</guid>
+        <guid>https://ldsdsy.github.io/p/exam2003/</guid>
         <description>&lt;p&gt;1.输入球的中心点和球上某一点的坐标，计算球半径和体积。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
@@ -1470,10 +1470,10 @@ $   git push origin --delete translate1
         </item>
         <item>
         <title>Exam2002B</title>
-        <link>https://example.com/p/exam2002b/</link>
+        <link>https://ldsdsy.github.io/p/exam2002b/</link>
         <pubDate>Sat, 30 Jan 2021 15:03:09 +0800</pubDate>
         
-        <guid>https://example.com/p/exam2002b/</guid>
+        <guid>https://ldsdsy.github.io/p/exam2002b/</guid>
         <description>&lt;p&gt;1.打印所有不超过 n（ n &amp;lt; 256）的，其平方具有对称性质的数。如 11*11=121。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
@@ -1626,10 +1626,10 @@ $   git push origin --delete translate1
         </item>
         <item>
         <title>Exam2002A</title>
-        <link>https://example.com/p/exam2002a/</link>
+        <link>https://ldsdsy.github.io/p/exam2002a/</link>
         <pubDate>Wed, 27 Jan 2021 14:02:43 +0800</pubDate>
         
-        <guid>https://example.com/p/exam2002a/</guid>
+        <guid>https://ldsdsy.github.io/p/exam2002a/</guid>
         <description>&lt;p&gt;1.某人有 8 角的邮票 5 张，1 元的邮票 4 张，1 元 8 角的邮票 6 张，用这些邮票中的一张或若干张可以得到多少种不同的邮资？&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
@@ -1763,10 +1763,10 @@ $   git push origin --delete translate1
         </item>
         <item>
         <title>Exam2001B</title>
-        <link>https://example.com/p/exam2001b/</link>
+        <link>https://ldsdsy.github.io/p/exam2001b/</link>
         <pubDate>Sun, 24 Jan 2021 17:09:05 +0800</pubDate>
         
-        <guid>https://example.com/p/exam2001b/</guid>
+        <guid>https://ldsdsy.github.io/p/exam2001b/</guid>
         <description>&lt;p&gt;1.请输入高度 h，输出一个高为 h，上底边长为 h 的等腰梯形（同 * 表示）。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
@@ -1897,10 +1897,10 @@ $   git push origin --delete translate1
         </item>
         <item>
         <title>Exam2001A</title>
-        <link>https://example.com/p/exam2001a/</link>
+        <link>https://ldsdsy.github.io/p/exam2001a/</link>
         <pubDate>Fri, 22 Jan 2021 21:17:37 +0800</pubDate>
         
-        <guid>https://example.com/p/exam2001a/</guid>
+        <guid>https://ldsdsy.github.io/p/exam2001a/</guid>
         <description>&lt;p&gt;1.编写程序，计算下列分段函数 y=f(x)的值。&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;y = -x + 2.5 , 0 &amp;lt;= x &amp;lt; 2
 
@@ -2177,10 +2177,10 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
         </item>
         <item>
         <title>Exam2000</title>
-        <link>https://example.com/p/exam2000/</link>
+        <link>https://ldsdsy.github.io/p/exam2000/</link>
         <pubDate>Tue, 19 Jan 2021 16:21:45 +0800</pubDate>
         
-        <guid>https://example.com/p/exam2000/</guid>
+        <guid>https://ldsdsy.github.io/p/exam2000/</guid>
         <description>&lt;p&gt;1.输入任意 4 个字符(如：abcd)，并按反序输出(如：dcba)。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
@@ -2501,10 +2501,10 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
         </item>
         <item>
         <title>Go_day03</title>
-        <link>https://example.com/p/go_day03/</link>
+        <link>https://ldsdsy.github.io/p/go_day03/</link>
         <pubDate>Mon, 11 Jan 2021 21:23:59 +0800</pubDate>
         
-        <guid>https://example.com/p/go_day03/</guid>
+        <guid>https://ldsdsy.github.io/p/go_day03/</guid>
         <description>&lt;pre&gt;&lt;code&gt;Go 项目目录格式的一些问题  
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;1.一个项目只有一个 mian.go 作为入口。所以如何解决一个项目里存在多个 xxx.go 的问题呢？如下为一种方式：&lt;/p&gt;
@@ -2558,10 +2558,10 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
         </item>
         <item>
         <title>GO_day02</title>
-        <link>https://example.com/p/go_day02/</link>
+        <link>https://ldsdsy.github.io/p/go_day02/</link>
         <pubDate>Tue, 05 Jan 2021 10:30:42 +0800</pubDate>
         
-        <guid>https://example.com/p/go_day02/</guid>
+        <guid>https://ldsdsy.github.io/p/go_day02/</guid>
         <description>&lt;p&gt;1.安装好 Go 之后需人为设置一个 GOPATH 文件夹，这个目录用来存放 Go 源码， Go 的可运行文件，以及相应的编译之后的包文件。所以这个目录下面有三个子目录：src、bin、pkg。（例如：在 D 盘下新建一个名为 GOPATH 文件夹）&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;src&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;存放源代码&lt;/span&gt;
 &lt;span class=&#34;nx&#34;&gt;pkg&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;编译后生成的包文件&lt;/span&gt;
@@ -2583,10 +2583,10 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
         </item>
         <item>
         <title>Go_day01</title>
-        <link>https://example.com/p/go_day01/</link>
+        <link>https://ldsdsy.github.io/p/go_day01/</link>
         <pubDate>Mon, 04 Jan 2021 22:03:04 +0800</pubDate>
         
-        <guid>https://example.com/p/go_day01/</guid>
+        <guid>https://ldsdsy.github.io/p/go_day01/</guid>
         <description>&lt;pre&gt;&lt;code&gt;Window 安装 Go 语言环境
 &lt;/code&gt;&lt;/pre&gt;
 &lt;ol&gt;
@@ -2612,10 +2612,10 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
         </item>
         <item>
         <title>04_Flutter项目基础了解</title>
-        <link>https://example.com/p/04_flutter%E9%A1%B9%E7%9B%AE%E5%9F%BA%E7%A1%80%E4%BA%86%E8%A7%A3/</link>
+        <link>https://ldsdsy.github.io/p/04_flutter%E9%A1%B9%E7%9B%AE%E5%9F%BA%E7%A1%80%E4%BA%86%E8%A7%A3/</link>
         <pubDate>Thu, 11 Jun 2020 21:38:42 +0800</pubDate>
         
-        <guid>https://example.com/p/04_flutter%E9%A1%B9%E7%9B%AE%E5%9F%BA%E7%A1%80%E4%BA%86%E8%A7%A3/</guid>
+        <guid>https://ldsdsy.github.io/p/04_flutter%E9%A1%B9%E7%9B%AE%E5%9F%BA%E7%A1%80%E4%BA%86%E8%A7%A3/</guid>
         <description>&lt;ol&gt;
 &lt;li&gt;Flutter 项目目录介绍：&lt;/li&gt;
 &lt;/ol&gt;
@@ -2646,10 +2646,10 @@ void main&lt;span class=&#34;o&#34;&gt;()=&lt;/span&gt;&amp;gt;runApp&lt;span cl
         </item>
         <item>
         <title>03_FlutterAndroid搭建</title>
-        <link>https://example.com/p/03_flutterandroid%E6%90%AD%E5%BB%BA/</link>
+        <link>https://ldsdsy.github.io/p/03_flutterandroid%E6%90%AD%E5%BB%BA/</link>
         <pubDate>Thu, 28 May 2020 07:06:45 +0800</pubDate>
         
-        <guid>https://example.com/p/03_flutterandroid%E6%90%AD%E5%BB%BA/</guid>
+        <guid>https://ldsdsy.github.io/p/03_flutterandroid%E6%90%AD%E5%BB%BA/</guid>
         <description>&lt;p&gt;1.安装 jdk：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get install openjdk-8-jdk
 
@@ -2698,10 +2698,10 @@ $ flutter doctor --android-licenses
         </item>
         <item>
         <title>02_Flutter安装</title>
-        <link>https://example.com/p/02_flutter%E5%AE%89%E8%A3%85/</link>
+        <link>https://ldsdsy.github.io/p/02_flutter%E5%AE%89%E8%A3%85/</link>
         <pubDate>Fri, 22 May 2020 09:58:25 +0800</pubDate>
         
-        <guid>https://example.com/p/02_flutter%E5%AE%89%E8%A3%85/</guid>
+        <guid>https://ldsdsy.github.io/p/02_flutter%E5%AE%89%E8%A3%85/</guid>
         <description>&lt;p&gt;安装Flutter：&lt;/p&gt;
 &lt;p&gt;1.点击链接，下载压缩包：&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://flutter.dev/docs/get-started/install/linux&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -2730,10 +2730,10 @@ $ &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&g
         </item>
         <item>
         <title>01_dart安装</title>
-        <link>https://example.com/p/01_dart%E5%AE%89%E8%A3%85/</link>
+        <link>https://ldsdsy.github.io/p/01_dart%E5%AE%89%E8%A3%85/</link>
         <pubDate>Thu, 21 May 2020 19:43:18 +0800</pubDate>
         
-        <guid>https://example.com/p/01_dart%E5%AE%89%E8%A3%85/</guid>
+        <guid>https://ldsdsy.github.io/p/01_dart%E5%AE%89%E8%A3%85/</guid>
         <description>&lt;p&gt;安装 dart：（使用apt-get安装就不用配置环境变量）&lt;/p&gt;
 &lt;p&gt;1.依次执行以下命令:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get update
