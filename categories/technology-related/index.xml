@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Technology-related on ldsdsy Site</title>
+    <link>https://example.com/categories/technology-related/</link>
+    <description>Recent content in Technology-related on ldsdsy Site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 05 Jul 2021 23:02:15 +0800</lastBuildDate><atom:link href="https://example.com/categories/technology-related/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>K8s_Clientset</title>
+      <link>https://example.com/p/k8s_clientset/</link>
+      <pubDate>Mon, 05 Jul 2021 23:02:15 +0800</pubDate>
+      
+      <guid>https://example.com/p/k8s_clientset/</guid>
+      <description>Clientset 访问 k8s 集群资源对象 Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。
+ 一，Clientset —— out of cluster 通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。
+1, 配置 config 文件（把 master 上的配置文件复制到本地） // 在本地执行 $ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/ // 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件 2, 编写代码 package main import ( &amp;quot;context&amp;quot; &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot;path/filepath&amp;quot; metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot; &amp;quot;k8s.io/client-go/kubernetes&amp;quot; &amp;quot;k8s.io/client-go/tools/clientcmd&amp;quot; &amp;quot;k8s.io/client-go/util/homedir&amp;quot; ) func main() { var kubeconfig *string // 默认会从 ~/.</description>
+    </item>
+    
+    <item>
+      <title>K8s_静态加密</title>
+      <link>https://example.com/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/</link>
+      <pubDate>Thu, 06 May 2021 21:41:20 +0800</pubDate>
+      
+      <guid>https://example.com/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/</guid>
+      <description>静态加密 Secret 数据 因为 secret 默认存储为 base64 编码的非加密字符串，所以启用静态加密来增加安全性。
+1 创建配置文件 encrypt.conf  配置文件样例如下:  apiVersion: apiserver.config.k8s.io/v1 kind: EncryptionConfiguration resources: - resources: - secrets providers: - aescbc: keys: - name: key1 secret: &amp;lt;BASE 64 ENCODED SECRET&amp;gt; - identity: {} // resources.resources 里的内容就是要加密的对象，此处为 secrets; // providers 里是加解密的实际提供者 —— identity, aescbc, secretbox, aesgcm, kms. 综合对比，aescec 最合适。 // 加密时会使用 providers 里的第一个来加密，解密时会从头到尾尝试直至成功解密。 // identity 就是明文，其余都为加密算法。 // 此处的配置文件最后是 identity，是为了服务在此之前已经存储了的明文 secrets 。 需生成随机密钥放入 secret 字段中，直接进行如下操作：  [centos@ml-k8s-1 ~]$ head -c 32 /dev/urandom | base64 7unrE0P6q9DmlqGVeZ+k02d2eNaAgveFC01V+gV3VYc= // 生成了一个 32 字节的随机密钥并进行了 base64 编码 配置文件命名为 encrypt.</description>
+    </item>
+    
+    <item>
+      <title>Docker</title>
+      <link>https://example.com/p/docker/</link>
+      <pubDate>Wed, 21 Apr 2021 16:55:52 +0800</pubDate>
+      
+      <guid>https://example.com/p/docker/</guid>
+      <description>Docker 学习笔记 Docker 一种生成容器的工具。 一，镜像 Docker 镜像是一种特殊的文件系统，是一个静态概念，是容器的底层。
+1，获取镜像： $ docker pull *** 2，显示镜像： $ docker image ls // 显示顶层镜像 $ docker image ls -a // 显示中间层镜像 $ docker image ls ** // 显示镜像 ** $ docker image ls -f since=** // 显示 ** 之后建立的镜像 $ docker image ls -f before=** // 显示 ** 之前的建立的镜像 $ docker image ls -f dangling=true // 显示虚悬镜像 $ docker image prune // 删除虚悬镜像 // 在发布镜像新版本时，旧镜像名转移到新镜像上，从而旧镜像出现仓库名，标签均为 &amp;lt;none&amp;gt; 情况，成为虚悬镜像。 $ docker image ls -q // 只显示镜像 ID $ docker image ls --format &amp;quot;{{.</description>
+    </item>
+    
+    <item>
+      <title>Exam2019</title>
+      <link>https://example.com/p/exam2019/</link>
+      <pubDate>Sat, 20 Mar 2021 12:16:20 +0800</pubDate>
+      
+      <guid>https://example.com/p/exam2019/</guid>
+      <description>1.字符串由“碎片”组成，每个碎片为单一字母组成，如：“aaabbccaddd” 由碎片 &amp;ldquo;aaa&amp;rdquo;,&amp;ldquo;bb&amp;rdquo;,&amp;ldquo;cc&amp;rdquo;,&amp;ldquo;a&amp;rdquo;,&amp;ldquo;ddd&amp;rdquo; 组成。
+输入：一个字符串
+输出：按字典输出碎片，每个碎片一行，相同的碎片只输出一次
+C++
+#include&amp;lt;bits/stdc++.h&amp;gt;using namespace std; int main() { vector&amp;lt;string&amp;gt; v; string s,t; int i; cin&amp;gt;&amp;gt;s; t=s[0]; for(i=1;i&amp;lt;s.size();i++) { if(s[i]==s[i-1]) { t+=s[i]; } else { v.push_back(t); t=s[i]; } } v.push_back(t); sort(v.begin(),v.end()); cout&amp;lt;&amp;lt;v[0]&amp;lt;&amp;lt;endl; for(i=1;i&amp;lt;v.size();) { if(v[i]==v[i-1]) { i++;	} else { cout&amp;lt;&amp;lt;v[i]&amp;lt;&amp;lt;endl; i++; }	} return 0; } 2.求哈夫曼树的最短带权路径长度。
+输入：第一行为权值个数 n ，第二行是 n 个权值
+输出：最短带权路径长度
+C++
+#include&amp;lt;bits/stdc++.h&amp;gt;using namespace std; int main() { vector&amp;lt;int&amp;gt; v; int n,t,sum=0; cin&amp;gt;&amp;gt;n; while(n--) { cin&amp;gt;&amp;gt;t; v.</description>
+    </item>
+    
+    <item>
+      <title>Network_six</title>
+      <link>https://example.com/p/network_six/</link>
+      <pubDate>Mon, 08 Mar 2021 12:50:23 +0800</pubDate>
+      
+      <guid>https://example.com/p/network_six/</guid>
+      <description>应用层 1 网络应用模型 1. 客户/服务器模型（C/S）： 有一个总是打开的主机称为服务器，它服务于许多来自其他称为客户机的主机请求。 2. P2P 模型： 每台机器既是服务器又是客户机。 2 域名系统（DNS） 用于把主机名转换为 IP 地址；采用客户/服务器模型，其协议运行在 UDP 之上，使用 53 号端口。 从概念上分为是三部分：层次域名空间，域名服务器，解析器。 1. 域名服务器分类： 1）根域名服务器：知道所有顶级域名服务器的 IP 地址； 2）顶级域名服务器：负责管理在其服务器注册的所有二级域名； 3）授权域名服务器：能够将其管理的主机名转换为该主机的 IP 地址； 4）本地域名服务器：本地网络提供商负责的域名服务器。 2. 查询方式： 1）递归查询： 主机 &amp;lt;——&amp;gt; 本地域名服务器 &amp;lt;——&amp;gt; 根域名服务器 &amp;lt;——&amp;gt; 顶级域名服务器 &amp;lt;——&amp;gt; 权限域名服务器 2）递归与迭代相结合： 主机自身一次询问以上四种服务器。 3 文件传输协议（FTP） FTP 采用 C/S 工作方式，使用 TCP 可靠传输； 其服务器分为：一个主进程负责接受新的请求，若干从属进程负责处理单个请求。 1. 控制连接： 服务器监听 21 号端口，等待客户连接，此连接为控制连接，传输控制信息（7 位 ASCII 格式），此连接在整个会话过程保持打开。 2. 数据连接： 此连接用来连接客户端和服务器端的数据传送进程，传送完毕则关闭连接并结束运行。 4 电子邮件 一个邮件系统包含：用户代理，邮件服务器，协议。 1. 过程：发送方使用 SMTP 协议发邮件到发送方邮件服务器，此服务器再用 SMTP 发送到接收方的邮件服务器，接收方用 POP3 读取邮件到本地。 2.</description>
+    </item>
+    
+    <item>
+      <title>Network_five</title>
+      <link>https://example.com/p/network_five/</link>
+      <pubDate>Thu, 04 Mar 2021 22:05:08 +0800</pubDate>
+      
+      <guid>https://example.com/p/network_five/</guid>
+      <description>传输层 传输层为运行在不同主机上的进程提供逻辑通信
+1 提供的服务 1. 功能： 1）提供应用进程之间的逻辑通信（端到端的通信）。 2）复用和分用 复用：不同的进程使用同一个传输协议传送数据； 分用：接收方能把一同到来的数据正确交付到各自的目的进程。 3）差错检错：包括首部和数据部分（网络层只检测 IP 数据报的首部）。 4）提供两种协议：面向连接的 TCP 和无连接的 UDP(网络层只能提供其中一种)。 2. 寻址和端口： 1）端口：是传输层的服务访问点，类似网络层的 IP 地址（端口标识应用进程）。 2）端口号 长度 16bit，能表示 65536 个端口号； 服务器使用的端口号： 一类是熟知端口号（0~1023），这些端口号是分配给 TCP/IP 最重要的一些应用进程； 一类是登记端口号（1024~49151），这些端口号必须在 IANA 登记，以防重复。 客户端使用的端口号：49152~65535，仅在客户进程运行时才动态选择。 3）套接字：就是一个通信端点，即 ：主机 IP 地址 + 端口号，唯一标识了一台主机上的一个应用（进程）。 3. 无连接服务和面向连接服务： 1）面向连接服务：通信前先建立连接，通信中整个连接情况一直被实时监控管理，通信结束后再释放连接。 2）无连接服务：不需要提前建立连接，直接将信息发送到出去，尽力送达。 3）TCP: 面向连接的传输控制协议； 提供一条全双工的可靠逻辑信道； 不提供组播和广播； 适用于可靠性高的场合（FTP,HTTP,TELNET）. 4) DUP: 无连接的用户数据报协议； 在 IP 之上仅提供：多路复用和对数据的检查。 速度较快，实时性较好，适用于小文件传输协议（DNS,SNMP）. 2 UDP 协议 1. UDP 数据报： 1）无需建立连接，因此不会引入建立连接的时延； 2）无连接状态，因此也免除了去维护连接的麻烦； 3）分组首部开销小，才 8B,而 TCP 首部是 20B； 4）常用于一次性传输较少数据的网络应用或是多媒体应用； 5）尽力交付不代表不可靠，可靠性工作在应用层完成； 6）报文是 UDP 数据报最小处理单位。 2.</description>
+    </item>
+    
+    <item>
+      <title>Network_four</title>
+      <link>https://example.com/p/network_four/</link>
+      <pubDate>Sat, 27 Feb 2021 13:19:58 +0800</pubDate>
+      
+      <guid>https://example.com/p/network_four/</guid>
+      <description>网络层 主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.
+1 功能 1. 异构网互联 2. 路由和转发：路由选择，分组转发 3. 拥塞控制：开环控制（静态），闭环控制（动态） 2 路由算法 1. 静态路由（非自适应路由算法）： 1）管理员手动配置路由信息； 2）优点是简便，可靠，适用于负荷稳定，拓扑变化不大的网络。 2. 动态路由（自适应路由算法）： 1）路由表项通过相互连接的路由器之间彼此交换信息； 2）能改善网络性能并有助于流量控制； 3）分类：距离-向量路由算法（RIP），链路状态路由算法(OSPF)。 3.层次路由 因特网将整个互联网划分为许多较小的自治系统（其中包含很多局域网） 1）自治系统内使用的路由选择协议称为内部网关协议（IGP），也称域内路由选择，如 RIP,OSPF. 2）自治系统间使用的路由选择协议称为外部网关协议（EGP），也称域间路由选择，如 BGP. 3 IPv4 IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。 1. 分组格式：首部 + 数据 首部：固定 20B ，其中协议表示应交付哪个传输层协议（6：TCP,17:UDP）； 首部长度，总长度，片偏移的单位分别是 4B,1B,8B(1总8片的首4). 2. IP 数据报分片： IP 数据报封装在链路层数据报中，所以链路层 MTU（最大传送单元） 严格限制了 IP 数据报的长度。 1）IP 首部中的标志位有 3 比特，后两比特分别是 DF 和 MF； 2）DF（Don&#39;t Fragment）：1:禁止分片，0：允许分片； 3）MF（More Fragment）：1：后面还有分片，0：此为最后一片。 3. IPv4 地址： 连接到因特网上的每台主机（或路由器）都分配一个 32 比特的全球唯一标识符，即 IP 地址。 1）分类：A,B,C,D,E 五类。 2）组成：网络号 + 主机号。 3）主机号全为 0 表示本网络本身， 主机号全为 1 表示本网络的广播地址， 127.</description>
+    </item>
+    
+    <item>
+      <title>Network_three</title>
+      <link>https://example.com/p/network_three/</link>
+      <pubDate>Tue, 23 Feb 2021 11:20:17 +0800</pubDate>
+      
+      <guid>https://example.com/p/network_three/</guid>
+      <description>数据链路层 负责从一个节点到直接相连的相邻节点传输数据报
+1 功能 1. 为网络层服务： 1）无确认的无连接服务：适用于实时通信或误码率较低的通信信道，如以太网。 2）有确认的无连接服务：适用于误码率较高的通信网络，如无线通信。 3）有确认的面向连接服务：适用于通信要求（可靠性，实时性）较高的场合。 2. 链路管理：指数据链路层连接的建立，维持，释放过程。 3. 帧定界：帧的首部与尾部的一个重要作用就是确定帧的界限，及帧定界。 帧同步：指接收方应能从接收到的二进制比特流中区分处帧的起始和终止。 透明传输：不管所传数据是什么样的比特组合都应当能在链路上传送。 4. 流量控制：指控制发送方的数据流量，使其发送速率不应超过接收方的接受能力。 5. 差错控制：指用以使发送方确定接收方是否正确收到其发送的数据的方法；错误分为帧错和位错。 // 帧错：帧的丢失，重复，失序（引入定时器，编号机制来解决）。 // 位错：1 变 0 ，0 变 1 。 2 组帧 把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。 1. 字符计数法：指在帧头部使用一个计数字段来标明帧内字符数。 2. 字符填充的首尾定界符：使用一些特殊的字符来定界帧的开始与结束。 3. 比特填充的首尾标志法：使用一个特定的比特模式，如 01111110 ，在传输数据中遇到 5 个 1 就填充 1 个 0 ，同样接收方接受数据时遇到 5 个 1 就去掉后面的 1 个 0（5 1 1 0）。 4. 违规编码法：如曼彻斯特编码，用 “高-低”电平表示 1 ，“低-高” 为 0，则 “高-高”，“低-低”就可用于表示开始和结束。 3 差错控制 差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。 1. 检错编码： 1）奇偶校验码：它由 n-1 位信息元和 1 位校验元组成；奇校验码是加上校验元后整体有奇数个 1，偶检验码则是整体有偶数个 1 。 2）循环冗余码（多项式码）： 数据 A 尾部加 0（0 的个数为帧检验序列位数减一）； 新 A 对帧检验序列进行模 2 除法，都到余数为冗余码（位数等于第一步中加 0 的个数）； 把冗余码替换掉 A 后面加的那些 0，即为传输的数据； 接收方接受到数据，用此数据对帧检验序列进行模 2 除法，若余数为 0 则无错误，否则数据有误。 2.</description>
+    </item>
+    
+    <item>
+      <title>Network_two</title>
+      <link>https://example.com/p/network_two/</link>
+      <pubDate>Mon, 22 Feb 2021 10:00:51 +0800</pubDate>
+      
+      <guid>https://example.com/p/network_two/</guid>
+      <description>物理层 物理层用于透明传输比特流
+1 基本概念 1） 码元： 指用一个固定时长的信号波形表示一位 K 进制数字。 2） 单工通信： 只有一个方向的通信而没有反方向的交互，仅需一条信道。 3） 半双工通信： 通信双方都可以发送或接受信息，但同一时间只能一个发一个接，需要两条信道。 4） 全双工通信： 通信双方都可以同时发送和接收信息，需要两条信道。 5） 码元速率： 单位为波特，1 波特表示一秒传输一个码元。 6） 信息传输率： 单位为 b/s ,单位时间传输的比特数。 2 四种特性 1） 机械特性： 规定物理连接时所采用的规格，接口形状，引线数目，引脚数量等。 2） 电气特性： 规定传输二进制时，线路上信号的电压范围，阻抗匹配，传输速率和传输距离等。 3） 功能特性： 指明某线路上某一电平表示何种意义，接口部件信号线的用途。 4） 规程特性： 又叫过程特性，定义各条物理线路的工作规程和时序关系。 3 奈氏准则，香农定理 1. 奈氏准则 指出在理想低通（无噪声，带宽有限）的情况下，码元的极限传输率是 2W 。 // 可推出 数据极限传输率 = 2W * log2(V) ,V 表示有 v 种码元。 2. 香农定理 给出了带宽受限且有高斯白噪声干扰的信道的极限数据传输率，W * log2（1+S/N）。 // S/N 为信噪比，（ X 分贝 = 10*log10（S/N）。 4 编码，调制 1 数字数据编码为数字信号： 1）非归零编码：高电平 1，低电平 0 （反之亦可）。 2）归零编码：信号电平在一个码元内都要恢复到零（低电平 0，高——&amp;gt;低 1）。 3）反向非归零编码：信号电平反转为 0，不变为 1。 4）曼彻斯特编码：一个码元分成两个相等间隔，高低为 1，低高为 0。 5）差分曼彻斯编码：遇 0 前半个码元反转，遇 1 前半个码元不变（同 1 异 0）。 6）4B/5B 编码：数据分为 4 个一组，按照 4B/5B 编码规则转换为 5 位码。 2 数字数据调制为模拟信号： 1）幅移键控（调幅）：通过改变载波信号的振幅来表示数字信号 1 和 0 .</description>
+    </item>
+    
+    <item>
+      <title>Network_one</title>
+      <link>https://example.com/p/network_one/</link>
+      <pubDate>Sat, 20 Feb 2021 15:37:07 +0800</pubDate>
+      
+      <guid>https://example.com/p/network_one/</guid>
+      <description>计算机网络概述 简言之，计算机网络就是一些互联的，自治的计算机系统的集合。
+1 计算机的网络的组成 1) 从组成部分上看： 硬件，软件，协议。 2) 从工作方式上看： 边缘部分，核心部分。 3) 从功能组成上看： 通信子网，资源子网。 2 计算机网络的功能 1. 数据通信 2. 资源共享 3. 分布式处理 4. 提高可靠性 5. 负载均衡 3 计算机网络的分类 1) 按分布范围分类： 广域网，城域网，局域网，个人区域网。 2) 按传输技术分类： 广播式网络，点对点网络。 3) 按拓扑结构分类： 星形网络，总线形网络，环形网络，网状形网络。 4) 按使用者分类： 公用网，专用网。 5) 按交换技术分类： 电路交换网络，报文交换网络，分组交换网络。 6) 按传输介质分类： 有线网络，无线网络。 4 计算机网络的性能指标 1) 带宽： 表示网络的通信线路所能传输数据的能力，是数字信道所能传输的 “最高数据率” 的同义词，单位为比特每秒（b/s）。 2) 吞吐量： 表示单位时间通过某个网络（或信道，接口）的数据量。其受到网络带宽或是网络额定速率的限制。 // 带宽是理性的最高传输速率，吞吐量是实际上此时间段的传输速率。 3) 速率： 表示连接到网络上的主机在数字信道上传送数据的速率，也称数据率或比特率，单位为 b/s （最高数据率就是带宽）。 4) 时延： 表示数据从网络一端到另一端的所需时间。 *发送时延：结点将数据传输到链路上所需要的时间，也称传输时延。 // 数据从主机到链路上的总时间。 *传播时延：电磁波在信道上传播一定的距离需要花费的时间，及从链路一端到另一端的时间。 *处理时延：数据在交换节点进行一些必要处理所花的时间。 *排队时延：分组在进入路由器后要先在输入队列中排队等待处理，之后还要在输出队列中等待转发。 5) 往返时延（RTT）： 指从发送端发送数据开始，到发送端收到来自接收端的确认，总共经历的时间。 6) 时延带宽积： 表示第一个比特到达终点时，发送端已经发送的比特数 (时延带宽积 = 传播时延 * 信道带宽)。 5 计算机网络体系结构和参考模型 1.</description>
+    </item>
+    
+    <item>
+      <title>社区贡献流程</title>
+      <link>https://example.com/p/%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B/</link>
+      <pubDate>Sat, 06 Feb 2021 12:58:45 +0800</pubDate>
+      
+      <guid>https://example.com/p/%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B/</guid>
+      <description>github 上有许多优秀的开源社区，对于时间充裕的学生党来说，平时在社区做做贡献是个不错的选择。下面以 Kubernetes 社区为例（刚开始选择做一些简单的翻译贡献，选择 Kubernetes/website ）： 1. fork 想要做贡献的项目 在 GitHub 进入 Kubernetes/website 项目中，点击右上角的 Fork 按钮，此时就在你的个人仓库里生成了一个 yourname/website 的项目。 2. Clone 刚刚 Fork 的项目 做贡献之前，必须得把项目下载到本地。进入个人的 GitHub 主页找到刚刚 Fork 的项目，点击右上角的 Clone 按钮。 此处有三种下载方式，我选择中间的 SSH 方式。复制好下方的链接进入 cmd 使用 git clone 命令（我打算把项目下载到 D 盘）： $ cd d: $ git clone git@github.com:ldsdsy/website.gitf //耐心等待，第一次 clone 需要一些时间，完成后 D 盘里就会出现 website 的文件夹。 3.设置克隆好的项目 在 cmd 中进入克隆过来的项目文件夹，将原来项目的 URL 添加到你的本地代码仓库，这样你就可以随时从原来的项目 pull 最新的修改(此处用 upstream 作为远程仓库的名字，这是 GitHub 的风格，但是你可以用任何名字。): $ git remote add upstream git@github.</description>
+    </item>
+    
+    <item>
+      <title>Exam2003</title>
+      <link>https://example.com/p/exam2003/</link>
+      <pubDate>Tue, 02 Feb 2021 12:26:30 +0800</pubDate>
+      
+      <guid>https://example.com/p/exam2003/</guid>
+      <description>1.输入球的中心点和球上某一点的坐标，计算球半径和体积。
+C++
+#include &amp;lt;iostream&amp;gt;#include &amp;lt;cmath&amp;gt;using namespace std; double const PI=3.14; int main() { double a,b,c,x,y,z,r,v; cout&amp;lt;&amp;lt;&amp;#34;input circle center coordinates:&amp;#34;; cin&amp;gt;&amp;gt;a&amp;gt;&amp;gt;b&amp;gt;&amp;gt;c; cout&amp;lt;&amp;lt;&amp;#34;input coordinates of any point:&amp;#34;; cin&amp;gt;&amp;gt;x&amp;gt;&amp;gt;y&amp;gt;&amp;gt;z; r=sqrt(pow(x-a,2)+pow(y-b,2)+pow(z-c,2)); v=4/3.0*PI*pow(r,3);	//注意：4/3=1,所以要除以 3.0 	cout&amp;lt;&amp;lt;&amp;#34;Radius is:&amp;#34;&amp;lt;&amp;lt;r&amp;lt;&amp;lt;endl; cout&amp;lt;&amp;lt;&amp;#34;Volume is:&amp;#34;&amp;lt;&amp;lt;v&amp;lt;&amp;lt;endl; return 0; } Go
+package exam2003 import ( &amp;#34;fmt&amp;#34; &amp;#34;math&amp;#34; ) //Sphere is used to calculate the radius and volume of a certain sphere func Sphere() { var a, b, c, x, y, z, r, v float64 fmt.</description>
+    </item>
+    
+    <item>
+      <title>Exam2002B</title>
+      <link>https://example.com/p/exam2002b/</link>
+      <pubDate>Sat, 30 Jan 2021 15:03:09 +0800</pubDate>
+      
+      <guid>https://example.com/p/exam2002b/</guid>
+      <description>1.打印所有不超过 n（ n &amp;lt; 256）的，其平方具有对称性质的数。如 11*11=121。
+C++
+#include &amp;lt;iostream&amp;gt;#include &amp;lt;cmath&amp;gt;using namespace std; bool HuiWen(int n) { n=n*n; int a[10]={0}; int t=n; int i=0; while(t!=0) { a[i]=t%10; t/=10; i++; } i--; int j=0; while(i&amp;gt;=0) { t+=a[i]*pow(10,j); i--; j++; } if(t==n) { return true; } return false; } int main() { for(int i=0;i&amp;lt;256;i++) { if(HuiWen(i)) { cout&amp;lt;&amp;lt;i&amp;lt;&amp;lt;&amp;#34; &amp;#34;; } } return 0; } Go
+package exam2002b import &amp;#34;fmt&amp;#34; //Huiwen is used to output the number of replies func Huiwen() { var a [10]int for i := 0; i &amp;lt; 256; i++ { n := i * i t := n j := 0 for ; t !</description>
+    </item>
+    
+    <item>
+      <title>Exam2002A</title>
+      <link>https://example.com/p/exam2002a/</link>
+      <pubDate>Wed, 27 Jan 2021 14:02:43 +0800</pubDate>
+      
+      <guid>https://example.com/p/exam2002a/</guid>
+      <description>1.某人有 8 角的邮票 5 张，1 元的邮票 4 张，1 元 8 角的邮票 6 张，用这些邮票中的一张或若干张可以得到多少种不同的邮资？
+C++
+#include &amp;lt;iostream&amp;gt;#include &amp;lt;set&amp;gt;using namespace std; int main() { set&amp;lt;int&amp;gt; s;	//此题避免使用 double ，可能会因为精确度的问题造成相同的数不一致 	int t; for(int i=0;i&amp;lt;=5;i++) { for(int j=0;j&amp;lt;=4;j++) { for(int k=0;k&amp;lt;=6;k++) { if(!(i==j &amp;amp;&amp;amp; j==k &amp;amp;&amp;amp; k==0))	//注意没有三种都为 0 的情况 	{ t=8*i+10*j+18*k; s.insert(t); } } } } cout&amp;lt;&amp;lt;&amp;#34;组合数为：&amp;#34;&amp;lt;&amp;lt;s.size()&amp;lt;&amp;lt;endl; return 0; } Go
+package exam2002a import &amp;#34;fmt&amp;#34; //Set is used to grouping the stamp func Set() { var a = [190]int{0} count := 0 for i := 0; i &amp;lt;= 5; i++ { for j := 0; j &amp;lt;= 4; j++ { for k := 0; k &amp;lt;= 6; k++ { t := 8*i + 10*j + 18*k a[t] = 1 } } } for i := 1; i &amp;lt; 190; i++ { if a[i] == 1 { count++ } } fmt.</description>
+    </item>
+    
+    <item>
+      <title>Exam2001B</title>
+      <link>https://example.com/p/exam2001b/</link>
+      <pubDate>Sun, 24 Jan 2021 17:09:05 +0800</pubDate>
+      
+      <guid>https://example.com/p/exam2001b/</guid>
+      <description>1.请输入高度 h，输出一个高为 h，上底边长为 h 的等腰梯形（同 * 表示）。
+C++
+#include &amp;lt;iostream&amp;gt;using namespace std; int main() { int h; cout&amp;lt;&amp;lt;&amp;#34;input h:&amp;#34;&amp;lt;&amp;lt;endl; cin&amp;gt;&amp;gt;h; for(int i=1;i&amp;lt;=h;i++) { for(int j=1;j&amp;lt;=3*h-2;j++) { if(j&amp;gt;=h-(i-1)&amp;amp;&amp;amp;j&amp;lt;=(2*h-1)+(i-1)) { cout&amp;lt;&amp;lt;&amp;#34;*&amp;#34;; } else { cout&amp;lt;&amp;lt;&amp;#34; &amp;#34;; } } cout&amp;lt;&amp;lt;endl; } return 0; } Go
+package exam2001b import &amp;#34;fmt&amp;#34; //Trapezoidal is used to output a trapezoidal func Trapezoidal(h int) { for i := 1; i &amp;lt;= h; i++ { for j := 1; j &amp;lt;= 3*h-2; j++ { if j &amp;gt;= h-(i-1) &amp;amp;&amp;amp; j &amp;lt;= (2*h-1)+(i-1) { fmt.</description>
+    </item>
+    
+    <item>
+      <title>Exam2001A</title>
+      <link>https://example.com/p/exam2001a/</link>
+      <pubDate>Fri, 22 Jan 2021 21:17:37 +0800</pubDate>
+      
+      <guid>https://example.com/p/exam2001a/</guid>
+      <description>1.编写程序，计算下列分段函数 y=f(x)的值。
+y = -x + 2.5 , 0 &amp;lt;= x &amp;lt; 2 y = 2 - 1.5 * (x-3) * (x-3) ， 2 &amp;lt;= x &amp;lt; 4 y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6 C++
+#include &amp;lt;iostream&amp;gt;using namespace std; int main() { double x,y; cout&amp;lt;&amp;lt;&amp;#34;input the x:&amp;#34;&amp;lt;&amp;lt;endl; cin&amp;gt;&amp;gt;x; if(x&amp;lt;0||x&amp;gt;=6) { cout&amp;lt;&amp;lt;&amp;#34;x out of the bounds&amp;#34;&amp;lt;&amp;lt;endl; return 0; } if(x&amp;gt;=0&amp;amp;&amp;amp;x&amp;lt;2) { y=-x+2.5; } else if(x&amp;gt;=2&amp;amp;&amp;amp;x&amp;lt;4) { y=2-1.</description>
+    </item>
+    
+    <item>
+      <title>Exam2000</title>
+      <link>https://example.com/p/exam2000/</link>
+      <pubDate>Tue, 19 Jan 2021 16:21:45 +0800</pubDate>
+      
+      <guid>https://example.com/p/exam2000/</guid>
+      <description>1.输入任意 4 个字符(如：abcd)，并按反序输出(如：dcba)。
+C++
+#include &amp;lt;iostream&amp;gt;#include &amp;lt;string&amp;gt;#include &amp;lt;algorithm&amp;gt;using namespace std; /* int main() { string s; cin&amp;gt;&amp;gt;s; reverse(s.begin(),s.end()); cout&amp;lt;&amp;lt;s&amp;lt;&amp;lt;endl; return 0; }*/ int main() { string s; cin&amp;gt;&amp;gt;s; for(int i=s.size()-1;i&amp;gt;=0;i--) { cout&amp;lt;&amp;lt;s[i]; } cout&amp;lt;&amp;lt;endl; } Golang
+package exam2000 import ( &amp;#34;fmt&amp;#34; ) //Reverse is used to reverse a string. func Reverse() { var s1 string fmt.Scan(&amp;amp;s1) //Scan接收字符型变量时只接收整型,即ASCII码 	for i := len(s1) - 1; i &amp;gt;= 0; i-- { fmt.Printf(&amp;#34;%c&amp;#34;, s1[i]) } } 2.</description>
+    </item>
+    
+    <item>
+      <title>Go_day03</title>
+      <link>https://example.com/p/go_day03/</link>
+      <pubDate>Mon, 11 Jan 2021 21:23:59 +0800</pubDate>
+      
+      <guid>https://example.com/p/go_day03/</guid>
+      <description>Go 项目目录格式的一些问题  1.一个项目只有一个 mian.go 作为入口。所以如何解决一个项目里存在多个 xxx.go 的问题呢？如下为一种方式：
+demo |___main.go |___exam |___01.go |___02.go //mian.go 作为整个项目入口，exam 为 package （包），exam 下面又包含多个函数，每个函数可在 main.go 中调用。 01.go
+package exam import &amp;#34;fmt&amp;#34; //Add is used to calculate the sum of two numbers func Add(a,b int) int { return a+b } //Go 要求公有函数以大写字母开头，并且需要在函数上方书写用于说明函数用处的注释，注释必须以函数名开头。 main.go
+package main import &amp;#34;demo/exam&amp;#34; func main() { sum := exam.Add(3,4) fmt.println(sum) } 2.尽量一开始养成编写测试函数的习惯。Go 语言拥有一套单元测试和性能测试系统，仅需要添加很少的代码就可以快速测试一段需求代码。
+go test 命令，会自动读取源码目录下面名为 *_test.go 的文件，生成并运行测试用的可执行文件。
+单元测试源码文件可以由多个测试用例组成，每个测试用例函数需要以 Test 为前缀，例如：
+package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.</description>
+    </item>
+    
+    <item>
+      <title>GO_day02</title>
+      <link>https://example.com/p/go_day02/</link>
+      <pubDate>Tue, 05 Jan 2021 10:30:42 +0800</pubDate>
+      
+      <guid>https://example.com/p/go_day02/</guid>
+      <description>1.安装好 Go 之后需人为设置一个 GOPATH 文件夹，这个目录用来存放 Go 源码， Go 的可运行文件，以及相应的编译之后的包文件。所以这个目录下面有三个子目录：src、bin、pkg。（例如：在 D 盘下新建一个名为 GOPATH 文件夹）
+src :存放源代码 pkg :编译后生成的包文件 bin :编译后生成的可执行文件 //一般，bin 和 pkg 目录可以不创建，go 命令会自动创建（如 go install），只需要创建 src 目录即可。 2.配置 GOPATH 的环境变量，进入用户变量新建
+变量 ：GOPATH 值 ：D:\GOPATH 3.进入 vscode 安装 go 插件，然后就可以在 src 下面创建 Hello_world.go 并编译执行， vs 提示安装什么就安装什么。(相比较 GoLand , vs 免费且内存消耗小)
+package main import &amp;#34;fmt&amp;#34; func main() { fmt.Println(&amp;#34;Hello, World!&amp;#34;) } </description>
+    </item>
+    
+    <item>
+      <title>Go_day01</title>
+      <link>https://example.com/p/go_day01/</link>
+      <pubDate>Mon, 04 Jan 2021 22:03:04 +0800</pubDate>
+      
+      <guid>https://example.com/p/go_day01/</guid>
+      <description>Window 安装 Go 语言环境   进入以下网址  https://golang.google.cn/dl/ //选择 .msi 后缀的文件下载，下载完成后一路 next 安装即可。 进入 cmd  $ go version //能显示版本号即安装成功 在终端依次执行  $ go env -w GO111MODULE=on $ go env -w GOPROXY=https://goproxy.cn,direct  //第一条使源代码可存储在任意位置，第二条为国内代理 </description>
+    </item>
+    
+    <item>
+      <title>04_Flutter项目基础了解</title>
+      <link>https://example.com/p/04_flutter%E9%A1%B9%E7%9B%AE%E5%9F%BA%E7%A1%80%E4%BA%86%E8%A7%A3/</link>
+      <pubDate>Thu, 11 Jun 2020 21:38:42 +0800</pubDate>
+      
+      <guid>https://example.com/p/04_flutter%E9%A1%B9%E7%9B%AE%E5%9F%BA%E7%A1%80%E4%BA%86%E8%A7%A3/</guid>
+      <description> Flutter 项目目录介绍：  android: android 平台相关代码；
+ios: ios 平台相关代码； lib: flutter 相关代码，开发者编写代码的所在地； test: 用于存放测试代码；
+pubspec.yaml: 存放配置文件，一般是第三方库的依赖。
+Flutter 入口文件，入口方法： lib 目录下的 main.dart 就是 Flutter 的入口文件；  main.dart :
+void main(){ runApp(MyApp); } 或者简写为： void main()=&amp;gt;runApp(MyApp()); //main()是 dart 的入口方法； //runApp()是 flutter 的入口方法； //MyApp 是一个自定义组件。 </description>
+    </item>
+    
+    <item>
+      <title>03_FlutterAndroid搭建</title>
+      <link>https://example.com/p/03_flutterandroid%E6%90%AD%E5%BB%BA/</link>
+      <pubDate>Thu, 28 May 2020 07:06:45 +0800</pubDate>
+      
+      <guid>https://example.com/p/03_flutterandroid%E6%90%AD%E5%BB%BA/</guid>
+      <description>1.安装 jdk：
+$ sudo apt-get install openjdk-8-jdk //JDK：java development kit （java 开发环境，包括 JVM，基础类库，开发工具） //JRE：java runtime environment （java 运行时环境） //JDK 包含 JRE $ java $ javac //查看是否安装完成 2.安装 Android Studio (有图形快捷键)：
+//下载并解压
+https://www.jetbrains.com/toolbox-app/
+//安装完成后，在 JetBrains Toolbox 中安装 AS 稳定版。
+//打开 AS 一路默认安装，先不要设置属性参数；
+//安装完成导入插件: Plugins 中安装 Dart 和 Flutter ;
+//重启 AS
+3.配置 Flutter 国内镜像：
+//选择镜像
+https://flutter-io.cn/
+$ sudo vim /etc/profile //文本末尾添加如下内容 export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn export PUB_HOSTED_URL=https://pub.flutter-io.cn //保存退出 $ source /etc/profile 4.输入 flutter doctor 检测安装配置是否完成。</description>
+    </item>
+    
+    <item>
+      <title>02_Flutter安装</title>
+      <link>https://example.com/p/02_flutter%E5%AE%89%E8%A3%85/</link>
+      <pubDate>Fri, 22 May 2020 09:58:25 +0800</pubDate>
+      
+      <guid>https://example.com/p/02_flutter%E5%AE%89%E8%A3%85/</guid>
+      <description>安装Flutter：
+1.点击链接，下载压缩包：
+https://flutter.dev/docs/get-started/install/linux
+2.选一个心仪的文件夹(例如 development )，解压缩:
+$ cd ~/development $ tar xf ~/Downloads/flutter_linux_1.17.1-stable.tar.xz 3.设置环境变量（永久设置）：
+//profile 是开机就会自启的文件,打开后编辑 $ sudo vim /etc/profile //文件末尾添加如下内容，路径为上一步 Flutter 解压后所在的地方 export PATH=$PATH:/home/ldsdsy/development/flutter/bin //强制执行 profile 或 重启 $ source /etc/profile //查看是否添加成功 $ echo $PATH 4.输入 flutter 检测是否安装完成。
+Adds:
+//若出现 Error: Unable to find git in your PATH.
+$ sudo apt-get install git </description>
+    </item>
+    
+    <item>
+      <title>01_dart安装</title>
+      <link>https://example.com/p/01_dart%E5%AE%89%E8%A3%85/</link>
+      <pubDate>Thu, 21 May 2020 19:43:18 +0800</pubDate>
+      
+      <guid>https://example.com/p/01_dart%E5%AE%89%E8%A3%85/</guid>
+      <description>安装 dart：（使用apt-get安装就不用配置环境变量）
+1.依次执行以下命令:
+$ sudo apt-get update $ sudo apt-get install apt-transport-https //科学上网 $ sudo sh -c &amp;#39;wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -&amp;#39; $ sudo sh -c &amp;#39;wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list &amp;gt; /etc/apt/sources.list.d/dart_stable.list&amp;#39; 2.安装 Dart SDK:
+$ sudo apt-get update $ sudo apt-get install dart 3.输入 dart 检测是否安装完成。
+Adds:
+//查看 dart 安装在何处 $ which dart //查看系统环境变量 $ echo $PATH </description>
+    </item>
+    
+  </channel>
+</rss>
