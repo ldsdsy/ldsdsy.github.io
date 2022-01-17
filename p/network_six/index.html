@@ -118,13 +118,13 @@
     <section class="article-content">
     <h1 id="应用层">应用层</h1>
 <h2 id="1-网络应用模型">1 网络应用模型</h2>
-<pre tabindex="0"><code>1. 客户/服务器模型（C/S）：
+<pre><code>1. 客户/服务器模型（C/S）：
     有一个总是打开的主机称为服务器，它服务于许多来自其他称为客户机的主机请求。
 
 2. P2P 模型：
     每台机器既是服务器又是客户机。
 </code></pre><h2 id="2-域名系统dns">2 域名系统（DNS）</h2>
-<pre tabindex="0"><code>用于把主机名转换为 IP 地址；采用客户/服务器模型，其协议运行在 UDP 之上，使用 53 号端口。
+<pre><code>用于把主机名转换为 IP 地址；采用客户/服务器模型，其协议运行在 UDP 之上，使用 53 号端口。
 从概念上分为是三部分：层次域名空间，域名服务器，解析器。
 
 1. 域名服务器分类：
@@ -139,7 +139,7 @@
     2）递归与迭代相结合：
         主机自身一次询问以上四种服务器。
 </code></pre><h2 id="3-文件传输协议ftp">3 文件传输协议（FTP）</h2>
-<pre tabindex="0"><code>FTP 采用 C/S 工作方式，使用 TCP 可靠传输；
+<pre><code>FTP 采用 C/S 工作方式，使用 TCP 可靠传输；
 其服务器分为：一个主进程负责接受新的请求，若干从属进程负责处理单个请求。
 
 1. 控制连接：
@@ -147,7 +147,7 @@
 2. 数据连接：
     此连接用来连接客户端和服务器端的数据传送进程，传送完毕则关闭连接并结束运行。
 </code></pre><h2 id="4-电子邮件">4 电子邮件</h2>
-<pre tabindex="0"><code>一个邮件系统包含：用户代理，邮件服务器，协议。
+<pre><code>一个邮件系统包含：用户代理，邮件服务器，协议。
 
 1. 过程：发送方使用 SMTP 协议发邮件到发送方邮件服务器，此服务器再用 SMTP 发送到接收方的邮件服务器，接收方用 POP3 读取邮件到本地。
 
@@ -157,7 +157,7 @@
 3. POP3 :
     用于接受邮件，运行在 TCP 上，使用 110 号端口。
 </code></pre><h2 id="5-万维网">5 万维网</h2>
-<pre tabindex="0"><code>万维网是一个资料空间，每一样资料都有“统一资源定位符”来标识，通过 HTTP 传输。
+<pre><code>万维网是一个资料空间，每一样资料都有“统一资源定位符”来标识，通过 HTTP 传输。
 
 1. HTTP :
     运行在 TCP 上，使用 80 端口；
@@ -197,12 +197,24 @@
                 
                     
 <article class="">
-    <a href="/p/k8s_clientset/">
+    <a href="/p/k8s_clientset02/">
         
         
 
         <div class="article-details">
-            <h2 class="article-title">K8s_Clientset</h2>
+            <h2 class="article-title">K8s_Clientset02</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/k8s_clientset01/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">K8s_Clientset01</h2>
         </div>
     </a>
 </article>
@@ -239,18 +251,6 @@
 
         <div class="article-details">
             <h2 class="article-title">Exam2019</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/network_five/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">Network_five</h2>
         </div>
     </a>
 </article>
@@ -313,7 +313,7 @@
         
             2020 - 
         
-        2021 ldsdsy Site
+        2022 ldsdsy Site
     </section>
     
     <section class="powerby">

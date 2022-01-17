@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="en-us">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='github 上有许多优秀的开源社区，对于时间充裕的学生党来说，平时在社区做做贡献是个不错的选择。下面以 Kubernetes 社区为例（刚开始选择做一些简单的翻译贡献，选择 Kubernetes/website ）： 1. fork 想要做贡献的项目 在 GitHub 进入 Kubernetes/website 项目中，点击右上角的 Fork 按钮，此时就在你的个人仓库里生成了一个 yourname/website 的项目。 2. Clone 刚刚 Fork 的项目 做贡献之前，必须得把项目下载到本地。进入个人的 GitHub 主页找到刚刚 Fork 的项目，点击右上角的 Clone 按钮。 此处有三种下载方式，我选择中间的 SSH 方式。复制好下方的链接进入 cmd 使用 git clone 命令（我打算把项目下载到 D 盘）： $ cd d: $ git clone git@github.com:ldsdsy/website.gitf //耐心等待，第一次 clone 需要一些时间，完成后 D 盘里就会出现 website 的文件夹。 3.设置克隆好的项目 在 cmd 中进入克隆过来的项目文件夹，将原来项目的 URL 添加到你的本地代码仓库，这样你就可以随时从原来的项目 pull 最新的修改(此处用 upstream 作为远程仓库的名字，这是 GitHub 的风格，但是你可以用任何名字。): $ git remote add upstream git@github.'><title>社区贡献流程</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Clientset 访问 k8s 集群资源对象 Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。
+ 一，Clientset —— out of cluster 通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。
+1, 配置 config 文件（把 master 上的配置文件复制到本地） // 在本地执行 $ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/ // 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件 2, 编写代码 package main import ( &amp;quot;context&amp;quot; &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot;path/filepath&amp;quot; metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot; &amp;quot;k8s.io/client-go/kubernetes&amp;quot; &amp;quot;k8s.io/client-go/tools/clientcmd&amp;quot; &amp;quot;k8s.io/client-go/util/homedir&amp;quot; ) func main() { var kubeconfig *string // 默认会从 ~/.'><title>K8s_Clientset01</title>
 
-<link rel='canonical' href='https://ldsdsy.github.io/p/%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B/'>
+<link rel='canonical' href='https://ldsdsy.github.io/p/k8s_clientset01/'>
 
-<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='社区贡献流程'>
-<meta property='og:description' content='github 上有许多优秀的开源社区，对于时间充裕的学生党来说，平时在社区做做贡献是个不错的选择。下面以 Kubernetes 社区为例（刚开始选择做一些简单的翻译贡献，选择 Kubernetes/website ）： 1. fork 想要做贡献的项目 在 GitHub 进入 Kubernetes/website 项目中，点击右上角的 Fork 按钮，此时就在你的个人仓库里生成了一个 yourname/website 的项目。 2. Clone 刚刚 Fork 的项目 做贡献之前，必须得把项目下载到本地。进入个人的 GitHub 主页找到刚刚 Fork 的项目，点击右上角的 Clone 按钮。 此处有三种下载方式，我选择中间的 SSH 方式。复制好下方的链接进入 cmd 使用 git clone 命令（我打算把项目下载到 D 盘）： $ cd d: $ git clone git@github.com:ldsdsy/website.gitf //耐心等待，第一次 clone 需要一些时间，完成后 D 盘里就会出现 website 的文件夹。 3.设置克隆好的项目 在 cmd 中进入克隆过来的项目文件夹，将原来项目的 URL 添加到你的本地代码仓库，这样你就可以随时从原来的项目 pull 最新的修改(此处用 upstream 作为远程仓库的名字，这是 GitHub 的风格，但是你可以用任何名字。): $ git remote add upstream git@github.'>
-<meta property='og:url' content='https://ldsdsy.github.io/p/%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B/'>
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='K8s_Clientset01'>
+<meta property='og:description' content='Clientset 访问 k8s 集群资源对象 Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。
+ 一，Clientset —— out of cluster 通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。
+1, 配置 config 文件（把 master 上的配置文件复制到本地） // 在本地执行 $ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/ // 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件 2, 编写代码 package main import ( &amp;quot;context&amp;quot; &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot;path/filepath&amp;quot; metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot; &amp;quot;k8s.io/client-go/kubernetes&amp;quot; &amp;quot;k8s.io/client-go/tools/clientcmd&amp;quot; &amp;quot;k8s.io/client-go/util/homedir&amp;quot; ) func main() { var kubeconfig *string // 默认会从 ~/.'>
+<meta property='og:url' content='https://ldsdsy.github.io/p/k8s_clientset01/'>
 <meta property='og:site_name' content='ldsdsy Site'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-02-06T12:58:45&#43;08:00'/><meta property='article:modified_time' content='2021-02-06T12:58:45&#43;08:00'/>
-<meta name="twitter:title" content="社区贡献流程">
-<meta name="twitter:description" content="github 上有许多优秀的开源社区，对于时间充裕的学生党来说，平时在社区做做贡献是个不错的选择。下面以 Kubernetes 社区为例（刚开始选择做一些简单的翻译贡献，选择 Kubernetes/website ）： 1. fork 想要做贡献的项目 在 GitHub 进入 Kubernetes/website 项目中，点击右上角的 Fork 按钮，此时就在你的个人仓库里生成了一个 yourname/website 的项目。 2. Clone 刚刚 Fork 的项目 做贡献之前，必须得把项目下载到本地。进入个人的 GitHub 主页找到刚刚 Fork 的项目，点击右上角的 Clone 按钮。 此处有三种下载方式，我选择中间的 SSH 方式。复制好下方的链接进入 cmd 使用 git clone 命令（我打算把项目下载到 D 盘）： $ cd d: $ git clone git@github.com:ldsdsy/website.gitf //耐心等待，第一次 clone 需要一些时间，完成后 D 盘里就会出现 website 的文件夹。 3.设置克隆好的项目 在 cmd 中进入克隆过来的项目文件夹，将原来项目的 URL 添加到你的本地代码仓库，这样你就可以随时从原来的项目 pull 最新的修改(此处用 upstream 作为远程仓库的名字，这是 GitHub 的风格，但是你可以用任何名字。): $ git remote add upstream git@github.">
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-07-05T23:02:15&#43;08:00'/><meta property='article:modified_time' content='2021-07-05T23:02:15&#43;08:00'/>
+<meta name="twitter:title" content="K8s_Clientset01">
+<meta name="twitter:description" content="Clientset 访问 k8s 集群资源对象 Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。
+ 一，Clientset —— out of cluster 通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。
+1, 配置 config 文件（把 master 上的配置文件复制到本地） // 在本地执行 $ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/ // 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件 2, 编写代码 package main import ( &amp;quot;context&amp;quot; &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot;path/filepath&amp;quot; metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot; &amp;quot;k8s.io/client-go/kubernetes&amp;quot; &amp;quot;k8s.io/client-go/tools/clientcmd&amp;quot; &amp;quot;k8s.io/client-go/util/homedir&amp;quot; ) func main() { var kubeconfig *string // 默认会从 ~/.">
     </head>
     <body class="
     article-page has-toc
@@ -73,7 +79,7 @@
     
 
     <h2 class="article-title">
-        <a href="/p/%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B/">社区贡献流程</a>
+        <a href="/p/k8s_clientset01/">K8s_Clientset01</a>
     </h2>
 
     
@@ -91,7 +97,7 @@
   <path d="M3 11h16" />
   <path d="M18 16.496v1.504l1 1" />
 </svg>
-                <time class="article-time--published">Feb 06, 2021</time>
+                <time class="article-time--published">Jul 05, 2021</time>
             </div>
         
 
@@ -116,67 +122,73 @@
 </header>
 
     <section class="article-content">
-    <h1 id="github-上有许多优秀的开源社区对于时间充裕的学生党来说平时在社区做做贡献是个不错的选择下面以-kubernetes-社区为例刚开始选择做一些简单的翻译贡献选择-kuberneteswebsite-">github 上有许多优秀的开源社区，对于时间充裕的学生党来说，平时在社区做做贡献是个不错的选择。下面以 Kubernetes 社区为例（刚开始选择做一些简单的翻译贡献，选择 Kubernetes/website ）：</h1>
-<h2 id="1-fork-想要做贡献的项目">1. fork 想要做贡献的项目</h2>
-<pre><code>在 GitHub 进入 Kubernetes/website 项目中，点击右上角的 Fork 按钮，此时就在你的个人仓库里生成了一个 yourname/website 的项目。
-</code></pre><h2 id="2-clone-刚刚-fork-的项目">2. Clone 刚刚 Fork 的项目</h2>
-<pre><code>做贡献之前，必须得把项目下载到本地。进入个人的 GitHub 主页找到刚刚 Fork 的项目，点击右上角的 Clone 按钮。
-此处有三种下载方式，我选择中间的 SSH 方式。复制好下方的链接进入 cmd 使用 git clone 命令（我打算把项目下载到 D 盘）：
-</code></pre><pre><code>$   cd d:
-$   git clone git@github.com:ldsdsy/website.gitf
+    <h1 id="clientset-访问-k8s-集群资源对象">Clientset 访问 k8s 集群资源对象</h1>
+<p><em>Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。</em></p>
+<hr>
+<h2 id="一clientset--out-of-cluster">一，Clientset —— out of cluster</h2>
+<p><em>通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。</em></p>
+<h3 id="1-配置-config-文件把-master-上的配置文件复制到本地">1, 配置 config 文件（把 master 上的配置文件复制到本地）</h3>
+<pre><code>// 在本地执行
+$ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/
 
-//耐心等待，第一次 clone 需要一些时间，完成后 D 盘里就会出现 website 的文件夹。
-</code></pre><h2 id="3设置克隆好的项目">3.设置克隆好的项目</h2>
-<pre><code>在 cmd 中进入克隆过来的项目文件夹，将原来项目的 URL 添加到你的本地代码仓库，这样你就可以随时从原来的项目 pull 最新的修改(此处用 upstream 作为远程仓库的名字，这是 GitHub 的风格，但是你可以用任何名字。):
+// 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件
+</code></pre><h3 id="2-编写代码">2, 编写代码</h3>
+<pre><code>package main
 
-$   git remote add upstream git@github.com:kubernetes/website.git
-</code></pre><pre><code>现在远程仓库列表是这样的:
+import (
+	&quot;context&quot;
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;path/filepath&quot;
 
-$   git remote -v
-origin  git@github.com:ldsdsy/website.git (fetch)
-origin  git@github.com:ldsdsy/website.git (push)
-upstream        git@github.com:kubernetes/website.git (fetch)
-upstream        git@github.com:kubernetes/website.git (push)
-</code></pre><pre><code>以后定期更新时按如下命令顺序运行：
+	metav1 &quot;k8s.io/apimachinery/pkg/apis/meta/v1&quot;
+	&quot;k8s.io/client-go/kubernetes&quot;
+	&quot;k8s.io/client-go/tools/clientcmd&quot;
+	&quot;k8s.io/client-go/util/homedir&quot;
+)
 
-$   cd D:\website
-$   git checkout master
-$   git fetch upstream
-$   git rebase upstream/master
-$   git push origin master
-</code></pre><h2 id="4创建一个分支">4.创建一个分支</h2>
-<pre><code>在做翻译之前，先要创建一个本地分支，这是将要开展工作的地方。用以下命令（这会创建一个名为 translate1 的新分支，而且在本地仓库里，处于激活状态。你最好用一个可以描述你要做什么的分支名字。）：
+func main() {
+	var kubeconfig *string
+    // 默认会从 ~/.kube/config 路径下获取配置文件
+	if home := homedir.HomeDir(); home != &quot;&quot; {
+		kubeconfig = flag.String(&quot;kubeconfig&quot;, filepath.Join(home, &quot;.kube&quot;, &quot;config&quot;), &quot;(optional) absolute path to the kubeconfig file&quot;)
+	} else {
+		kubeconfig = flag.String(&quot;kubeconfig&quot;, &quot;&quot;, &quot;absulute path to the kubeconfig file&quot;)
+	}
+    // 把用户传递的命令行参数解析为对应变量的值
+	flag.Parse()
 
-$   git checkout -b translate1
-</code></pre><pre><code>查看当前处于哪一个分支（* 表示当前分支）：
+	// 使用 k8s.io/client-go/tools/clientcmd 生成 config 的对象
+	config, err := clientcmd.BuildConfigFromFlags(&quot;&quot;, *kubeconfig)
+	if err != nil {
+		panic(err.Error())
+	}
 
-$   git branch
-    master
-  * translate1
-</code></pre><h2 id="5开展工作">5.开展工作</h2>
-<pre><code>可采用 vscode 等编辑器打开 website 文件夹，在 en 目录里找到一个还没有翻译的文件，然后在 zh 目录下新建一个文件名一致的对应文件，按照原文的格式进行翻译。
-</code></pre><h2 id="6提起-pull-request">6.提起 pull request</h2>
-<pre><code>当翻译完成后，需要把修改过的新内容 push 到个人的在 GitHub 上:
+	// 使用 k8s.io/client-go/kubernetes 生成一个 ClientSet 的客户端
+    // 客户端生成后，就可以使用这个客户端与 k8s API server 进行交互了，进行 CRUD 操作。
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
 
-$   git branch  //确定当前在 translate1 上
-$   git status  //确定自己没有误操作其他的无关的文件
-$   git commit -m &quot;translate 2020-10-01&quot;    
-$   git push origin translate1
-</code></pre><pre><code>现在用浏览器打开个人的 GitHub, 点开 fork 的项目，便会在项目顶上看到一个 compare &amp; pull request 的绿色按钮，点击用来提起 pull request。之后，会看到一个页面，显示你的分支和原来的分支之间不同的部分。确定无误后，点击确定。
-</code></pre><h2 id="7等待审查">7.等待审查</h2>
-<pre><code>之后会有专门的审查人员对你的提交进行核查，合格后便会收到同意合并的邮件，或是收到建议修改的邮件，或是被直接拒绝。
-！！！第一次做贡献的话，此处可能会遇到签署 CLA(Contribution License Agreement) 的问题，根据提示签署 CLA 即可（TITLE:student）
-</code></pre><h2 id="8删除分支">8.删除分支</h2>
-<pre><code>不管结果如何，最后就可以删除一开始创建的工作分支（不删也问题不大，不是强制性的）：
-
-//删除本地仓库里的分支：
-
-$   git branch -D translate1 
-
-//删除 GitHub 上的分支：
-
-$   git push origin --delete translate1
-
+	// get pod
+	pods, err := clientset.CoreV1().Pods(&quot;&quot;).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(err.Error())
+	}
+	for _, pod := range pods.Items {
+		fmt.Printf(&quot;pod.name:%v\n&quot;, pod.Name)
+	}
+}
+</code></pre><h3 id="3-运行">3, 运行</h3>
+<pre><code>$ go run main.go
+pod.name:nfs-client-provisioner-6d9b86b854-pcb9v
+pod.name:coredns-545d6fc579-2kn79
+pod.name:coredns-545d6fc579-mpzqg
+pod.name:etcd-ml-k8s-1.novalocal
+pod.name:fabric-node-2gnjf
+pod.name:fabric-node-s92ds
+···
 </code></pre>
 </section>
 
@@ -223,18 +235,6 @@ $   git push origin --delete translate1
                 
                     
 <article class="">
-    <a href="/p/k8s_clientset01/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_Clientset01</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
     <a href="/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/">
         
         
@@ -265,6 +265,18 @@ $   git push origin --delete translate1
 
         <div class="article-details">
             <h2 class="article-title">Exam2019</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/network_six/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Network_six</h2>
         </div>
     </a>
 </article>
@@ -436,14 +448,13 @@ $   git push origin --delete translate1
                 <div class="widget--toc">
                     <nav id="TableOfContents">
   <ol>
-    <li><a href="#1-fork-想要做贡献的项目">1. fork 想要做贡献的项目</a></li>
-    <li><a href="#2-clone-刚刚-fork-的项目">2. Clone 刚刚 Fork 的项目</a></li>
-    <li><a href="#3设置克隆好的项目">3.设置克隆好的项目</a></li>
-    <li><a href="#4创建一个分支">4.创建一个分支</a></li>
-    <li><a href="#5开展工作">5.开展工作</a></li>
-    <li><a href="#6提起-pull-request">6.提起 pull request</a></li>
-    <li><a href="#7等待审查">7.等待审查</a></li>
-    <li><a href="#8删除分支">8.删除分支</a></li>
+    <li><a href="#一clientset--out-of-cluster">一，Clientset —— out of cluster</a>
+      <ol>
+        <li><a href="#1-配置-config-文件把-master-上的配置文件复制到本地">1, 配置 config 文件（把 master 上的配置文件复制到本地）</a></li>
+        <li><a href="#2-编写代码">2, 编写代码</a></li>
+        <li><a href="#3-运行">3, 运行</a></li>
+      </ol>
+    </li>
   </ol>
 </nav>
                 </div>

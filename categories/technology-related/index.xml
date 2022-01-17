@@ -6,13 +6,25 @@
     <description>Recent content in Technology-related on ldsdsy Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 05 Jul 2021 23:02:15 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/categories/technology-related/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 17 Jul 2021 09:54:41 -0500</lastBuildDate><atom:link href="https://ldsdsy.github.io/categories/technology-related/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>K8s_Clientset</title>
-      <link>https://ldsdsy.github.io/p/k8s_clientset/</link>
+      <title>K8s_Clientset02</title>
+      <link>https://ldsdsy.github.io/p/k8s_clientset02/</link>
+      <pubDate>Sat, 17 Jul 2021 09:54:41 -0500</pubDate>
+      
+      <guid>https://ldsdsy.github.io/p/k8s_clientset02/</guid>
+      <description>ClientSet —— in cluster out of cluster 是通过集群的配置文件让外部的应用可以操作集群内的资源对象， in cluster 本身是把程序作为一个 pod 运行在集群内部，通过 RBAC 来授权使其能够获取集群的资源对象。
+一，大致流程 编写好 go 程序，编译为二进制文件，打包成镜像并推送，然后开启 pod 运行镜像同时需要授予权限，使其有权获取资源信息。
+二，编写程序 1, mian.go
+package main import ( &amp;quot;context&amp;quot; &amp;quot;fmt&amp;quot; metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot; &amp;quot;k8s.io/client-go/kubernetes&amp;quot; &amp;quot;k8s.io/client-go/rest&amp;quot; ) func main() { // creates the in-cluster config config, err := rest.InClusterConfig() if err != nil { panic(err.Error()) } // create the clientset clientset, err := kubernetes.NewForConfig(config) if err != nil { panic(err.Error()) } // get pod pods, err := clientset.</description>
+    </item>
+    
+    <item>
+      <title>K8s_Clientset01</title>
+      <link>https://ldsdsy.github.io/p/k8s_clientset01/</link>
       <pubDate>Mon, 05 Jul 2021 23:02:15 +0800</pubDate>
       
-      <guid>https://ldsdsy.github.io/p/k8s_clientset/</guid>
+      <guid>https://ldsdsy.github.io/p/k8s_clientset01/</guid>
       <description>Clientset 访问 k8s 集群资源对象 Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。
  一，Clientset —— out of cluster 通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。
 1, 配置 config 文件（把 master 上的配置文件复制到本地） // 在本地执行 $ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/ // 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件 2, 编写代码 package main import ( &amp;quot;context&amp;quot; &amp;quot;flag&amp;quot; &amp;quot;fmt&amp;quot; &amp;quot;path/filepath&amp;quot; metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot; &amp;quot;k8s.io/client-go/kubernetes&amp;quot; &amp;quot;k8s.io/client-go/tools/clientcmd&amp;quot; &amp;quot;k8s.io/client-go/util/homedir&amp;quot; ) func main() { var kubeconfig *string // 默认会从 ~/.</description>

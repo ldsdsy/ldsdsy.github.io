@@ -78,7 +78,7 @@ package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.">
                     
                     
                         
-                        <img src="/img/avatar_hu2e189dc478a5e45eb3a00cd53d33175a_1075499_300x0_resize_box_3.png" width="300"
+                        <img src="/img/avatar_hu2e189dc478a5e45eb3a00cd53d33175a_1075499_300x0_resize_box_2.png" width="300"
                             height="300" class="site-logo" loading="lazy" alt="Avatar">
                     
                 
@@ -99,7 +99,7 @@ package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.">
         
 
         <li >
-            <a href='/' target="_blank">
+            <a href='/' >
                 
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -258,7 +258,7 @@ package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.">
     <pre><code>Go 项目目录格式的一些问题  
 </code></pre>
 <p>1.一个项目只有一个 mian.go 作为入口。所以如何解决一个项目里存在多个 xxx.go 的问题呢？如下为一种方式：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="nx">demo</span>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">demo</span>
    <span class="p">|</span><span class="nx">___main</span><span class="p">.</span><span class="k">go</span>
    <span class="p">|</span><span class="nx">___exam</span>
           <span class="p">|</span><span class="nx">___01</span><span class="p">.</span><span class="k">go</span>
@@ -266,7 +266,7 @@ package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.">
 
 <span class="c1">//mian.go 作为整个项目入口，exam 为 package （包），exam 下面又包含多个函数，每个函数可在 main.go 中调用。 
 </span></code></pre></div><p>01.go</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go">
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">
 <span class="kn">package</span> <span class="nx">exam</span>
 <span class="kn">import</span> 	<span class="s">&#34;fmt&#34;</span>
 
@@ -278,7 +278,7 @@ package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.">
 
 <span class="c1">//Go 要求公有函数以大写字母开头，并且需要在函数上方书写用于说明函数用处的注释，注释必须以函数名开头。
 </span></code></pre></div><p>main.go</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go">
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">
 <span class="kn">package</span> <span class="nx">main</span>
 <span class="kn">import</span> <span class="s">&#34;demo/exam&#34;</span>
 
@@ -291,7 +291,7 @@ package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.">
 </code></pre></div><p>2.尽量一开始养成编写测试函数的习惯。Go 语言拥有一套单元测试和性能测试系统，仅需要添加很少的代码就可以快速测试一段需求代码。</p>
 <p>go test 命令，会自动读取源码目录下面名为 *_test.go 的文件，生成并运行测试用的可执行文件。<br>
 单元测试源码文件可以由多个测试用例组成，每个测试用例函数需要以 Test 为前缀，例如：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">exam</span>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">exam</span>
 <span class="kn">import</span> <span class="s">&#34;testing&#34;</span>
 
 <span class="kd">func</span> <span class="nf">TestAdd</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
@@ -338,12 +338,24 @@ package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.">
                 
                     
 <article class="">
-    <a href="/p/k8s_clientset/">
+    <a href="/p/k8s_clientset02/">
         
         
 
         <div class="article-details">
-            <h2 class="article-title">K8s_Clientset</h2>
+            <h2 class="article-title">K8s_Clientset02</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/k8s_clientset01/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">K8s_Clientset01</h2>
         </div>
     </a>
 </article>
@@ -380,18 +392,6 @@ package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.">
 
         <div class="article-details">
             <h2 class="article-title">Exam2019</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/network_six/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">Network_six</h2>
         </div>
     </a>
 </article>
@@ -454,7 +454,7 @@ package exam import &amp;#34;testing&amp;#34; func TestAdd(t *testing.">
         
             2020 - 
         
-        2021 ldsdsy Site
+        2022 ldsdsy Site
     </section>
     
     <section class="powerby">

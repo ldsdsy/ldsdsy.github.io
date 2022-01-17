@@ -6,24 +6,168 @@
         <description>Recent content on ldsdsy Site</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Mon, 05 Jul 2021 23:02:15 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>K8s_Clientset</title>
-        <link>https://ldsdsy.github.io/p/k8s_clientset/</link>
+        <lastBuildDate>Sat, 17 Jul 2021 09:54:41 -0500</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>K8s_Clientset02</title>
+        <link>https://ldsdsy.github.io/p/k8s_clientset02/</link>
+        <pubDate>Sat, 17 Jul 2021 09:54:41 -0500</pubDate>
+        
+        <guid>https://ldsdsy.github.io/p/k8s_clientset02/</guid>
+        <description>&lt;h1 id=&#34;clientset--in-cluster&#34;&gt;ClientSet —— in cluster&lt;/h1&gt;
+&lt;p&gt;&lt;em&gt;out of cluster 是通过集群的配置文件让外部的应用可以操作集群内的资源对象， in cluster 本身是把程序作为一个 pod 运行在集群内部，通过 RBAC 来授权使其能够获取集群的资源对象。&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;一大致流程&#34;&gt;一，大致流程&lt;/h2&gt;
+&lt;p&gt;编写好 go 程序，编译为二进制文件，打包成镜像并推送，然后开启 pod 运行镜像同时需要授予权限，使其有权获取资源信息。&lt;/p&gt;
+&lt;h2 id=&#34;二编写程序&#34;&gt;二，编写程序&lt;/h2&gt;
+&lt;p&gt;1, mian.go&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;package main
+
+import (
+	&amp;quot;context&amp;quot;
+	&amp;quot;fmt&amp;quot;
+
+	metav1 &amp;quot;k8s.io/apimachinery/pkg/apis/meta/v1&amp;quot;
+	&amp;quot;k8s.io/client-go/kubernetes&amp;quot;
+	&amp;quot;k8s.io/client-go/rest&amp;quot;
+)
+
+func main() {
+	// creates the in-cluster config
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// create the clientset
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// get pod
+	pods, err := clientset.CoreV1().Pods(&amp;quot;&amp;quot;).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(err.Error())
+	}
+	for _, pod := range pods.Items {
+		fmt.Printf(&amp;quot;pod.name:%v\n&amp;quot;, pod.Name)
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;2, Dockerfile&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 基础镜像
+FROM debian
+
+# 把当前目录下编译得到的二进制 app 复制到工作目录 /app 下 
+COPY ./app /app
+
+# 执行工作目录里的 app
+ENTRYPOINT /app
+
+# 文件名一定是 Dockerfile ,不要任何后缀，也不要全小写
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;3, 编译二进制文件&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ go build -o ./app . 
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;4, 打包镜像&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ docker build . -t app
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;5, 给镜像加 tag&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;docker tag **** bocloud-bj.io:5000/app:1.0
+// **** 是镜像 ID
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;6, 推送镜像&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;docker push bocloud-bj.io:5000/app:1.0
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;三开启-pod-运行-image&#34;&gt;三，开启 pod ，运行 image&lt;/h2&gt;
+&lt;p&gt;1, 给 pod 授权
+在 ClusterRole 里定义 pod 有哪些权利，再用 ClusterRoleBinding 去绑定 ClusterRole 和 service account，SA 会为 pod 里的进程提供必要的身份证明。&lt;/p&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li&gt;ClusterRole.yaml&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code&gt;---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-get
+rules:
+- apiGroups: [&amp;quot;&amp;quot;]
+  resources: [&amp;quot;pods&amp;quot;]
+  verbs: [&amp;quot;get&amp;quot;, &amp;quot;watch&amp;quot;, &amp;quot;list&amp;quot;]
+&lt;/code&gt;&lt;/pre&gt;&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;ClusterRoleBinding.yaml&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code&gt;---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pod-get-rbac
+subjects:
+- kind: ServiceAccount
+  namespace: default
+  name: clientset-sa
+roleRef:
+  kind: ClusterRole
+  name: pod-get
+  apiGroup: rbac.authorization.k8s.io
+&lt;/code&gt;&lt;/pre&gt;&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;sa.yaml&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code&gt;---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: clientset-sa
+  namespace: default
+&lt;/code&gt;&lt;/pre&gt;&lt;ol start=&#34;4&#34;&gt;
+&lt;li&gt;deploy.yaml&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code&gt;---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clientset-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incluster
+  template:
+    metadata:
+      labels:
+        app: incluster
+    spec:
+      containers:
+      - name: webhook
+        image: bocloud-bj.io:5000/app:1.0
+        imagePullPolicy: Always
+      serviceAccountName: clientset-sa
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;四打印日志&#34;&gt;四，打印日志&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;$ kubectl logs ****
+// **** 是 pod_id
+
+[centos@ml-k8s-1 ~]$ kubectl logs clientset-deploy-854d7f648c-gcj4v
+pod.name:nfs-client-provisioner-6d9b86b854-pcb9v
+pod.name:webhook-deploy-854d7f648c-gcj4v
+pod.name:coredns-545d6fc579-2kn79
+pod.name:coredns-545d6fc579-mpzqg
+pod.name:etcd-ml-k8s-1.novalocal
+pod.name:fabric-node-2gnjf
+pod.name:fabric-node-s92ds
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;// Note: 因为节点是 Linux 系统，所以在编译二进制 app 时也要在 Linux 环境下。&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>K8s_Clientset01</title>
+        <link>https://ldsdsy.github.io/p/k8s_clientset01/</link>
         <pubDate>Mon, 05 Jul 2021 23:02:15 +0800</pubDate>
         
-        <guid>https://ldsdsy.github.io/p/k8s_clientset/</guid>
+        <guid>https://ldsdsy.github.io/p/k8s_clientset01/</guid>
         <description>&lt;h1 id=&#34;clientset-访问-k8s-集群资源对象&#34;&gt;Clientset 访问 k8s 集群资源对象&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;Client-go 是一个调用 k8s 集群资源对象 API 的客户端，及通过 Client-go 实现对资源对象的增删改查（CRUD）.四类客户端：RestClient, ClientSet, DynamicClient, DiscoveryClient（此处只介绍 ClientSet 的用法）。&lt;/em&gt;&lt;/p&gt;
 &lt;hr&gt;
 &lt;h2 id=&#34;一clientset--out-of-cluster&#34;&gt;一，Clientset —— out of cluster&lt;/h2&gt;
 &lt;p&gt;&lt;em&gt;通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。&lt;/em&gt;&lt;/p&gt;
 &lt;h3 id=&#34;1-配置-config-文件把-master-上的配置文件复制到本地&#34;&gt;1, 配置 config 文件（把 master 上的配置文件复制到本地）&lt;/h3&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;// 在本地执行
+&lt;pre&gt;&lt;code&gt;// 在本地执行
 $ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/
 
 // 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件
 &lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;2-编写代码&#34;&gt;2, 编写代码&lt;/h3&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;package main
+&lt;pre&gt;&lt;code&gt;package main
 
 import (
 	&amp;quot;context&amp;quot;
@@ -71,7 +215,7 @@ func main() {
 	}
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;3-运行&#34;&gt;3, 运行&lt;/h3&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ go run main.go
+&lt;pre&gt;&lt;code&gt;$ go run main.go
 pod.name:nfs-client-provisioner-6d9b86b854-pcb9v
 pod.name:coredns-545d6fc579-2kn79
 pod.name:coredns-545d6fc579-mpzqg
@@ -93,7 +237,7 @@ pod.name:fabric-node-s92ds
 &lt;ol&gt;
 &lt;li&gt;配置文件样例如下:&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;apiVersion: apiserver.config.k8s.io/v1
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;apiVersion: apiserver.config.k8s.io/v1
 kind: EncryptionConfiguration
 resources:
   - resources:
@@ -113,14 +257,14 @@ resources:
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;需生成随机密钥放入 secret 字段中，直接进行如下操作：&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ head -c &lt;span class=&#34;m&#34;&gt;32&lt;/span&gt; /dev/urandom &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; base64
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ head -c &lt;span class=&#34;m&#34;&gt;32&lt;/span&gt; /dev/urandom &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; base64
 7unrE0P6q9DmlqGVeZ+k02d2eNaAgveFC01V+gV3VYc&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;
 
 // 生成了一个 &lt;span class=&#34;m&#34;&gt;32&lt;/span&gt; 字节的随机密钥并进行了 base64 编码
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
 &lt;li&gt;配置文件命名为 encrypt.conf , 并存放在 /etc/kubernetes/pki/&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /etc/kubernetes/pki/
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /etc/kubernetes/pki/
 &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 pki&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ ls
 apiserver-etcd-client.crt  apiserver-kubelet-client.crt  apiserver.crt  ca.crt  encrypt.conf  front-proxy-ca.crt  front-proxy-client.crt  sa.key
 apiserver-etcd-client.key  apiserver-kubelet-client.key  apiserver.key  ca.key  etcd          front-proxy-ca.key  front-proxy-client.key  sa.pub
@@ -128,7 +272,7 @@ apiserver-etcd-client.key  apiserver-kubelet-client.key  apiserver.key  ca.key  
 &lt;ol&gt;
 &lt;li&gt;增加 &amp;ndash;encryption-provider-config ，指向 encrypt.conf&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /etc/kubernetes/manifests
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /etc/kubernetes/manifests
 &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 manifests&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ ls
 etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml
 &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 manifests&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ sudo vim kube-apiserver.yaml
@@ -183,7 +327,7 @@ spec:
 &lt;ol&gt;
 &lt;li&gt;在 default 命名空间里创建一个名为 secret1 的 secret ：&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl create secret generic secret1 -n default --from-literal&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;mykey&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;mydata
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl create secret generic secret1 -n default --from-literal&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;mykey&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;mydata
 secret/secret1 created
 &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl get secret
 NAME                  TYPE                                  DATA   AGE
@@ -192,7 +336,7 @@ secret1               Opaque                                &lt;span class=&#34;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;使用 etcdctl 命令行，从 etcd 中读取 secret ：&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 etcd&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ sudo &lt;span class=&#34;nv&#34;&gt;ETCDCTL_API&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;3&lt;/span&gt; ./etcdctl  --cacert&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/kubernetes/pki/etcd/ca.crt  --cert&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/kubernetes/pki/apiserver-etcd-client.crt   --key&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/kubernetes/pki/apiserver-etcd-client.key get /registry/secrets/default/secret1 &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; hexdump -C
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 etcd&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ sudo &lt;span class=&#34;nv&#34;&gt;ETCDCTL_API&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;3&lt;/span&gt; ./etcdctl  --cacert&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/kubernetes/pki/etcd/ca.crt  --cert&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/kubernetes/pki/apiserver-etcd-client.crt   --key&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/etc/kubernetes/pki/apiserver-etcd-client.key get /registry/secrets/default/secret1 &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; hexdump -C
 &lt;span class=&#34;m&#34;&gt;00000000&lt;/span&gt;  2f &lt;span class=&#34;m&#34;&gt;72&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;65&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;67&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;69&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;73&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;74&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;72&lt;/span&gt;  &lt;span class=&#34;m&#34;&gt;79&lt;/span&gt; 2f &lt;span class=&#34;m&#34;&gt;73&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;65&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;72&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;65&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;74&lt;/span&gt;  &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;/registry/secret&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
 &lt;span class=&#34;m&#34;&gt;00000010&lt;/span&gt;  &lt;span class=&#34;m&#34;&gt;73&lt;/span&gt; 2f &lt;span class=&#34;m&#34;&gt;64&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;65&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;66&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;61&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;75&lt;/span&gt; 6c  &lt;span class=&#34;m&#34;&gt;74&lt;/span&gt; 2f &lt;span class=&#34;m&#34;&gt;73&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;65&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;72&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;65&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;74&lt;/span&gt;  &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;s/default/secret&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
 &lt;span class=&#34;m&#34;&gt;00000020&lt;/span&gt;  &lt;span class=&#34;m&#34;&gt;31&lt;/span&gt; 0a 6b &lt;span class=&#34;m&#34;&gt;38&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;73&lt;/span&gt; 3a &lt;span class=&#34;m&#34;&gt;65&lt;/span&gt; 6e  &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt; 3a &lt;span class=&#34;m&#34;&gt;61&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;65&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;73&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;62&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;63&lt;/span&gt;  &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;1.k8s:enc:aescbc&lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;
@@ -221,7 +365,7 @@ secret1               Opaque                                &lt;span class=&#34;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
 &lt;li&gt;验证 secret 是否被正确解密：&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 etcd&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$  kubectl get secrets secret1 -o yaml
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 etcd&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$  kubectl get secrets secret1 -o yaml
 apiVersion: v1
 data:
   mykey: bXlkYXRh
@@ -244,7 +388,7 @@ mydata
 &lt;ol&gt;
 &lt;li&gt;读取所有 Secret，然后通过更新来实现全部加密&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 etcd&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl get secrets --all-namespaces -o json &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; kubectl replace -f -
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 etcd&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl get secrets --all-namespaces -o json &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; kubectl replace -f -
 secret/default-token-44r9r replaced
 secret/secret1 replaced
 secret/default-token-d49sg replaced
@@ -332,7 +476,7 @@ secret/webhook-server-cert replaced
 &lt;ol&gt;
 &lt;li&gt;修改配置文件 encrypt.conf ，把  provider 里的 identity 修改为第一项&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 pki&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ sudo vim encrypt.conf
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 pki&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ sudo vim encrypt.conf
 apiVersion: apiserver.config.k8s.io/v1
 kind: EncryptionConfiguration
 resources:
@@ -347,7 +491,7 @@ resources:
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;再通过更新来解密&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 pki&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl get secrets --all-namespaces -o json &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; kubectl replace -f -
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 pki&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl get secrets --all-namespaces -o json &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; kubectl replace -f -
 secret/default-token-44r9r replaced
 secret/secret1 replaced
 secret/default-token-d49sg replaced
@@ -404,7 +548,7 @@ secret/webhook-server-cert replaced
 &lt;h2 id=&#34;docker-一种生成容器的工具&#34;&gt;Docker 一种生成容器的工具。&lt;/h2&gt;
 &lt;h3 id=&#34;一镜像&#34;&gt;一，镜像&lt;/h3&gt;
 &lt;p&gt;&lt;em&gt;Docker 镜像是一种特殊的文件系统，是一个静态概念，是容器的底层。&lt;/em&gt;&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1，获取镜像：
+&lt;pre&gt;&lt;code&gt;1，获取镜像：
     $ docker pull ***
     
 2，显示镜像：
@@ -433,7 +577,7 @@ secret/webhook-server-cert replaced
 Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一条条构建镜像所需的指令和说明。
 &lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;二容器&#34;&gt;二，容器&lt;/h3&gt;
 &lt;p&gt;&lt;em&gt;容器是独立运行的一个或一组应用，以及它们的运行态环境,是一个动态概念。&lt;/em&gt;&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1，启动容器：
+&lt;pre&gt;&lt;code&gt;1，启动容器：
     1) 基于镜像新建容器并启动：
         $ docker run -t -i ubuntu /bin/bash
         // -t 选项让 Docker 分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开
@@ -481,7 +625,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
 输入：一个字符串&lt;br&gt;
 输出：按字典输出碎片，每个碎片一行，相同的碎片只输出一次&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt;&lt;span class=&#34;cpf&#34;&gt;&amp;lt;bits/stdc++.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt;&lt;span class=&#34;cpf&#34;&gt;&amp;lt;bits/stdc++.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
 &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
@@ -523,7 +667,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
 输入：第一行为权值个数 n ，第二行是 n 个权值&lt;br&gt;
 输出：最短带权路径长度&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt;&lt;span class=&#34;cpf&#34;&gt;&amp;lt;bits/stdc++.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt;&lt;span class=&#34;cpf&#34;&gt;&amp;lt;bits/stdc++.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
 &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
@@ -559,13 +703,13 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         <guid>https://ldsdsy.github.io/p/network_six/</guid>
         <description>&lt;h1 id=&#34;应用层&#34;&gt;应用层&lt;/h1&gt;
 &lt;h2 id=&#34;1-网络应用模型&#34;&gt;1 网络应用模型&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 客户/服务器模型（C/S）：
+&lt;pre&gt;&lt;code&gt;1. 客户/服务器模型（C/S）：
     有一个总是打开的主机称为服务器，它服务于许多来自其他称为客户机的主机请求。
 
 2. P2P 模型：
     每台机器既是服务器又是客户机。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;2-域名系统dns&#34;&gt;2 域名系统（DNS）&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;用于把主机名转换为 IP 地址；采用客户/服务器模型，其协议运行在 UDP 之上，使用 53 号端口。
+&lt;pre&gt;&lt;code&gt;用于把主机名转换为 IP 地址；采用客户/服务器模型，其协议运行在 UDP 之上，使用 53 号端口。
 从概念上分为是三部分：层次域名空间，域名服务器，解析器。
 
 1. 域名服务器分类：
@@ -580,7 +724,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
     2）递归与迭代相结合：
         主机自身一次询问以上四种服务器。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;3-文件传输协议ftp&#34;&gt;3 文件传输协议（FTP）&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;FTP 采用 C/S 工作方式，使用 TCP 可靠传输；
+&lt;pre&gt;&lt;code&gt;FTP 采用 C/S 工作方式，使用 TCP 可靠传输；
 其服务器分为：一个主进程负责接受新的请求，若干从属进程负责处理单个请求。
 
 1. 控制连接：
@@ -588,7 +732,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
 2. 数据连接：
     此连接用来连接客户端和服务器端的数据传送进程，传送完毕则关闭连接并结束运行。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;4-电子邮件&#34;&gt;4 电子邮件&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;一个邮件系统包含：用户代理，邮件服务器，协议。
+&lt;pre&gt;&lt;code&gt;一个邮件系统包含：用户代理，邮件服务器，协议。
 
 1. 过程：发送方使用 SMTP 协议发邮件到发送方邮件服务器，此服务器再用 SMTP 发送到接收方的邮件服务器，接收方用 POP3 读取邮件到本地。
 
@@ -598,7 +742,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
 3. POP3 :
     用于接受邮件，运行在 TCP 上，使用 110 号端口。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;5-万维网&#34;&gt;5 万维网&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;万维网是一个资料空间，每一样资料都有“统一资源定位符”来标识，通过 HTTP 传输。
+&lt;pre&gt;&lt;code&gt;万维网是一个资料空间，每一样资料都有“统一资源定位符”来标识，通过 HTTP 传输。
 
 1. HTTP :
     运行在 TCP 上，使用 80 端口；
@@ -615,7 +759,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         <description>&lt;h1 id=&#34;传输层&#34;&gt;传输层&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;传输层为运行在不同主机上的进程提供逻辑通信&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-提供的服务&#34;&gt;1 提供的服务&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 功能：
+&lt;pre&gt;&lt;code&gt;1. 功能：
     1）提供应用进程之间的逻辑通信（端到端的通信）。
     2）复用和分用
         复用：不同的进程使用同一个传输协议传送数据；
@@ -646,7 +790,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         在 IP 之上仅提供：多路复用和对数据的检查。
         速度较快，实时性较好，适用于小文件传输协议（DNS,SNMP）.
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;2-udp-协议&#34;&gt;2 UDP 协议&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. UDP 数据报：
+&lt;pre&gt;&lt;code&gt;1. UDP 数据报：
     1）无需建立连接，因此不会引入建立连接的时延；
     2）无连接状态，因此也免除了去维护连接的麻烦；
     3）分组首部开销小，才 8B,而 TCP 首部是 20B；
@@ -676,7 +820,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
                若不是偶数个字节仍要补 0；
                结果全为 1 表示无差错，否则有错丢弃。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;3-tcp-协议&#34;&gt;3 TCP 协议&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 特点：
+&lt;pre&gt;&lt;code&gt;1. 特点：
     TCP 是在不可靠的 IP 层上实现的可靠传输协议，主要解决可靠，有序，无丢失，不重复的问题。
 
     1）是面向连接的；
@@ -752,11 +896,11 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         <description>&lt;h1 id=&#34;网络层&#34;&gt;网络层&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-功能&#34;&gt;1 功能&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 异构网互联
+&lt;pre&gt;&lt;code&gt;1. 异构网互联
 2. 路由和转发：路由选择，分组转发
 3. 拥塞控制：开环控制（静态），闭环控制（动态）
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;2-路由算法&#34;&gt;2 路由算法&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 静态路由（非自适应路由算法）：
+&lt;pre&gt;&lt;code&gt;1. 静态路由（非自适应路由算法）：
     1）管理员手动配置路由信息；
     2）优点是简便，可靠，适用于负荷稳定，拓扑变化不大的网络。
 
@@ -770,7 +914,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
     1）自治系统内使用的路由选择协议称为内部网关协议（IGP），也称域内路由选择，如 RIP,OSPF.
     2）自治系统间使用的路由选择协议称为外部网关协议（EGP），也称域间路由选择，如 BGP.
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;3-ipv4&#34;&gt;3 IPv4&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。
+&lt;pre&gt;&lt;code&gt;IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。
 
 1. 分组格式：首部 + 数据
     首部：固定 20B ，其中协议表示应交付哪个传输层协议（6：TCP,17:UDP）；
@@ -857,7 +1001,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         // 分组网间 PING ：测试两台主机之间的连通性
         // Traceroute :用来跟踪分组经过的路由
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;4-ipv6&#34;&gt;4 IPv6&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;解决 IP 地址耗尽的措施：
+&lt;pre&gt;&lt;code&gt;解决 IP 地址耗尽的措施：
     1）采用 CIDR ，使 IP 分配更合理；
     2）采用 NAT 以节省 IP 地址；
     3）采用更大地址空间的新版本 IPv6.
@@ -878,7 +1022,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
     1）双协议栈：让主机或路由器装有两个协议栈，一个 4 一个 6.
     2）隧道技术：将整个 IPv6 数据报封装到 IPv4 数据报的数据部分，使其可在 IPv4 的隧道中传输。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;5-路由协议&#34;&gt;5 路由协议&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 路由信息协议（RIP）:
+&lt;pre&gt;&lt;code&gt;1. 路由信息协议（RIP）:
     RIP 是一种分布式的基于距离向量的路由选择协议，最大优点：简单。
 
     1）RIP 会优先选择跳数少的路径。
@@ -902,7 +1046,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
     2）BGP 是应用层协议，基于 TCP.
     3）与相邻路由器交换信息，首次交换整个路由表，非首次交换有变化的部分。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;6-ip-组播&#34;&gt;6 IP 组播&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt; 主机组播时仅发送一份数据，在传送路径出现分岔时才复制分组并转发。
+&lt;pre&gt;&lt;code&gt; 主机组播时仅发送一份数据，在传送路径出现分岔时才复制分组并转发。
  组播仅应用于 UDP.
 
  1. IP 组播地址：
@@ -921,7 +1065,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         2）基于距离-向量的路由选择；
         3）可建立在任何路由器协议上，称为协议无关的组播（PIM）.
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;7-移动-ip&#34;&gt;7 移动 IP&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;支持移动性的因特网体系结构与协议共称为移动 IP。
+&lt;pre&gt;&lt;code&gt;支持移动性的因特网体系结构与协议共称为移动 IP。
 （使用移动 IP 可以让一个移动结点在不改变 IP 地址的情况下改变驻留位置）
 
 1. 基于 IPv4 的移动 IP 定义三种功能实体：
@@ -932,7 +1076,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
 2. 移动 IP 通信过程：
     本地代理接受消息，传给外部代理，载传给移动主机。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;8-网络层设备&#34;&gt;8 网络层设备&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 路由器的组成和功能：
+&lt;pre&gt;&lt;code&gt;1. 路由器的组成和功能：
     路由器是一种具有多个输入/输出端口的专用计算机，其任务是连接异构网并完成路由转发。
 
     两个主要功能：
@@ -956,7 +1100,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         <description>&lt;h1 id=&#34;数据链路层&#34;&gt;数据链路层&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;负责从一个节点到直接相连的相邻节点传输数据报&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-功能&#34;&gt;1 功能&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 为网络层服务：
+&lt;pre&gt;&lt;code&gt;1. 为网络层服务：
     1）无确认的无连接服务：适用于实时通信或误码率较低的通信信道，如以太网。
     2）有确认的无连接服务：适用于误码率较高的通信网络，如无线通信。
     3）有确认的面向连接服务：适用于通信要求（可靠性，实时性）较高的场合。
@@ -973,14 +1117,14 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
    // 帧错：帧的丢失，重复，失序（引入定时器，编号机制来解决）。
    // 位错：1 变 0 ，0 变 1 。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;2-组帧&#34;&gt;2 组帧&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。
+&lt;pre&gt;&lt;code&gt;把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。
 
 1. 字符计数法：指在帧头部使用一个计数字段来标明帧内字符数。
 2. 字符填充的首尾定界符：使用一些特殊的字符来定界帧的开始与结束。
 3. 比特填充的首尾标志法：使用一个特定的比特模式，如 01111110 ，在传输数据中遇到 5 个 1 就填充 1 个 0 ，同样接收方接受数据时遇到 5 个 1 就去掉后面的 1 个 0（5 1 1 0）。
 4. 违规编码法：如曼彻斯特编码，用 “高-低”电平表示 1 ，“低-高” 为 0，则 “高-高”，“低-低”就可用于表示开始和结束。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;3-差错控制&#34;&gt;3 差错控制&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。
+&lt;pre&gt;&lt;code&gt;差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。
 
 1. 检错编码：
     1）奇偶校验码：它由 n-1 位信息元和 1 位校验元组成；奇校验码是加上校验元后整体有奇数个 1，偶检验码则是整体有偶数个 1 。
@@ -994,7 +1138,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
     海明码：发现双比特错，纠正单比特错。
     海明不等式：2^r &amp;gt;= k+r+1    //r: 冗余信息位，k: 信息位
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;4-流量控制与可靠传输机制&#34;&gt;4 流量控制与可靠传输机制&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 停止-等待协议：
+&lt;pre&gt;&lt;code&gt;1. 停止-等待协议：
     发送方每发送一帧就要等待接收方的应答信号，之后再发送下一帧。
 
 2. 滑动窗口协议：
@@ -1007,7 +1151,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
     // 只重传出错帧；
     // 接收方有缓存。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;5-介质访问控制&#34;&gt;5 介质访问控制&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;采取一定措施，使结点间的通信不会发生相互干扰。
+&lt;pre&gt;&lt;code&gt;采取一定措施，使结点间的通信不会发生相互干扰。
 
 1. 信道划分介质访问控制：
     1）频分多路复用
@@ -1047,7 +1191,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
     用户通过一个集中控制的监控站，以循环的方式逐个获取信道使用权。
     令牌传递协议：得到令牌的机器才能发送数据，其他的等待。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;6-局域网&#34;&gt;6 局域网&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;局域网是指在一个较小的范围内，将各种计算机，外部设备和数据库系统等通过双绞线，同轴电缆等连接起来，组成资源和信息共享的计算机互联网络。
+&lt;pre&gt;&lt;code&gt;局域网是指在一个较小的范围内，将各种计算机，外部设备和数据库系统等通过双绞线，同轴电缆等连接起来，组成资源和信息共享的计算机互联网络。
 
     1. 特性：
         1）拓扑结构：星形结构，环形结构，总线形结构（常用），树形（星形 + 总线形）。
@@ -1072,14 +1216,14 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         指无线局域网的一系列协议标准；
         无线局域网分为：固定基础设施无线局域网，无固定基础设施无线局域网自组织网络。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;7-广域网&#34;&gt;7 广域网&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;广域网不等于互联网，互联网用路由器连接，可以连接不同类型的网络（局域网和广域网）；广域网则采用节点交换机连接一个网络。
+&lt;pre&gt;&lt;code&gt;广域网不等于互联网，互联网用路由器连接，可以连接不同类型的网络（局域网和广域网）；广域网则采用节点交换机连接一个网络。
 
 1. PPP 协议：
     面向字节，采用字节填充方式，只支持全双工链路。
 2. HDLC 协议：
     面向比特，采用 0 比特插入法，帧类分为信息帧，监督帧，无编号帧。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;8-数据链路层设备&#34;&gt;8 数据链路层设备&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 网桥：
+&lt;pre&gt;&lt;code&gt;1. 网桥：
     特点：把两个或多个以太网通过网桥连接起来变成一个网段。
     类型：
         1）透明网桥：按照自学习算法填写转发表，按转发表转发；不是最佳路由。
@@ -1102,25 +1246,25 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         <description>&lt;h1 id=&#34;物理层&#34;&gt;物理层&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;物理层用于透明传输比特流&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-基本概念&#34;&gt;1 基本概念&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1） 码元： 指用一个固定时长的信号波形表示一位 K 进制数字。
+&lt;pre&gt;&lt;code&gt;1） 码元： 指用一个固定时长的信号波形表示一位 K 进制数字。
 2） 单工通信： 只有一个方向的通信而没有反方向的交互，仅需一条信道。
 3） 半双工通信： 通信双方都可以发送或接受信息，但同一时间只能一个发一个接，需要两条信道。
 4） 全双工通信： 通信双方都可以同时发送和接收信息，需要两条信道。
 5） 码元速率： 单位为波特，1 波特表示一秒传输一个码元。
 6） 信息传输率： 单位为 b/s ,单位时间传输的比特数。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;2-四种特性&#34;&gt;2 四种特性&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1） 机械特性： 规定物理连接时所采用的规格，接口形状，引线数目，引脚数量等。
+&lt;pre&gt;&lt;code&gt;1） 机械特性： 规定物理连接时所采用的规格，接口形状，引线数目，引脚数量等。
 2） 电气特性： 规定传输二进制时，线路上信号的电压范围，阻抗匹配，传输速率和传输距离等。
 3） 功能特性： 指明某线路上某一电平表示何种意义，接口部件信号线的用途。
 4） 规程特性： 又叫过程特性，定义各条物理线路的工作规程和时序关系。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;3-奈氏准则香农定理&#34;&gt;3 奈氏准则，香农定理&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 奈氏准则 指出在理想低通（无噪声，带宽有限）的情况下，码元的极限传输率是 2W 。
+&lt;pre&gt;&lt;code&gt;1. 奈氏准则 指出在理想低通（无噪声，带宽有限）的情况下，码元的极限传输率是 2W 。
 // 可推出 数据极限传输率 = 2W * log2(V) ,V 表示有 v 种码元。
 
 2. 香农定理 给出了带宽受限且有高斯白噪声干扰的信道的极限数据传输率，W * log2（1+S/N）。
 // S/N 为信噪比，（ X 分贝 = 10*log10（S/N）。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;4-编码调制&#34;&gt;4 编码，调制&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1 数字数据编码为数字信号：
+&lt;pre&gt;&lt;code&gt;1 数字数据编码为数字信号：
     1）非归零编码：高电平 1，低电平 0 （反之亦可）。
     2）归零编码：信号电平在一个码元内都要恢复到零（低电平 0，高——&amp;gt;低 1）。
     3）反向非归零编码：信号电平反转为 0，不变为 1。
@@ -1140,7 +1284,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
 4 模拟数据调制为模拟信号：
     例如广播电台。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;5-电路交换报文交换分组交换&#34;&gt;5 电路交换，报文交换，分组交换&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1 电路交换：
+&lt;pre&gt;&lt;code&gt;1 电路交换：
     过程：建立连接 ——&amp;gt; 通信 ——&amp;gt; 释放连接。
     特点：独占资源，用户始终占用端到端的固定传输带宽；适用于远程批处理信息传输或系统间实时性要求高的大量数据传输。
 
@@ -1152,12 +1296,12 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
     同样采取存储转发，但限制了每次传输的数据块的上限，解决了大报文传输的问题，同时给小数据块增加了必要的控制信息。
     两种方式：面向连接的虚电路方式，无连接的数据报方式。 
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;6-传输介质&#34;&gt;6 传输介质&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;    1）双绞线：由两根采用一定规则绞合的，相互绝缘的铜导线组成。
+&lt;pre&gt;&lt;code&gt;    1）双绞线：由两根采用一定规则绞合的，相互绝缘的铜导线组成。
     2）同轴电缆：由内导体，绝缘层，网状编织屏蔽层，塑料外层构成。
     3）光纤：通过传递光脉冲来进行通信，分为单模光纤和多模光纤。
     4）无线传输介质：无线电波，微波，红外线，激光。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;7-物理层设备&#34;&gt;7 物理层设备&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1 中继器（转发器）：
+&lt;pre&gt;&lt;code&gt;1 中继器（转发器）：
     功能：将信号整形放大再转发出去。
     // 放大器是放大模拟信号（放大），中继器是放大数字信号（整形再生）。
 
@@ -1173,24 +1317,24 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         <description>&lt;h1 id=&#34;计算机网络概述&#34;&gt;计算机网络概述&lt;/h1&gt;
 &lt;p&gt;&lt;em&gt;简言之，计算机网络就是一些互联的，自治的计算机系统的集合。&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;1-计算机的网络的组成&#34;&gt;1 计算机的网络的组成&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1) 从组成部分上看： 硬件，软件，协议。
+&lt;pre&gt;&lt;code&gt;1) 从组成部分上看： 硬件，软件，协议。
 2) 从工作方式上看： 边缘部分，核心部分。
 3) 从功能组成上看： 通信子网，资源子网。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;2-计算机网络的功能&#34;&gt;2 计算机网络的功能&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 数据通信
+&lt;pre&gt;&lt;code&gt;1. 数据通信
 2. 资源共享
 3. 分布式处理
 4. 提高可靠性
 5. 负载均衡
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;3-计算机网络的分类&#34;&gt;3 计算机网络的分类&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1) 按分布范围分类： 广域网，城域网，局域网，个人区域网。
+&lt;pre&gt;&lt;code&gt;1) 按分布范围分类： 广域网，城域网，局域网，个人区域网。
 2) 按传输技术分类： 广播式网络，点对点网络。
 3) 按拓扑结构分类： 星形网络，总线形网络，环形网络，网状形网络。
 4) 按使用者分类：   公用网，专用网。
 5) 按交换技术分类： 电路交换网络，报文交换网络，分组交换网络。
 6) 按传输介质分类： 有线网络，无线网络。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;4-计算机网络的性能指标&#34;&gt;4 计算机网络的性能指标&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1) 带宽： 表示网络的通信线路所能传输数据的能力，是数字信道所能传输的 “最高数据率” 的同义词，单位为比特每秒（b/s）。
+&lt;pre&gt;&lt;code&gt;1) 带宽： 表示网络的通信线路所能传输数据的能力，是数字信道所能传输的 “最高数据率” 的同义词，单位为比特每秒（b/s）。
 2) 吞吐量： 表示单位时间通过某个网络（或信道，接口）的数据量。其受到网络带宽或是网络额定速率的限制。
 // 带宽是理性的最高传输速率，吞吐量是实际上此时间段的传输速率。
 3) 速率： 表示连接到网络上的主机在数字信道上传送数据的速率，也称数据率或比特率，单位为 b/s （最高数据率就是带宽）。  
@@ -1204,7 +1348,7 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
 5) 往返时延（RTT）： 指从发送端发送数据开始，到发送端收到来自接收端的确认，总共经历的时间。
 6) 时延带宽积： 表示第一个比特到达终点时，发送端已经发送的比特数 (时延带宽积 = 传播时延 * 信道带宽)。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;5-计算机网络体系结构和参考模型&#34;&gt;5 计算机网络体系结构和参考模型&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. OSI 参考模型： 物理层，数据链路层，网络层，传输层，会话层，表示层，应用层（“物联网淑慧试用”）。
+&lt;pre&gt;&lt;code&gt;1. OSI 参考模型： 物理层，数据链路层，网络层，传输层，会话层，表示层，应用层（“物联网淑慧试用”）。
 // 下三层为通信子网（数据通信），上三层为资源子网（数据处理）。
 2. TCP/TP 模型： 网络接口层（物，链），网际层（络），传输层（输），应用层（会，示，应）。
 &lt;/code&gt;&lt;/pre&gt;</description>
@@ -1217,26 +1361,26 @@ Dockerfile 是一个用来构建镜像的文本文件，文本内容包含了一
         <guid>https://ldsdsy.github.io/p/%E7%A4%BE%E5%8C%BA%E8%B4%A1%E7%8C%AE%E6%B5%81%E7%A8%8B/</guid>
         <description>&lt;h1 id=&#34;github-上有许多优秀的开源社区对于时间充裕的学生党来说平时在社区做做贡献是个不错的选择下面以-kubernetes-社区为例刚开始选择做一些简单的翻译贡献选择-kuberneteswebsite-&#34;&gt;github 上有许多优秀的开源社区，对于时间充裕的学生党来说，平时在社区做做贡献是个不错的选择。下面以 Kubernetes 社区为例（刚开始选择做一些简单的翻译贡献，选择 Kubernetes/website ）：&lt;/h1&gt;
 &lt;h2 id=&#34;1-fork-想要做贡献的项目&#34;&gt;1. fork 想要做贡献的项目&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;在 GitHub 进入 Kubernetes/website 项目中，点击右上角的 Fork 按钮，此时就在你的个人仓库里生成了一个 yourname/website 的项目。
+&lt;pre&gt;&lt;code&gt;在 GitHub 进入 Kubernetes/website 项目中，点击右上角的 Fork 按钮，此时就在你的个人仓库里生成了一个 yourname/website 的项目。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;2-clone-刚刚-fork-的项目&#34;&gt;2. Clone 刚刚 Fork 的项目&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;做贡献之前，必须得把项目下载到本地。进入个人的 GitHub 主页找到刚刚 Fork 的项目，点击右上角的 Clone 按钮。
+&lt;pre&gt;&lt;code&gt;做贡献之前，必须得把项目下载到本地。进入个人的 GitHub 主页找到刚刚 Fork 的项目，点击右上角的 Clone 按钮。
 此处有三种下载方式，我选择中间的 SSH 方式。复制好下方的链接进入 cmd 使用 git clone 命令（我打算把项目下载到 D 盘）：
-&lt;/code&gt;&lt;/pre&gt;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$   cd d:
+&lt;/code&gt;&lt;/pre&gt;&lt;pre&gt;&lt;code&gt;$   cd d:
 $   git clone git@github.com:ldsdsy/website.gitf
 
 //耐心等待，第一次 clone 需要一些时间，完成后 D 盘里就会出现 website 的文件夹。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;3设置克隆好的项目&#34;&gt;3.设置克隆好的项目&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;在 cmd 中进入克隆过来的项目文件夹，将原来项目的 URL 添加到你的本地代码仓库，这样你就可以随时从原来的项目 pull 最新的修改(此处用 upstream 作为远程仓库的名字，这是 GitHub 的风格，但是你可以用任何名字。):
+&lt;pre&gt;&lt;code&gt;在 cmd 中进入克隆过来的项目文件夹，将原来项目的 URL 添加到你的本地代码仓库，这样你就可以随时从原来的项目 pull 最新的修改(此处用 upstream 作为远程仓库的名字，这是 GitHub 的风格，但是你可以用任何名字。):
 
 $   git remote add upstream git@github.com:kubernetes/website.git
-&lt;/code&gt;&lt;/pre&gt;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;现在远程仓库列表是这样的:
+&lt;/code&gt;&lt;/pre&gt;&lt;pre&gt;&lt;code&gt;现在远程仓库列表是这样的:
 
 $   git remote -v
 origin  git@github.com:ldsdsy/website.git (fetch)
 origin  git@github.com:ldsdsy/website.git (push)
 upstream        git@github.com:kubernetes/website.git (fetch)
 upstream        git@github.com:kubernetes/website.git (push)
-&lt;/code&gt;&lt;/pre&gt;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;以后定期更新时按如下命令顺序运行：
+&lt;/code&gt;&lt;/pre&gt;&lt;pre&gt;&lt;code&gt;以后定期更新时按如下命令顺序运行：
 
 $   cd D:\website
 $   git checkout master
@@ -1244,29 +1388,29 @@ $   git fetch upstream
 $   git rebase upstream/master
 $   git push origin master
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;4创建一个分支&#34;&gt;4.创建一个分支&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;在做翻译之前，先要创建一个本地分支，这是将要开展工作的地方。用以下命令（这会创建一个名为 translate1 的新分支，而且在本地仓库里，处于激活状态。你最好用一个可以描述你要做什么的分支名字。）：
+&lt;pre&gt;&lt;code&gt;在做翻译之前，先要创建一个本地分支，这是将要开展工作的地方。用以下命令（这会创建一个名为 translate1 的新分支，而且在本地仓库里，处于激活状态。你最好用一个可以描述你要做什么的分支名字。）：
 
 $   git checkout -b translate1
-&lt;/code&gt;&lt;/pre&gt;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;查看当前处于哪一个分支（* 表示当前分支）：
+&lt;/code&gt;&lt;/pre&gt;&lt;pre&gt;&lt;code&gt;查看当前处于哪一个分支（* 表示当前分支）：
 
 $   git branch
     master
   * translate1
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;5开展工作&#34;&gt;5.开展工作&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;可采用 vscode 等编辑器打开 website 文件夹，在 en 目录里找到一个还没有翻译的文件，然后在 zh 目录下新建一个文件名一致的对应文件，按照原文的格式进行翻译。
+&lt;pre&gt;&lt;code&gt;可采用 vscode 等编辑器打开 website 文件夹，在 en 目录里找到一个还没有翻译的文件，然后在 zh 目录下新建一个文件名一致的对应文件，按照原文的格式进行翻译。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;6提起-pull-request&#34;&gt;6.提起 pull request&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;当翻译完成后，需要把修改过的新内容 push 到个人的在 GitHub 上:
+&lt;pre&gt;&lt;code&gt;当翻译完成后，需要把修改过的新内容 push 到个人的在 GitHub 上:
 
 $   git branch  //确定当前在 translate1 上
 $   git status  //确定自己没有误操作其他的无关的文件
 $   git commit -m &amp;quot;translate 2020-10-01&amp;quot;    
 $   git push origin translate1
-&lt;/code&gt;&lt;/pre&gt;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;现在用浏览器打开个人的 GitHub, 点开 fork 的项目，便会在项目顶上看到一个 compare &amp;amp; pull request 的绿色按钮，点击用来提起 pull request。之后，会看到一个页面，显示你的分支和原来的分支之间不同的部分。确定无误后，点击确定。
+&lt;/code&gt;&lt;/pre&gt;&lt;pre&gt;&lt;code&gt;现在用浏览器打开个人的 GitHub, 点开 fork 的项目，便会在项目顶上看到一个 compare &amp;amp; pull request 的绿色按钮，点击用来提起 pull request。之后，会看到一个页面，显示你的分支和原来的分支之间不同的部分。确定无误后，点击确定。
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;7等待审查&#34;&gt;7.等待审查&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;之后会有专门的审查人员对你的提交进行核查，合格后便会收到同意合并的邮件，或是收到建议修改的邮件，或是被直接拒绝。
+&lt;pre&gt;&lt;code&gt;之后会有专门的审查人员对你的提交进行核查，合格后便会收到同意合并的邮件，或是收到建议修改的邮件，或是被直接拒绝。
 ！！！第一次做贡献的话，此处可能会遇到签署 CLA(Contribution License Agreement) 的问题，根据提示签署 CLA 即可（TITLE:student）
 &lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;8删除分支&#34;&gt;8.删除分支&lt;/h2&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;不管结果如何，最后就可以删除一开始创建的工作分支（不删也问题不大，不是强制性的）：
+&lt;pre&gt;&lt;code&gt;不管结果如何，最后就可以删除一开始创建的工作分支（不删也问题不大，不是强制性的）：
 
 //删除本地仓库里的分支：
 
@@ -1286,7 +1430,7 @@ $   git push origin --delete translate1
         <guid>https://ldsdsy.github.io/p/exam2003/</guid>
         <description>&lt;p&gt;1.输入球的中心点和球上某一点的坐标，计算球半径和体积。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;cmath&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
@@ -1306,7 +1450,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2003&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2003&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
 	&lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
@@ -1328,12 +1472,12 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.手工建立一个文件，文件种每行包括学号、姓名、性别和年龄。每一个属性使用空格分开。再根据输入的学号，查找文件，输出该学生的信息。文件如下：&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;01 李江 男 21
+&lt;pre&gt;&lt;code&gt;01 李江 男 21
 02 刘唐 男 23
 03 张军 男 19
 04 王娜 女 19
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;fstream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
@@ -1372,7 +1516,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2003&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2003&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
 	&lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
@@ -1428,7 +1572,7 @@ $   git push origin --delete translate1
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.输入年月日，计算该天是本年的第几天。例如 1990 年 9 月 20 日是 1990 年的第 263 天，2000 年 5 月 1 日是 2000 年第 122 天。（闰年：能被 400 整除，或能被 4 整除但不能被 100 整除。每年 1、3、5、7、8、10 、12 为大月）&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
@@ -1450,7 +1594,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2003&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2003&lt;/span&gt;
 
 &lt;span class=&#34;c1&#34;&gt;//Day is used to calculate how many days today is
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Day&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;year&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;month&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;day&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
@@ -1476,7 +1620,7 @@ $   git push origin --delete translate1
         <guid>https://ldsdsy.github.io/p/exam2002b/</guid>
         <description>&lt;p&gt;1.打印所有不超过 n（ n &amp;lt; 256）的，其平方具有对称性质的数。如 11*11=121。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;cmath&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
@@ -1520,7 +1664,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2002b&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2002b&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -1548,14 +1692,14 @@ $   git push origin --delete translate1
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;编写一个求斐波那契数列的递归函数，输入 n 值，使用该递归函数，输出如下图形。例如：当 n = 6 时。&lt;/li&gt;
 &lt;/ol&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;               0
+&lt;pre&gt;&lt;code&gt;               0
             0  1  1
          0  1  1  2  3
       0  1  1  2  3  5  8
    0  1  1  2  3  5  8  13  21
 0  1  1  2  3  5  8  13  21  34  55
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Fibonacci&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;j&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
@@ -1594,7 +1738,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2002b&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2002b&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -1632,7 +1776,7 @@ $   git push origin --delete translate1
         <guid>https://ldsdsy.github.io/p/exam2002a/</guid>
         <description>&lt;p&gt;1.某人有 8 角的邮票 5 张，1 元的邮票 4 张，1 元 8 角的邮票 6 张，用这些邮票中的一张或若干张可以得到多少种不同的邮资？&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;set&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
@@ -1659,7 +1803,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2002a&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2002a&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -1685,7 +1829,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.输入 n 值， 使用递归函数，求杨辉三角形中各个位置上的值，按照如下形式打印输出图形。例如：当 n = 6 时,&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;                          1
+&lt;pre&gt;&lt;code&gt;                          1
 
                       1        1
 
@@ -1697,7 +1841,7 @@ $   git push origin --delete translate1
 
     1       5         10        10       5      1
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;number&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;j&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
@@ -1733,7 +1877,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2002a&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2002a&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -1769,7 +1913,7 @@ $   git push origin --delete translate1
         <guid>https://ldsdsy.github.io/p/exam2001b/</guid>
         <description>&lt;p&gt;1.请输入高度 h，输出一个高为 h，上底边长为 h 的等腰梯形（同 * 表示）。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
@@ -1796,7 +1940,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001b&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001b&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -1816,7 +1960,7 @@ $   git push origin --delete translate1
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.请编写一个程序，从键盘上输入 n（ n 的范围是 1～20 ），求 n 的阶乘。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
@@ -1833,7 +1977,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001b&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001b&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -1849,7 +1993,7 @@ $   git push origin --delete translate1
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.从键盘上任意输入一个长度不超过 20 的字符串，对所输入的字符串，按照 ASCII 码的大小从小到大进行排序，请输出排序后的结果。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;algorithm&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
@@ -1862,7 +2006,7 @@ $   git push origin --delete translate1
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001b&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001b&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
 	&lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
@@ -1902,13 +2046,13 @@ $   git push origin --delete translate1
         
         <guid>https://ldsdsy.github.io/p/exam2001a/</guid>
         <description>&lt;p&gt;1.编写程序，计算下列分段函数 y=f(x)的值。&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;y = -x + 2.5 , 0 &amp;lt;= x &amp;lt; 2
+&lt;pre&gt;&lt;code&gt;y = -x + 2.5 , 0 &amp;lt;= x &amp;lt; 2
 
 y = 2 - 1.5 * (x-3) * (x-3) ， 2 &amp;lt;= x &amp;lt; 4
 
 y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6  
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
@@ -1938,7 +2082,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001a&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001a&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -1962,7 +2106,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.编写程序，读入一个整数 N 。若 N 为非负数，则计算 N 到 2N 之间的整数和；若 N 为一个负数，则求 2N 到 N 之间的整数和。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
@@ -1990,7 +2134,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001a&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001a&lt;/span&gt;
 
 &lt;span class=&#34;c1&#34;&gt;//Sum is used to compute the sum between n and 2*n
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;Sum&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;n&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
@@ -2013,7 +2157,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.设 N 是一个四位数，它的 9 倍恰好是其反序数（例如：1234 的反序数是 4321），求 N 的值。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
@@ -2037,7 +2181,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001a&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001a&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -2061,7 +2205,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;4.有 N 个人围成一圈顺序编号，从 1 号开始按 1、2、 3 顺序报数，报 3 者退出圈外，其余的人再从 1、2、 3 开始报数，报 3 的人再退出圈外，依次类推。请按退出顺序输出每个退出人的原序号。要求使用环形链表编程。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 
 &lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;LNode&lt;/span&gt;
@@ -2120,7 +2264,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001a&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2001a&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -2183,7 +2327,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
         <guid>https://ldsdsy.github.io/p/exam2000/</guid>
         <description>&lt;p&gt;1.输入任意 4 个字符(如：abcd)，并按反序输出(如：dcba)。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;algorithm&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
@@ -2208,7 +2352,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Golang&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2000&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2000&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
 	&lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
@@ -2226,7 +2370,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.设 a、b、c 均是 0 到 9 之间的数字，abc、bcc 是两个三位数，且有：abc+bcc=532。求满足条件的所有 a、b、c 的值。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
 &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
@@ -2247,7 +2391,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Golng&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2000&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2000&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -2271,7 +2415,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.一个数如果恰好等于它的各因子（该数本身除外）子和，如： 6=3+2+1，则称其为“完数”；若因子之和大于该数，则称其为“盈数”。求出 2 到 60 之间所有“完数”和“盈数”，并以如下形式输出： E: e1 e2 e3 &amp;hellip;&amp;hellip;(ei 为完数) G: g1 g2 g3 &amp;hellip;&amp;hellip;(gi 为盈数) 。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
 &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
@@ -2315,7 +2459,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
  &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; 
  
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Golang&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2000&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2000&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -2362,7 +2506,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;4.从键盘输入 4 个学生的数据( 包括姓名、年龄和成绩)，并存放在文件 sf1 上。从该文件读出这些数据，按成绩从高到底排序，并输出其中成绩次高者的所有数据。&lt;/p&gt;
 &lt;p&gt;C++&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;fstream&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;algorithm&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;using&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;namespace&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;std&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
@@ -2426,7 +2570,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Golang&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2000&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam2000&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
 	&lt;span class=&#34;s&#34;&gt;&amp;#34;bufio&amp;#34;&lt;/span&gt;
@@ -2508,7 +2652,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
         <description>&lt;pre&gt;&lt;code&gt;Go 项目目录格式的一些问题  
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;1.一个项目只有一个 mian.go 作为入口。所以如何解决一个项目里存在多个 xxx.go 的问题呢？如下为一种方式：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;demo&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;demo&lt;/span&gt;
    &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;___main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt;
    &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;___exam&lt;/span&gt;
           &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;___01&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;go&lt;/span&gt;
@@ -2516,7 +2660,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 
 &lt;span class=&#34;c1&#34;&gt;//mian.go 作为整个项目入口，exam 为 package （包），exam 下面又包含多个函数，每个函数可在 main.go 中调用。 
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;01.go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;
 &lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam&lt;/span&gt;
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; 	&lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -2528,7 +2672,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 
 &lt;span class=&#34;c1&#34;&gt;//Go 要求公有函数以大写字母开头，并且需要在函数上方书写用于说明函数用处的注释，注释必须以函数名开头。
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;main.go&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;
 &lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;main&lt;/span&gt;
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;demo/exam&amp;#34;&lt;/span&gt;
 
@@ -2541,7 +2685,7 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.尽量一开始养成编写测试函数的习惯。Go 语言拥有一套单元测试和性能测试系统，仅需要添加很少的代码就可以快速测试一段需求代码。&lt;/p&gt;
 &lt;p&gt;go test 命令，会自动读取源码目录下面名为 *_test.go 的文件，生成并运行测试用的可执行文件。&lt;br&gt;
 单元测试源码文件可以由多个测试用例组成，每个测试用例函数需要以 Test 为前缀，例如：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;exam&lt;/span&gt;
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;testing&amp;#34;&lt;/span&gt;
 
 &lt;span class=&#34;kd&#34;&gt;func&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;TestAdd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;t&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;testing&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;T&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
@@ -2563,16 +2707,16 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
         
         <guid>https://ldsdsy.github.io/p/go_day02/</guid>
         <description>&lt;p&gt;1.安装好 Go 之后需人为设置一个 GOPATH 文件夹，这个目录用来存放 Go 源码， Go 的可运行文件，以及相应的编译之后的包文件。所以这个目录下面有三个子目录：src、bin、pkg。（例如：在 D 盘下新建一个名为 GOPATH 文件夹）&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;src&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;存放源代码&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;src&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;存放源代码&lt;/span&gt;
 &lt;span class=&#34;nx&#34;&gt;pkg&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;编译后生成的包文件&lt;/span&gt;
 &lt;span class=&#34;nx&#34;&gt;bin&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;编译后生成的可执行文件&lt;/span&gt;
 
 &lt;span class=&#34;c1&#34;&gt;//一般，bin 和 pkg 目录可以不创建，go 命令会自动创建（如 go install），只需要创建 src 目录即可。
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.配置 GOPATH 的环境变量，进入用户变量新建&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;变量&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;：&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;GOPATH&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;nx&#34;&gt;变量&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;：&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;GOPATH&lt;/span&gt;
 &lt;span class=&#34;nx&#34;&gt;值&lt;/span&gt;   &lt;span class=&#34;err&#34;&gt;：&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;D&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;\&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;GOPATH&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.进入 vscode 安装 go 插件，然后就可以在 src 下面创建 Hello_world.go 并编译执行， vs 提示安装什么就安装什么。(相比较 GoLand , vs 免费且内存消耗小)&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;main&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;kn&#34;&gt;package&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;main&lt;/span&gt;
 
 &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;fmt&amp;#34;&lt;/span&gt;
 
@@ -2592,19 +2736,19 @@ y = x / 2 - 1.5 ， 4 &amp;lt;= x &amp;lt; 6
 &lt;ol&gt;
 &lt;li&gt;进入以下网址&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;https://golang.google.cn/dl/  
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;https://golang.google.cn/dl/  
 
 //选择 .msi 后缀的文件下载，下载完成后一路 next 安装即可。
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;进入 cmd&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;  &lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;version&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;err&#34;&gt;$&lt;/span&gt;  &lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;version&lt;/span&gt;
 
 &lt;span class=&#34;c1&#34;&gt;//能显示版本号即安装成功
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
 &lt;li&gt;在终端依次执行&lt;/li&gt;
 &lt;/ol&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;err&#34;&gt;$&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;env&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;GO111MODULE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;on&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;err&#34;&gt;$&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;env&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;GO111MODULE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;on&lt;/span&gt;
 &lt;span class=&#34;err&#34;&gt;$&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;go&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;env&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;w&lt;/span&gt; &lt;span class=&#34;nx&#34;&gt;GOPROXY&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;https&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//goproxy.cn,direct
 &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt; 
 &lt;span class=&#34;c1&#34;&gt;//第一条使源代码可存储在任意位置，第二条为国内代理
@@ -2629,7 +2773,7 @@ pubspec.yaml: 存放配置文件，一般是第三方库的依赖。&lt;/p&gt;
 lib 目录下的 main.dart 就是 Flutter 的入口文件；&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;main.dart :&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;void main&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;void main&lt;span class=&#34;o&#34;&gt;(){&lt;/span&gt;
     runApp&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;MyApp&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
 &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;  
 
@@ -2651,28 +2795,26 @@ void main&lt;span class=&#34;o&#34;&gt;()=&lt;/span&gt;&amp;gt;runApp&lt;span cl
         
         <guid>https://ldsdsy.github.io/p/03_flutterandroid%E6%90%AD%E5%BB%BA/</guid>
         <description>&lt;p&gt;1.安装 jdk：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get install openjdk-8-jdk
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get install openjdk-8-jdk
 
 //JDK：java development kit （java 开发环境，包括 JVM，基础类库，开发工具）
 //JRE：java runtime environment （java 运行时环境）
 //JDK 包含 JRE
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ java
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ java
 $ javac
 
 //查看是否安装完成
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.安装 Android Studio (有图形快捷键)：&lt;/p&gt;
 &lt;p&gt;//下载并解压&lt;/p&gt;
-&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.jetbrains.com/toolbox-app/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://www.jetbrains.com/toolbox-app/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.jetbrains.com/toolbox-app/&#34;&gt;https://www.jetbrains.com/toolbox-app/&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;//安装完成后，在 JetBrains Toolbox 中安装 AS 稳定版。&lt;br&gt;
 //打开 AS 一路默认安装，先不要设置属性参数；&lt;br&gt;
 //安装完成导入插件: Plugins 中安装 Dart 和 Flutter ;&lt;br&gt;
 //重启 AS&lt;/p&gt;
 &lt;p&gt;3.配置 Flutter 国内镜像：&lt;/p&gt;
 &lt;p&gt;//选择镜像&lt;/p&gt;
-&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://flutter-io.cn/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://flutter-io.cn/&lt;/a&gt;&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo vim /etc/profile  
+&lt;p&gt;&lt;a href=&#34;https://flutter-io.cn/&#34;&gt;https://flutter-io.cn/&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo vim /etc/profile  
 
 //文本末尾添加如下内容
 
@@ -2683,10 +2825,10 @@ $ javac
 
 $ &lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; /etc/profile  
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;4.输入 flutter doctor 检测安装配置是否完成。&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;出现 ✗ Unable to locate Android SDK.
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;出现 ✗ Unable to locate Android SDK.
 
 打开 AS -&amp;gt; Tools -&amp;gt; SDK Manager 安装 SDK
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;出现 ✗ Android licenses not accepted. 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;出现 ✗ Android licenses not accepted. 
 
 $ flutter doctor --android-licenses  
 
@@ -2704,14 +2846,13 @@ $ flutter doctor --android-licenses
         <guid>https://ldsdsy.github.io/p/02_flutter%E5%AE%89%E8%A3%85/</guid>
         <description>&lt;p&gt;安装Flutter：&lt;/p&gt;
 &lt;p&gt;1.点击链接，下载压缩包：&lt;/p&gt;
-&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://flutter.dev/docs/get-started/install/linux&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://flutter.dev/docs/get-started/install/linux&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://flutter.dev/docs/get-started/install/linux&#34;&gt;https://flutter.dev/docs/get-started/install/linux&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;2.选一个心仪的文件夹(例如 development )，解压缩:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ~/development
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ &lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; ~/development
 
 $ tar xf ~/Downloads/flutter_linux_1.17.1-stable.tar.xz
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.设置环境变量（永久设置）：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;//profile 是开机就会自启的文件,打开后编辑
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;//profile 是开机就会自启的文件,打开后编辑
 $ sudo vim /etc/profile    
 
 //文件末尾添加如下内容，路径为上一步 Flutter 解压后所在的地方
@@ -2725,7 +2866,7 @@ $ &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&g
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;4.输入 flutter 检测是否安装完成。&lt;/p&gt;
 &lt;p&gt;Adds:&lt;br&gt;
 //若出现 Error: Unable to find git in your PATH.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get install git
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get install git
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
         </item>
         <item>
@@ -2736,7 +2877,7 @@ $ &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;nv&#34;&g
         <guid>https://ldsdsy.github.io/p/01_dart%E5%AE%89%E8%A3%85/</guid>
         <description>&lt;p&gt;安装 dart：（使用apt-get安装就不用配置环境变量）&lt;/p&gt;
 &lt;p&gt;1.依次执行以下命令:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get update
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get update
 
 $ sudo apt-get install apt-transport-https
 
@@ -2745,12 +2886,12 @@ $ sudo sh -c &lt;span class=&#34;s1&#34;&gt;&amp;#39;wget -qO- https://dl-ssl.go
 
 $ sudo sh -c &lt;span class=&#34;s1&#34;&gt;&amp;#39;wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list &amp;gt; /etc/apt/sources.list.d/dart_stable.list&amp;#39;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2.安装 Dart SDK:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get update
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;$ sudo apt-get update
 
 $ sudo apt-get install dart
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;3.输入 dart 检测是否安装完成。&lt;/p&gt;
 &lt;p&gt;Adds:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;//查看 dart 安装在何处    
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;//查看 dart 安装在何处    
  $ which dart    
 
 //查看系统环境变量  
