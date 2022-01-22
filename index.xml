@@ -226,6 +226,155 @@ pod.name:fabric-node-s92ds
 &lt;/code&gt;&lt;/pre&gt;</description>
         </item>
         <item>
+        <title>K8s_存储限制</title>
+        <link>https://ldsdsy.github.io/p/k8s_%E5%AD%98%E5%82%A8%E9%99%90%E5%88%B6/</link>
+        <pubDate>Mon, 17 May 2021 09:21:51 -0500</pubDate>
+        
+        <guid>https://ldsdsy.github.io/p/k8s_%E5%AD%98%E5%82%A8%E9%99%90%E5%88%B6/</guid>
+        <description>&lt;h1 id=&#34;限制存储消耗&#34;&gt;限制存储消耗&lt;/h1&gt;
+&lt;p&gt;&lt;em&gt;本实验展示了如何在一个命名空间里限制存储的消耗。&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;一实验目的&#34;&gt;一，实验目的&lt;/h2&gt;
+&lt;p&gt;1，希望通过限制单个命名空间的存储消耗来控制成本。&lt;br&gt;
+2，限制的方面：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;单个命名空间里申请持久卷的数量(PVC 数量);&lt;/li&gt;
+&lt;li&gt;每个声明可以请求的存储量;&lt;/li&gt;
+&lt;li&gt;一个命名空间里积累的总存储消耗量。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;二实验内容&#34;&gt;二，实验内容&lt;/h2&gt;
+&lt;p&gt;1, 使用 LimitRange 来限制对存储的请求。样例如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;创建 LimitRange 类型的 yaml 文件:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;apiVersion: v1
+kind: LimitRange
+metadata:
+  name: storagelimits
+spec:
+  limits:
+  - type: PersistentVolumeClaim
+    max:
+      storage: 2Gi
+    min:
+      storage: 1Mi
+
+// limits.type 为限制的对象 —— PVC
+// 此处的存储请求设置为 x &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1Mi &amp;lt; x &amp;lt; 2Gi&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;尝试创建申请内存 1Gi 的 PVC :&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ touch pvc1.yaml
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ vim pvc1.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc1
+  annotations:
+    volume.beta.kubernetes.io/storage-class: &lt;span class=&#34;s2&#34;&gt;&amp;#34;managed-nfs-storage&amp;#34;&lt;/span&gt;
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl apply -f pvc1.yaml
+persistentvolumeclaim/pvc1 created
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl get pvc
+NAME       STATUS    VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS          AGE
+pvc1       Bound     pvc-a0f522d8-5977-4c72-83bb-d57df46ffec5   1Gi        RWX            managed-nfs-storage   14s
+
+// 因为申请的内存在合理范围，创建成功
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;尝试创建申请内存 2.2Gi 的 PVC :&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ vim pvc2.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc2
+  annotations:
+    volume.beta.kubernetes.io/storage-class: &lt;span class=&#34;s2&#34;&gt;&amp;#34;managed-nfs-storage&amp;#34;&lt;/span&gt;
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 2.2Gi
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl apply -f pvc2.yaml
+Error from server &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;Forbidden&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: error when creating &lt;span class=&#34;s2&#34;&gt;&amp;#34;pvc2.yaml&amp;#34;&lt;/span&gt;: persistentvolumeclaims &lt;span class=&#34;s2&#34;&gt;&amp;#34;pvc2&amp;#34;&lt;/span&gt; is forbidden: maximum storage usage per PersistentVolumeClaim is 2Gi, but request is 2362232012800m
+
+//  因为申请的内存超出范围，创建失败
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2, 使用 StorageQuota 限制 PVC 数目和累计存储容量 。样例如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;创建 StorageQuota 类型的 yaml 文件:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: storagequota
+spec:
+  hard:
+    persistentvolumeclaims: &lt;span class=&#34;s2&#34;&gt;&amp;#34;2&amp;#34;&lt;/span&gt;
+    requests.storage: &lt;span class=&#34;s2&#34;&gt;&amp;#34;2Gi&amp;#34;&lt;/span&gt;
+
+// 此处规定了 PVC 的数量不能超过 &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; 个，且所有 PVC 申请的总内存量不能超过 2Gi
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;尝试创建申请内存 2Gi 的 PVC :&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ vim pvc2.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc2
+  annotations:
+    volume.beta.kubernetes.io/storage-class: &lt;span class=&#34;s2&#34;&gt;&amp;#34;managed-nfs-storage&amp;#34;&lt;/span&gt;
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl apply -f pvc2.yaml
+Error from server &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;Forbidden&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: error when creating &lt;span class=&#34;s2&#34;&gt;&amp;#34;pvc2.yaml&amp;#34;&lt;/span&gt;: persistentvolumeclaims &lt;span class=&#34;s2&#34;&gt;&amp;#34;pvc2&amp;#34;&lt;/span&gt; is forbidden: exceeded quota: storagequota, requested: &lt;span class=&#34;nv&#34;&gt;persistentvolumeclaims&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1,requests.storage&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;2Gi, used: &lt;span class=&#34;nv&#34;&gt;persistentvolumeclaims&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;2,requests.storage&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1025Mi, limited: &lt;span class=&#34;nv&#34;&gt;persistentvolumeclaims&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;2,requests.storage&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;2Gi
+
+// 以为已经存在的 pvc1 申请了 1Gi 的存储，pvc2 再申请 2Gi 就会超过规定的总存储量 2Gi，所有执行失败
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;尝试创建两个均申请内存 1Mi 的 PVC2 和 PVC3 :&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc2
+  annotations:
+    volume.beta.kubernetes.io/storage-class: &lt;span class=&#34;s2&#34;&gt;&amp;#34;managed-nfs-storage&amp;#34;&lt;/span&gt;
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Mi
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl apply -f pvc2.yaml
+persistentvolumeclaim/pvc2 created
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl get pvc
+NAME   STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS          AGE
+pvc1   Bound    pvc-a0f522d8-5977-4c72-83bb-d57df46ffec5   1Gi        RWX            managed-nfs-storage   2d16h
+pvc2   Bound    pvc-796555a7-5826-4ce1-9a2c-493cd83e4a0f   1Mi        RWX            managed-nfs-storage   12s
+
+// pvc2 在合理范围，创建成功，再创建一个 pvc3 如下：
+
+&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;centos@ml-k8s-1 ~&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;$ kubectl apply -f pvc3.yaml
+Error from server &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;Forbidden&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;: error when creating &lt;span class=&#34;s2&#34;&gt;&amp;#34;pvc3.yaml&amp;#34;&lt;/span&gt;: persistentvolumeclaims &lt;span class=&#34;s2&#34;&gt;&amp;#34;pvc3&amp;#34;&lt;/span&gt; is forbidden: exceeded quota: storagequota, requested: &lt;span class=&#34;nv&#34;&gt;persistentvolumeclaims&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1, used: &lt;span class=&#34;nv&#34;&gt;persistentvolumeclaims&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;2, limited: &lt;span class=&#34;nv&#34;&gt;persistentvolumeclaims&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;2&lt;/span&gt;
+
+// 因为已存在两个 pvc ，所以 pvc3 的创建不会成功
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;总结&#34;&gt;总结&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;LimitRange 和 StorageQuota 的效果是相互叠加的，只要不符合其中一条规则就无法成功创建 pvc 。&lt;/li&gt;
+&lt;li&gt;若重新修改 LimitRange.yaml 文件，不影响已存在的但不符合新限制的 pvc 。&lt;/li&gt;
+&lt;li&gt;若无特意标明，以上操作均在 default 命名空间里。&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
         <title>K8s_静态加密</title>
         <link>https://ldsdsy.github.io/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/</link>
         <pubDate>Thu, 06 May 2021 21:41:20 +0800</pubDate>
