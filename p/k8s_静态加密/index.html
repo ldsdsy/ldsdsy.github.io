@@ -125,7 +125,7 @@
 <ol>
 <li>配置文件样例如下:</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">apiVersion: apiserver.config.k8s.io/v1
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">apiVersion: apiserver.config.k8s.io/v1
 kind: EncryptionConfiguration
 resources:
   - resources:
@@ -145,14 +145,14 @@ resources:
 </code></pre></div><ol start="2">
 <li>需生成随机密钥放入 secret 字段中，直接进行如下操作：</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ head -c <span class="m">32</span> /dev/urandom <span class="p">|</span> base64
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ head -c <span class="m">32</span> /dev/urandom <span class="p">|</span> base64
 7unrE0P6q9DmlqGVeZ+k02d2eNaAgveFC01V+gV3VYc<span class="o">=</span>
 
 // 生成了一个 <span class="m">32</span> 字节的随机密钥并进行了 base64 编码
 </code></pre></div><ol start="3">
 <li>配置文件命名为 encrypt.conf , 并存放在 /etc/kubernetes/pki/</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ <span class="nb">cd</span> /etc/kubernetes/pki/
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ <span class="nb">cd</span> /etc/kubernetes/pki/
 <span class="o">[</span>centos@ml-k8s-1 pki<span class="o">]</span>$ ls
 apiserver-etcd-client.crt  apiserver-kubelet-client.crt  apiserver.crt  ca.crt  encrypt.conf  front-proxy-ca.crt  front-proxy-client.crt  sa.key
 apiserver-etcd-client.key  apiserver-kubelet-client.key  apiserver.key  ca.key  etcd          front-proxy-ca.key  front-proxy-client.key  sa.pub
@@ -160,7 +160,7 @@ apiserver-etcd-client.key  apiserver-kubelet-client.key  apiserver.key  ca.key  
 <ol>
 <li>增加 &ndash;encryption-provider-config ，指向 encrypt.conf</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ <span class="nb">cd</span> /etc/kubernetes/manifests
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ <span class="nb">cd</span> /etc/kubernetes/manifests
 <span class="o">[</span>centos@ml-k8s-1 manifests<span class="o">]</span>$ ls
 etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml
 <span class="o">[</span>centos@ml-k8s-1 manifests<span class="o">]</span>$ sudo vim kube-apiserver.yaml
@@ -215,7 +215,7 @@ spec:
 <ol>
 <li>在 default 命名空间里创建一个名为 secret1 的 secret ：</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl create secret generic secret1 -n default --from-literal<span class="o">=</span><span class="nv">mykey</span><span class="o">=</span>mydata
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl create secret generic secret1 -n default --from-literal<span class="o">=</span><span class="nv">mykey</span><span class="o">=</span>mydata
 secret/secret1 created
 <span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl get secret
 NAME                  TYPE                                  DATA   AGE
@@ -224,7 +224,7 @@ secret1               Opaque                                <span class="m">1</s
 </code></pre></div><ol start="2">
 <li>使用 etcdctl 命令行，从 etcd 中读取 secret ：</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 etcd<span class="o">]</span>$ sudo <span class="nv">ETCDCTL_API</span><span class="o">=</span><span class="m">3</span> ./etcdctl  --cacert<span class="o">=</span>/etc/kubernetes/pki/etcd/ca.crt  --cert<span class="o">=</span>/etc/kubernetes/pki/apiserver-etcd-client.crt   --key<span class="o">=</span>/etc/kubernetes/pki/apiserver-etcd-client.key get /registry/secrets/default/secret1 <span class="p">|</span> hexdump -C
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 etcd<span class="o">]</span>$ sudo <span class="nv">ETCDCTL_API</span><span class="o">=</span><span class="m">3</span> ./etcdctl  --cacert<span class="o">=</span>/etc/kubernetes/pki/etcd/ca.crt  --cert<span class="o">=</span>/etc/kubernetes/pki/apiserver-etcd-client.crt   --key<span class="o">=</span>/etc/kubernetes/pki/apiserver-etcd-client.key get /registry/secrets/default/secret1 <span class="p">|</span> hexdump -C
 <span class="m">00000000</span>  2f <span class="m">72</span> <span class="m">65</span> <span class="m">67</span> <span class="m">69</span> <span class="m">73</span> <span class="m">74</span> <span class="m">72</span>  <span class="m">79</span> 2f <span class="m">73</span> <span class="m">65</span> <span class="m">63</span> <span class="m">72</span> <span class="m">65</span> <span class="m">74</span>  <span class="p">|</span>/registry/secret<span class="p">|</span>
 <span class="m">00000010</span>  <span class="m">73</span> 2f <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">61</span> <span class="m">75</span> 6c  <span class="m">74</span> 2f <span class="m">73</span> <span class="m">65</span> <span class="m">63</span> <span class="m">72</span> <span class="m">65</span> <span class="m">74</span>  <span class="p">|</span>s/default/secret<span class="p">|</span>
 <span class="m">00000020</span>  <span class="m">31</span> 0a 6b <span class="m">38</span> <span class="m">73</span> 3a <span class="m">65</span> 6e  <span class="m">63</span> 3a <span class="m">61</span> <span class="m">65</span> <span class="m">73</span> <span class="m">63</span> <span class="m">62</span> <span class="m">63</span>  <span class="p">|</span>1.k8s:enc:aescbc<span class="p">|</span>
@@ -253,7 +253,7 @@ secret1               Opaque                                <span class="m">1</s
 </code></pre></div><ol start="3">
 <li>验证 secret 是否被正确解密：</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 etcd<span class="o">]</span>$  kubectl get secrets secret1 -o yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 etcd<span class="o">]</span>$  kubectl get secrets secret1 -o yaml
 apiVersion: v1
 data:
   mykey: bXlkYXRh
@@ -276,7 +276,7 @@ mydata
 <ol>
 <li>读取所有 Secret，然后通过更新来实现全部加密</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 etcd<span class="o">]</span>$ kubectl get secrets --all-namespaces -o json <span class="p">|</span> kubectl replace -f -
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 etcd<span class="o">]</span>$ kubectl get secrets --all-namespaces -o json <span class="p">|</span> kubectl replace -f -
 secret/default-token-44r9r replaced
 secret/secret1 replaced
 secret/default-token-d49sg replaced
@@ -364,7 +364,7 @@ secret/webhook-server-cert replaced
 <ol>
 <li>修改配置文件 encrypt.conf ，把  provider 里的 identity 修改为第一项</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 pki<span class="o">]</span>$ sudo vim encrypt.conf
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 pki<span class="o">]</span>$ sudo vim encrypt.conf
 apiVersion: apiserver.config.k8s.io/v1
 kind: EncryptionConfiguration
 resources:
@@ -379,7 +379,7 @@ resources:
 </code></pre></div><ol start="2">
 <li>再通过更新来解密</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 pki<span class="o">]</span>$ kubectl get secrets --all-namespaces -o json <span class="p">|</span> kubectl replace -f -
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 pki<span class="o">]</span>$ kubectl get secrets --all-namespaces -o json <span class="p">|</span> kubectl replace -f -
 secret/default-token-44r9r replaced
 secret/secret1 replaced
 secret/default-token-d49sg replaced

@@ -131,7 +131,7 @@ package main import ( &amp;quot;context&amp;quot; &amp;quot;fmt&amp;quot; metav1
 <p>编写好 go 程序，编译为二进制文件，打包成镜像并推送，然后开启 pod 运行镜像同时需要授予权限，使其有权获取资源信息。</p>
 <h2 id="二编写程序">二，编写程序</h2>
 <p>1, mian.go</p>
-<pre><code>package main
+<pre tabindex="0"><code>package main
 
 import (
 	&quot;context&quot;
@@ -165,7 +165,7 @@ func main() {
 	}
 }
 </code></pre><p>2, Dockerfile</p>
-<pre><code># 基础镜像
+<pre tabindex="0"><code># 基础镜像
 FROM debian
 
 # 把当前目录下编译得到的二进制 app 复制到工作目录 /app 下 
@@ -176,14 +176,14 @@ ENTRYPOINT /app
 
 # 文件名一定是 Dockerfile ,不要任何后缀，也不要全小写
 </code></pre><p>3, 编译二进制文件</p>
-<pre><code>$ go build -o ./app . 
+<pre tabindex="0"><code>$ go build -o ./app . 
 </code></pre><p>4, 打包镜像</p>
-<pre><code>$ docker build . -t app
+<pre tabindex="0"><code>$ docker build . -t app
 </code></pre><p>5, 给镜像加 tag</p>
-<pre><code>docker tag **** bocloud-bj.io:5000/app:1.0
+<pre tabindex="0"><code>docker tag **** bocloud-bj.io:5000/app:1.0
 // **** 是镜像 ID
 </code></pre><p>6, 推送镜像</p>
-<pre><code>docker push bocloud-bj.io:5000/app:1.0
+<pre tabindex="0"><code>docker push bocloud-bj.io:5000/app:1.0
 </code></pre><h2 id="三开启-pod-运行-image">三，开启 pod ，运行 image</h2>
 <p>1, 给 pod 授权
 在 ClusterRole 里定义 pod 有哪些权利，再用 ClusterRoleBinding 去绑定 ClusterRole 和 service account，SA 会为 pod 里的进程提供必要的身份证明。</p>
@@ -191,7 +191,7 @@ ENTRYPOINT /app
 <ol>
 <li>ClusterRole.yaml</li>
 </ol>
-<pre><code>---
+<pre tabindex="0"><code>---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -203,7 +203,7 @@ rules:
 </code></pre><ol start="2">
 <li>ClusterRoleBinding.yaml</li>
 </ol>
-<pre><code>---
+<pre tabindex="0"><code>---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -219,7 +219,7 @@ roleRef:
 </code></pre><ol start="3">
 <li>sa.yaml</li>
 </ol>
-<pre><code>---
+<pre tabindex="0"><code>---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -228,7 +228,7 @@ metadata:
 </code></pre><ol start="4">
 <li>deploy.yaml</li>
 </ol>
-<pre><code>---
+<pre tabindex="0"><code>---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -249,7 +249,7 @@ spec:
         imagePullPolicy: Always
       serviceAccountName: clientset-sa
 </code></pre><h2 id="四打印日志">四，打印日志</h2>
-<pre><code>$ kubectl logs ****
+<pre tabindex="0"><code>$ kubectl logs ****
 // **** 是 pod_id
 
 [centos@ml-k8s-1 ~]$ kubectl logs clientset-deploy-854d7f648c-gcj4v

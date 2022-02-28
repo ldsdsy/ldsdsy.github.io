@@ -128,12 +128,12 @@
 <h2 id="一clientset--out-of-cluster">一，Clientset —— out of cluster</h2>
 <p><em>通过 config 文件让集群外部的应用可以访问到集群内部的资源对象 。</em></p>
 <h3 id="1-配置-config-文件把-master-上的配置文件复制到本地">1, 配置 config 文件（把 master 上的配置文件复制到本地）</h3>
-<pre><code>// 在本地执行
+<pre tabindex="0"><code>// 在本地执行
 $ scp -r centos@10.20.9.60:/home/centos/.kube /home/ldsdsy/
 
 // 此时 ~ 目录下会多一个 .kube 文件夹，里面包含 config 文件
 </code></pre><h3 id="2-编写代码">2, 编写代码</h3>
-<pre><code>package main
+<pre tabindex="0"><code>package main
 
 import (
 	&quot;context&quot;
@@ -181,7 +181,7 @@ func main() {
 	}
 }
 </code></pre><h3 id="3-运行">3, 运行</h3>
-<pre><code>$ go run main.go
+<pre tabindex="0"><code>$ go run main.go
 pod.name:nfs-client-provisioner-6d9b86b854-pcb9v
 pod.name:coredns-545d6fc579-2kn79
 pod.name:coredns-545d6fc579-mpzqg

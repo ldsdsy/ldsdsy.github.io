@@ -143,7 +143,7 @@
 <ol>
 <li>创建 LimitRange 类型的 yaml 文件:</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">apiVersion: v1
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">apiVersion: v1
 kind: LimitRange
 metadata:
   name: storagelimits
@@ -160,7 +160,7 @@ spec:
 </code></pre></div><ol start="2">
 <li>尝试创建申请内存 1Gi 的 PVC :</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ touch pvc1.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ touch pvc1.yaml
 <span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ vim pvc1.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -174,7 +174,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
-</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl apply -f pvc1.yaml
+</code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl apply -f pvc1.yaml
 persistentvolumeclaim/pvc1 created
 <span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl get pvc
 NAME       STATUS    VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS          AGE
@@ -184,7 +184,7 @@ pvc1       Bound     pvc-a0f522d8-5977-4c72-83bb-d57df46ffec5   1Gi        RWX  
 </code></pre></div><ol start="3">
 <li>尝试创建申请内存 2.2Gi 的 PVC :</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ vim pvc2.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ vim pvc2.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -197,7 +197,7 @@ spec:
   resources:
     requests:
       storage: 2.2Gi
-</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl apply -f pvc2.yaml
+</code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl apply -f pvc2.yaml
 Error from server <span class="o">(</span>Forbidden<span class="o">)</span>: error when creating <span class="s2">&#34;pvc2.yaml&#34;</span>: persistentvolumeclaims <span class="s2">&#34;pvc2&#34;</span> is forbidden: maximum storage usage per PersistentVolumeClaim is 2Gi, but request is 2362232012800m
 
 //  因为申请的内存超出范围，创建失败
@@ -205,7 +205,7 @@ Error from server <span class="o">(</span>Forbidden<span class="o">)</span>: err
 <ol>
 <li>创建 StorageQuota 类型的 yaml 文件:</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">apiVersion: v1
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: storagequota
@@ -218,7 +218,7 @@ spec:
 </code></pre></div><ol start="2">
 <li>尝试创建申请内存 2Gi 的 PVC :</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ vim pvc2.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ vim pvc2.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -231,14 +231,14 @@ spec:
   resources:
     requests:
       storage: 2Gi
-</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl apply -f pvc2.yaml
+</code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl apply -f pvc2.yaml
 Error from server <span class="o">(</span>Forbidden<span class="o">)</span>: error when creating <span class="s2">&#34;pvc2.yaml&#34;</span>: persistentvolumeclaims <span class="s2">&#34;pvc2&#34;</span> is forbidden: exceeded quota: storagequota, requested: <span class="nv">persistentvolumeclaims</span><span class="o">=</span>1,requests.storage<span class="o">=</span>2Gi, used: <span class="nv">persistentvolumeclaims</span><span class="o">=</span>2,requests.storage<span class="o">=</span>1025Mi, limited: <span class="nv">persistentvolumeclaims</span><span class="o">=</span>2,requests.storage<span class="o">=</span>2Gi
 
 // 以为已经存在的 pvc1 申请了 1Gi 的存储，pvc2 再申请 2Gi 就会超过规定的总存储量 2Gi，所有执行失败
 </code></pre></div><ol start="2">
 <li>尝试创建两个均申请内存 1Mi 的 PVC2 和 PVC3 :</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">apiVersion: v1
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: pvc2
@@ -250,7 +250,7 @@ spec:
   resources:
     requests:
       storage: 1Mi
-</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl apply -f pvc2.yaml
+</code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl apply -f pvc2.yaml
 persistentvolumeclaim/pvc2 created
 <span class="o">[</span>centos@ml-k8s-1 ~<span class="o">]</span>$ kubectl get pvc
 NAME   STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS          AGE
