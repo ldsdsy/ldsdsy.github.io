@@ -6,7 +6,18 @@
     <description>Recent content in Posts on ldsdsy Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 14 Apr 2022 21:18:07 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 03 May 2022 14:18:03 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>K8s_kubectl_debug</title>
+      <link>https://ldsdsy.github.io/p/k8s_kubectl_debug/</link>
+      <pubDate>Tue, 03 May 2022 14:18:03 +0800</pubDate>
+      
+      <guid>https://ldsdsy.github.io/p/k8s_kubectl_debug/</guid>
+      <description>kubectl debug kubectl debug 是什么 kubectl debug 是一款 k8s pod 诊断工具，能够帮助进行 pod 的排障诊断。在 1.16 ~ 1.22 中为 Alpha，默认关闭，从 1.23 开始为 Beta，默认开启。feature gates == EphemeralContainers kubectl debug 起源 部分开发者喜欢在生产中使用极致精简的容器镜像，这也是容器技术中的一个最佳实践。这种精简主义也有很多好处，而且在大多数情况下运行良好，可一旦需要在生产中排除一些故障时，这就变得很困难了，因为精简后的容器普遍缺失常用的排障工具，有些甚至没有 bash/sh 解释器。于是就有人在 Kubernetes 社区提出如果有一种方法可以为正在运行的 pod 启用某种调试模式，再附加一套调试工具能在容器中执行，那就最好不过了。但由于改动的涉及面很广，从 16 年就出现了相关的 Issue Support for troubleshooting distroless containers 开始，直至今日 debug 功能才逐渐成熟。
+kubectl debug 工作原理 我们知道，容器本质上是带有 cgroup 资源限制和 namespace 隔离的一组进程。因此，我们只要启动一个进程，并且让这个进程加入到目标容器的各种 namespace 中，这个进程就能 “进入容器内部”（注意引号），与容器中的进程 “看到” 相同的根文件系统、虚拟网卡、进程空间了——这也正是 docker exec 和 kubectl exec 等命令的运行方式。
+现在的状况是，我们不仅要 “进入容器内部”，还希望带一套工具集进去帮忙排查问题。那么，想要高效管理一套工具集，又要可以跨平台，最好的办法就是把工具本身都打包在一个容器镜像当中。 接下来，我们只需要通过这个 “工具镜像” 启动容器，再指定这个容器加入目标容器的的各种 namespace，自然就实现了“携带一套工具集进入容器内部”。</description>
+    </item>
+    
     <item>
       <title>忆往昔_20220414</title>
       <link>https://ldsdsy.github.io/p/%E5%BF%86%E5%BE%80%E6%98%94_20220414/</link>

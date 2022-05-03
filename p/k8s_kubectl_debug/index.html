@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='kubectl debug kubectl debug 是什么 kubectl debug 是一款 k8s pod 诊断工具，能够帮助进行 pod 的排障诊断。在 1.16 ~ 1.22 中为 Alpha，默认关闭，从 1.23 开始为 Beta，默认开启。feature gates == EphemeralContainers kubectl debug 起源 部分开发者喜欢在生产中使用极致精简的容器镜像，这也是容器技术中的一个最佳实践。这种精简主义也有很多好处，而且在大多数情况下运行良好，可一旦需要在生产中排除一些故障时，这就变得很困难了，因为精简后的容器普遍缺失常用的排障工具，有些甚至没有 bash/sh 解释器。于是就有人在 Kubernetes 社区提出如果有一种方法可以为正在运行的 pod 启用某种调试模式，再附加一套调试工具能在容器中执行，那就最好不过了。但由于改动的涉及面很广，从 16 年就出现了相关的 Issue Support for troubleshooting distroless containers 开始，直至今日 debug 功能才逐渐成熟。
+kubectl debug 工作原理 我们知道，容器本质上是带有 cgroup 资源限制和 namespace 隔离的一组进程。因此，我们只要启动一个进程，并且让这个进程加入到目标容器的各种 namespace 中，这个进程就能 “进入容器内部”（注意引号），与容器中的进程 “看到” 相同的根文件系统、虚拟网卡、进程空间了——这也正是 docker exec 和 kubectl exec 等命令的运行方式。
+现在的状况是，我们不仅要 “进入容器内部”，还希望带一套工具集进去帮忙排查问题。那么，想要高效管理一套工具集，又要可以跨平台，最好的办法就是把工具本身都打包在一个容器镜像当中。 接下来，我们只需要通过这个 “工具镜像” 启动容器，再指定这个容器加入目标容器的的各种 namespace，自然就实现了“携带一套工具集进入容器内部”。'><title>K8s_kubectl_debug</title>
+
+<link rel='canonical' href='https://ldsdsy.github.io/p/k8s_kubectl_debug/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='K8s_kubectl_debug'>
+<meta property='og:description' content='kubectl debug kubectl debug 是什么 kubectl debug 是一款 k8s pod 诊断工具，能够帮助进行 pod 的排障诊断。在 1.16 ~ 1.22 中为 Alpha，默认关闭，从 1.23 开始为 Beta，默认开启。feature gates == EphemeralContainers kubectl debug 起源 部分开发者喜欢在生产中使用极致精简的容器镜像，这也是容器技术中的一个最佳实践。这种精简主义也有很多好处，而且在大多数情况下运行良好，可一旦需要在生产中排除一些故障时，这就变得很困难了，因为精简后的容器普遍缺失常用的排障工具，有些甚至没有 bash/sh 解释器。于是就有人在 Kubernetes 社区提出如果有一种方法可以为正在运行的 pod 启用某种调试模式，再附加一套调试工具能在容器中执行，那就最好不过了。但由于改动的涉及面很广，从 16 年就出现了相关的 Issue Support for troubleshooting distroless containers 开始，直至今日 debug 功能才逐渐成熟。
+kubectl debug 工作原理 我们知道，容器本质上是带有 cgroup 资源限制和 namespace 隔离的一组进程。因此，我们只要启动一个进程，并且让这个进程加入到目标容器的各种 namespace 中，这个进程就能 “进入容器内部”（注意引号），与容器中的进程 “看到” 相同的根文件系统、虚拟网卡、进程空间了——这也正是 docker exec 和 kubectl exec 等命令的运行方式。
+现在的状况是，我们不仅要 “进入容器内部”，还希望带一套工具集进去帮忙排查问题。那么，想要高效管理一套工具集，又要可以跨平台，最好的办法就是把工具本身都打包在一个容器镜像当中。 接下来，我们只需要通过这个 “工具镜像” 启动容器，再指定这个容器加入目标容器的的各种 namespace，自然就实现了“携带一套工具集进入容器内部”。'>
+<meta property='og:url' content='https://ldsdsy.github.io/p/k8s_kubectl_debug/'>
+<meta property='og:site_name' content='ldsdsy Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2022-05-03T14:18:03&#43;08:00'/><meta property='article:modified_time' content='2022-05-03T14:18:03&#43;08:00'/>
+<meta name="twitter:title" content="K8s_kubectl_debug">
+<meta name="twitter:description" content="kubectl debug kubectl debug 是什么 kubectl debug 是一款 k8s pod 诊断工具，能够帮助进行 pod 的排障诊断。在 1.16 ~ 1.22 中为 Alpha，默认关闭，从 1.23 开始为 Beta，默认开启。feature gates == EphemeralContainers kubectl debug 起源 部分开发者喜欢在生产中使用极致精简的容器镜像，这也是容器技术中的一个最佳实践。这种精简主义也有很多好处，而且在大多数情况下运行良好，可一旦需要在生产中排除一些故障时，这就变得很困难了，因为精简后的容器普遍缺失常用的排障工具，有些甚至没有 bash/sh 解释器。于是就有人在 Kubernetes 社区提出如果有一种方法可以为正在运行的 pod 启用某种调试模式，再附加一套调试工具能在容器中执行，那就最好不过了。但由于改动的涉及面很广，从 16 年就出现了相关的 Issue Support for troubleshooting distroless containers 开始，直至今日 debug 功能才逐渐成熟。
+kubectl debug 工作原理 我们知道，容器本质上是带有 cgroup 资源限制和 namespace 隔离的一组进程。因此，我们只要启动一个进程，并且让这个进程加入到目标容器的各种 namespace 中，这个进程就能 “进入容器内部”（注意引号），与容器中的进程 “看到” 相同的根文件系统、虚拟网卡、进程空间了——这也正是 docker exec 和 kubectl exec 等命令的运行方式。
+现在的状况是，我们不仅要 “进入容器内部”，还希望带一套工具集进去帮忙排查问题。那么，想要高效管理一套工具集，又要可以跨平台，最好的办法就是把工具本身都打包在一个容器镜像当中。 接下来，我们只需要通过这个 “工具镜像” 启动容器，再指定这个容器加入目标容器的的各种 namespace，自然就实现了“携带一套工具集进入容器内部”。">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="https://ldsdsy.github.io/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>Back</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/technology-related/" style="background-color: #2a9d8f; color: #fff;">
+                Technology-related
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/k8s_kubectl_debug/">K8s_kubectl_debug</a>
+    </h2>
+
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 03, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    8 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h1 id="kubectl-debug">kubectl debug</h1>
+<h2 id="kubectl-debug-是什么">kubectl debug 是什么</h2>
+<pre tabindex="0"><code>kubectl debug 是一款 k8s pod 诊断工具，能够帮助进行 pod 的排障诊断。在 1.16 ~ 1.22 中为 Alpha，默认关闭，从 1.23 开始为 Beta，默认开启。feature gates == EphemeralContainers
+</code></pre><h2 id="kubectl-debug-起源">kubectl debug 起源</h2>
+<p>部分开发者喜欢在生产中使用极致精简的容器镜像，这也是容器技术中的一个最佳实践。这种精简主义也有很多好处，而且在大多数情况下运行良好，可一旦需要在生产中排除一些故障时，这就变得很困难了，因为精简后的容器普遍缺失常用的排障工具，有些甚至没有 bash/sh 解释器。于是就有人在 Kubernetes 社区提出如果有一种方法可以为正在运行的 pod 启用某种调试模式，再附加一套调试工具能在容器中执行，那就最好不过了。但由于改动的涉及面很广，从 16 年就出现了相关的 Issue <a class="link" href="https://github.com/kubernetes/kubernetes/issues/27140"  target="_blank" rel="noopener"
+    >Support for troubleshooting distroless containers</a> 开始，直至今日 debug 功能才逐渐成熟。</p>
+<h2 id="kubectl-debug-工作原理">kubectl debug 工作原理</h2>
+<p>我们知道，容器本质上是带有 cgroup 资源限制和 namespace 隔离的一组进程。因此，我们只要启动一个进程，并且让这个进程加入到目标容器的各种 namespace 中，这个进程就能 “进入容器内部”（注意引号），与容器中的进程 “看到” 相同的根文件系统、虚拟网卡、进程空间了——这也正是 docker exec 和 kubectl exec 等命令的运行方式。</p>
+<p>现在的状况是，我们不仅要 “进入容器内部”，还希望带一套工具集进去帮忙排查问题。那么，想要高效管理一套工具集，又要可以跨平台，最好的办法就是把工具本身都打包在一个容器镜像当中。 接下来，我们只需要通过这个 “工具镜像” 启动容器，再指定这个容器加入目标容器的的各种 namespace，自然就实现了“携带一套工具集进入容器内部”。</p>
+<h2 id="kubectl-debug-怎么用">kubectl debug 怎么用</h2>
+<h3 id="1开启功能">1，开启功能</h3>
+<pre tabindex="0"><code>1) 根据集群版本判断是否需要手动开启此功能（我的环境为 1.21 所以是需要手动开启的）：
+
+a. 进入 master 节点，编辑 /etc/kubernetes/manifests/ 下的 kube-apiserver.yaml,kube-controller-manager.yaml 及 kube-scheduler.yaml，在 command 部分添加 - --feature-gates=EphemeralContainers=true；
+
+b. ！！！同时也要在被调试 pod 所在的节点上编辑 /var/lib/kubelet/kubeadm-flags.env，添加 --feature-gates=EphemeralContainers=true；
+
+c. 重启 kubelet：
+$ systemctl daemon-reload
+$ systemctl restart kubelet
+</code></pre><h3 id="2使用">2，使用</h3>
+<h3 id="21-使用临时容器调试">2.1 使用临时容器调试</h3>
+<pre tabindex="0"><code>$ kubectl debug -it pod_name --image=busybox:1.28 --target=container_name
+
+// 为 pod 里的具体某个容器添加一个临时容器（镜像为 busybox）进行 debug
+</code></pre><p><em>实例一：创建一个 pod，该 pod 功能是从桶 mybucket1 获取文件 test.txt 复制到本地目录 /data/test.txt 再从此目录把 test.txt 上传到桶 mybucket2 里。错误状态：桶 mybucket2 并没有相应文件，查找原因。</em></p>
+<p>1，创建 pod1</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test1]$ kubectl apply -f pod1.yaml
+secret/pod1-secret created
+clusterrole.rbac.authorization.k8s.io/pod1-get created
+clusterrolebinding.rbac.authorization.k8s.io/pod1-get-rbac created
+serviceaccount/pod1-sa created
+pod/pod1 created
+[centos@ml-k8s-1 test1]$ kubectl get pod
+NAME                                       READY   STATUS    RESTARTS   AGE
+pod1                                       1/1     Running   0          7s
+
+// pod1 一直处于 Running ，正常情况是 10s 内就会 completed ，只有失败的时候才会卡在 Running 不动
+// 此时桶 mybucket2 确实也没有数据
+</code></pre><p>2，描述 pod 当前状态</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 deploy]$ kubectl describe pod pod1
+...
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  5m44s  default-scheduler  Successfully assigned default/pod1 to ml-k8s-2.novalocal
+  Normal  Pulling    5m42s  kubelet            Pulling image &quot;beyond.io:5000/debug-test:0.1.1&quot;
+  Normal  Pulled     5m42s  kubelet            Successfully pulled image &quot;beyond.io:5000/debug-test:0.1.1&quot; in 59.162221ms
+  Normal  Created    5m42s  kubelet            Created container pod1
+  Normal  Started    5m42s  kubelet            Started container pod1
+
+// 看不出任何问题
+</code></pre><p>3，查看 pod 日志</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test1]$ kubectl logs pod1
+I0429 10:24:34.913853       1 main.go:18] Test start!
+I0429 10:24:34.914013       1 main.go:19] Pulling data from bucket 1 and storing it in bucket 2.
+I0429 10:24:34.961361       1 main.go:61] &amp;{0xc000442180}
+E0429 10:24:37.968336       1 main.go:70] Wrong in coping object from mybucket1 to localFile:  Get &quot;http://10.20.9.60:30009/mybucket1/?location=&quot;: dial tcp 10.20.9.60:30009: connect: no route to host
+
+// 程序已启动但是从桶 mybucket1 复制文件到本地时失败
+// 看到这个日志大概能猜到网址不对劲，但假设不确定是不是网址问题或没有这条日志
+</code></pre><p>4，进入容器内部排查</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test1]$ kubectl exec -it pod1 -- sh
+OCI runtime exec failed: exec failed: container_linux.go:380: starting container process caused: exec: &quot;sh&quot;: executable file not found in $PATH: unknown
+command terminated with exit code 126
+
+// 此镜像的基础镜像为 scratch，无法执行 kubectl exec
+</code></pre><p>5，debug 进入容器内部</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test1]$ kubectl debug -it pod1 --image=busybox:1.28 --target=pod1
+Defaulting debug container name to debugger-h59bb.
+If you don't see a command prompt, try pressing enter.
+/ # ls
+bin   dev   etc   home  proc  root  sys   tmp   usr   var
+/ # cd proc/1/root
+(unreachable)/ # ls
+app   data  dev   etc   proc  sys   var
+(unreachable)/ # cd data
+(unreachable)/data # ls
+test.txt
+(unreachable)/data # cat test.txt
+(unreachable)/data # ping 10.20.9.60
+PING 10.20.9.60 (10.20.9.60): 56 data bytes
+^C
+--- 10.20.9.60 ping statistics ---
+9 packets transmitted, 0 packets received, 100% packet loss
+(unreachable)/data # ping 10.20.9.61
+PING 10.20.9.61 (10.20.9.61): 56 data bytes
+64 bytes from 10.20.9.61: seq=0 ttl=63 time=13.941 ms
+64 bytes from 10.20.9.61: seq=1 ttl=63 time=1.050 ms
+64 bytes from 10.20.9.61: seq=2 ttl=63 time=0.462 ms
+64 bytes from 10.20.9.61: seq=3 ttl=63 time=0.472 ms
+^C
+--- 10.20.9.61 ping statistics ---
+4 packets transmitted, 4 packets received, 0% packet loss
+round-trip min/avg/max = 0.462/3.981/13.941 ms
+(unreachable)/data #
+
+// 进入 pod1 容器内部，查看 /data 目录下是否有成功复制文件 test.txt，发现 test.txt 为空，复制未成功
+// 测试 minio 网站是否能链接上，确实不行。发现网址输入错误
+// 修改好正确网址再次部署 pod1，运行成功，桶 mybucket2 里出现 test.txt
+</code></pre><h3 id="22-使用副本调试">2.2 使用副本调试</h3>
+<h4 id="221创建副本调试">2.2.1，创建副本调试</h4>
+<pre tabindex="0"><code>$ kubectl debug myapp -it --image=ubuntu --share-processes --copy-to=myapp-debug
+
+// --share-processes 允许在此 Pod 中的其他容器中查看该容器的进程
+// 示例一中的方式关注点是无法进入容器内部，所以通过一个临时容器进入被调试容器内部排查问题
+// 此方式重点是原镜像调试工具有限，不能满足调试要求，所以注入一个调试工具更多的镜像来工作，同时创建一个副本不影响原有的服务。
+
+</code></pre><p><em>实例二：针对实例一中的网址问题，也可以采用创建副本的方式来注入原镜像不包含的调试工具进行排错</em></p>
+<p>1，进入容器</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test1]$ kubectl debug pod1 -it --image=busybox:1.28 --share-processes --copy-to=pod1-debug
+Defaulting debug container name to debugger-w8pqk.
+If you don't see a command prompt, try pressing enter.
+/ # ping 10.20.9.60
+PING 10.20.9.60 (10.20.9.60): 56 data bytes
+^C
+--- 10.20.9.60 ping statistics ---
+4 packets transmitted, 0 packets received, 100% packet loss
+/ # ping 10.20.9.61
+PING 10.20.9.61 (10.20.9.61): 56 data bytes
+64 bytes from 10.20.9.61: seq=0 ttl=63 time=11.655 ms
+64 bytes from 10.20.9.61: seq=1 ttl=63 time=0.590 ms
+64 bytes from 10.20.9.61: seq=2 ttl=63 time=0.454 ms
+64 bytes from 10.20.9.61: seq=3 ttl=63 time=0.434 ms
+^C
+--- 10.20.9.61 ping statistics ---
+4 packets transmitted, 4 packets received, 0% packet loss
+round-trip min/avg/max = 0.434/3.283/11.655 ms
+/ #
+</code></pre><h4 id="222创建副本时改变命令">2.2.2，创建副本时改变命令</h4>
+<p><em>实例三：创建一个 pod，该 pod 功能是运行一个 shell 脚本打印当前日期。错误状态：日志并没有打印出日期，且 pod 已运行完成处于 competed 状态，排查原因</em></p>
+<p>1，创建 pod3</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test3]$ kubectl apply -f pod3.yaml
+pod/pod3 created
+</code></pre><p>2，查看 pod</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test3]$ kubectl get pod
+NAME                                      READY   STATUS      RESTARTS   AGE
+pod3                                      0/1     Completed   0          7s
+</code></pre><p>3，查看日志</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test3]$ kubectl logs pod3
+Hello ldsdsy
+Today is
+
+// 期望日志是会打印出当前日期，但并没有
+</code></pre><p>4，进入容器</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test3]$ kubectl exec -it pod3 -- sh
+error: cannot exec into a container in a completed pod; current phase is Succeeded
+
+// pod 已完成，无法再进入容器内部
+</code></pre><p>5，创建副本</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test3]$ kubectl debug pod3 -it --copy-to=pod3-debug --container=pod3 -- sh
+If you don't see a command prompt, try pressing enter.
+/ # ls
+app   bin   dev   etc   home  proc  root  sys   tmp   usr   var
+/ # cd app
+/app # ls
+test.sh
+/app # cat test.sh
+#! /bin/sh
+echo &quot;Hello ldsdsy&quot;
+time=$(date +&quot;%Y-%m-%d %H:%M:%S&quot;)
+echo &quot;Today is $ttime&quot;
+/app #
+
+// 以 sh 的形式进入容器内部，可以一句一句地运行代码排查是什么地方出错，此处很简单可以看出是错把 time 写成了 ttime
+</code></pre><h4 id="223创建副本时改变镜像">2.2.3，创建副本时改变镜像</h4>
+<p><em>实例四：在实例三的基础上，修改 ttime 的拼写问题，重新打包镜像</em></p>
+<p>1，创建 pod 副本，把容器 pod3 的镜像改为新镜像</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test3]$ kubectl debug pod3 --copy-to=pod3-debug --set-image=pod3=beyond.io:5000/debug-test:0.1.4
+
+// --set-image=*=xxx 表示把 pod 的所有容器镜像全换成 xxx
+</code></pre><p>2，查看 pod</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test3]$ kubectl get pod
+NAME                                      READY   STATUS      RESTARTS   AGE
+pod3                                      0/1     Completed   0          13m
+pod3-debug                                0/1     Completed   0          8s
+</code></pre><p>3，查看日志</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test3]$ kubectl logs pod3-debug
+Hello ldsdsy
+Today is 2022-05-02 09:50:25
+[centos@ml-k8s-1 test3]$
+
+// 此时输出正常，新镜像可行
+</code></pre><h3 id="23-使用-shell-调试">2.3 使用 shell 调试</h3>
+<p><em>实例五：创建一个 pod，该 pod 功能是读出其所在节点下 /home/centos/data 目录里的数据。错误状态：没有读出任何数据，排查问题。</em></p>
+<p>1，创建 pod5</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test5]$ kubectl apply -f pod5.yaml
+pod/pod5 created
+</code></pre><p>2，查看 pod</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test5]$ kubectl get pod -o wide
+NAME                                      READY   STATUS      RESTARTS   AGE     IP             NODE                 NOMINATED NODE   READINESS GATES
+pod5                                      0/1     Completed   0          82s     10.245.0.213   ml-k8s-3.novalocal   &lt;none&gt;           &lt;none&gt;
+
+// pod 运行正常
+</code></pre><p>3，查看 pod 日志</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 test5]$ kubectl logs pod5
+DIR is /data
+/data/*
+
+// 没有数据
+</code></pre><p>4，shell 调试</p>
+<pre tabindex="0"><code>[centos@ml-k8s-1 debug]$ kubectl debug node/ml-k8s-2.novalocal -it --image=centos
+Creating debugging pod node-debugger-ml-k8s-2.novalocal-bb8s2 with container debugger on node ml-k8s-2.novalocal.
+If you don't see a command prompt, try pressing enter.
+[root@ml-k8s-2 /]# ls
+bin  dev  etc  home  host  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+[root@ml-k8s-2 /]# cd host
+[root@ml-k8s-2 host]# ls
+bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+[root@ml-k8s-2 host]# cd home/centos
+[root@ml-k8s-2 centos]# ls
+beyonlet_0.tar  coredns.tar  data  debug  kubeadm  nfs-subdir-external-provisioner.tar  nfs.tar  redis  redis-tools-41.tar
+[root@ml-k8s-2 centos]# cd data
+[root@ml-k8s-2 data]# ls
+[root@ml-k8s-2 data]#
+
+// 节点的根文件系统会被挂载在 /host
+// 进入节点 2，查看相关目录，发现目录下本就没有数据，导入数据重启 pod ，正常
+</code></pre><h2 id="三种调试的区别">三种调试的区别</h2>
+<p>1，第一种使用临时容器，更多的是被调试的容器处于 running 状态但又无法进入到容器内部调试，所以借助临时容器来进入容器内部排查问题。<br>
+2，第二种使用 pod 副本，更多的是建立一个被调试容器的副本用来调试，这样无需关心原本被调试容器的状态如何。<br>
+3，第三种使用 shell 调试，是在上述方式都不行的情况下，直接进入 pod 所在节点上进行调试。</p>
+<h2 id="调研过程中遇到的问题">调研过程中遇到的问题</h2>
+<h3 id="1为什么编辑完-kube-apiserveryaml-及-kube-scheduleryaml-不用-apply-pod-就自动重启了">1，为什么编辑完 kube-apiserver.yaml 及 kube-scheduler.yaml 不用 apply ，pod 就自动重启了？</h3>
+<pre tabindex="0"><code>1) 因为 apiserver，scheduler，etcd，controller manager 是静态 pod。静态 pod 直接由 kubelet 进程管理，而不是 apiserver。
+
+2) kubelet 会自动为每一个静态 pod 在 k8s 的 apiserver 上创建一个镜像 pod，因此可以在 apiserver 中查询到该 pod。
+
+3) 创建静态 pod 有两种方式：配置文件，HTTP。
+   1. 配置文件：通过 kubelet 配置的环境变量（一个具体目录），让 kubelet 定期去扫描这个目录，根据目录下出现/消失/变动的 yaml/json 文件来创建/删除/更新静态 pod。步骤如下：
+   
+   a) $ systemctl status kubelet  
+      // 在想要运行静态 pod 的节点上找到 kubelet 的启动配置文件
+
+   b) $ cat /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf    
+      // Environment=&quot;KUBELET_SYSTEM_PODS_ARGS=--pod-manifest-path=/etc/kubernetes/manifests --allow-privileged=true&quot;
+      // 环境变量 --pod-manifest-path 后即是 kubelet 会定期扫描的目录，把想创建的静态 pod yaml 放在此目录即可
+      // 如果启动参数里面没有这个参数，添加上重启 kubelet 即可。（$ systemctl restart kubelet）
+   
+   2. HTTP：kulete 会周期性地从 -manifest-url= 参数指定的地址下载文件并翻译成 yaml/json 格式的 pod 定义，此后与配置文件的方式相同，kubelet 会不时地重新下载该文件，当文件变化时对应地操作 pod。
+
+4) 除了上述方式，还可以在 kubelet 配置文件中添加 staticPodPath:&lt;目录&gt; 字段来实现。
+   // 配置文件在 /var/lib/kubelet/config.yaml，此方法有一定风险。
+</code></pre><h3 id="2为什么使用临时容器调试时kubectl-debug-后不生效">2，为什么使用临时容器调试时，kubectl debug 后不生效？</h3>
+<pre tabindex="0"><code>1) 如果不配置 apiserver，controller-manager，scheduler 这个三个组件的 yaml 文件设定使用临时容器，则执行 kubectl debug 后会报错。
+
+2) 设置了上述三个 yaml 文件，但没有配置 pod 所在节点上的 kubelet 开启临时容器功能，则在执行 kubectl debug 后会一直卡住，不会显示预期的命令行。
+</code></pre><h3 id="3kubelet-到底有多少种配置方式">3，kubelet 到底有多少种配置方式</h3>
+<p><em>在以上实验过程中，发现每篇博客都有不同 kubelet 的配置方式</em></p>
+<p>根源在于 linux 系统里有很多 system 目录，常见的有 /etc/systemd/system、/lib/systemd/system 以及 /uer/lib/systemd/system 等。其中 后两者指向同一目录，在根目录下执行 ll 可知。</p>
+<ul>
+<li>
+<p>/etc/systemd/system: Local configuratin，是系统管理员安装的单元文件。</p>
+</li>
+<li>
+<p>[/usr]/lib/systemd/system: Units of installed packages，目录包含的是软件包安装的单元，即通过 yum，dnf，rpm 等软件包管理命令管理的 systemd 单元文件。</p>
+</li>
+<li>
+<p>还有一个 /run/systemd/system: Runtime units，这个一般是进程在运行时动态创建 unit 文件的目录，一般不修改，除非改程序运行时的一些参数，即 Session 级别的。</p>
+</li>
+<li>
+<p>/etc/systemd/system, /run/systemd/system, /lib/systemd/system 优先级从高到低</p>
+</li>
+</ul>
+<h2 id="附录">附录</h2>
+<h3 id="实例一">实例一</h3>
+<p>1，main.go</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+    <span class="s">&#34;context&#34;</span>
+    <span class="s">&#34;io&#34;</span>
+    <span class="s">&#34;os&#34;</span>
+    <span class="s">&#34;time&#34;</span>
+
+    <span class="s">&#34;github.com/minio/minio-go/v7&#34;</span>
+    <span class="s">&#34;github.com/minio/minio-go/v7/pkg/credentials&#34;</span>
+    <span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
+    <span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
+    <span class="s">&#34;k8s.io/client-go/rest&#34;</span>
+    <span class="s">&#34;k8s.io/klog/v2&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">klog</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;Test start!&#34;</span><span class="p">)</span>
+    <span class="nx">klog</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="s">&#34;Pulling data from bucket 1 and storing it in bucket 2.&#34;</span><span class="p">)</span>
+    <span class="c1">// creates the in-cluster config
+</span><span class="c1"></span>    <span class="nx">config</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rest</span><span class="p">.</span><span class="nf">InClusterConfig</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in creating config: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="c1">// create the clientset
+</span><span class="c1"></span>    <span class="nx">clientset</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in creating clientset: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="c1">// Get info of minio from s3-secret
+</span><span class="c1"></span>    <span class="nx">secret</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Secrets</span><span class="p">(</span><span class="s">&#34;default&#34;</span><span class="p">).</span><span class="nf">Get</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="s">&#34;minio-secret&#34;</span><span class="p">,</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">GetOptions</span><span class="p">{})</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in getting secret: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nx">id</span> <span class="o">:=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">secret</span><span class="p">.</span><span class="nx">Data</span><span class="p">[</span><span class="s">&#34;id&#34;</span><span class="p">])</span>
+    <span class="nx">key</span> <span class="o">:=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">secret</span><span class="p">.</span><span class="nx">Data</span><span class="p">[</span><span class="s">&#34;key&#34;</span><span class="p">])</span>
+    <span class="nx">endpoint</span> <span class="o">:=</span> <span class="nb">string</span><span class="p">(</span><span class="nx">secret</span><span class="p">.</span><span class="nx">Data</span><span class="p">[</span><span class="s">&#34;endpoint&#34;</span><span class="p">])</span>
+    <span class="nx">useSSL</span> <span class="o">:=</span> <span class="kc">false</span> <span class="c1">//true 会走 https
+</span><span class="c1"></span>    <span class="c1">// Initialize minio client object.
+</span><span class="c1"></span>    <span class="nx">minioClient</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">minio</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">endpoint</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">minio</span><span class="p">.</span><span class="nx">Options</span><span class="p">{</span>
+        <span class="nx">Creds</span><span class="p">:</span>  <span class="nx">credentials</span><span class="p">.</span><span class="nf">NewStaticV4</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">),</span>
+        <span class="nx">Secure</span><span class="p">:</span> <span class="nx">useSSL</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in getting minioClient : &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nx">object</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">minioClient</span><span class="p">.</span><span class="nf">GetObject</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="s">&#34;mybucket1&#34;</span><span class="p">,</span> <span class="s">&#34;test.txt&#34;</span><span class="p">,</span> <span class="nx">minio</span><span class="p">.</span><span class="nx">GetObjectOptions</span><span class="p">{})</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in getting object from mybucket1: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c1">//以读写方式打开文件，如果不存在，则创建(只创建文件，不能创建文件夹)
+</span><span class="c1"></span>    <span class="nx">localFile</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">OpenFile</span><span class="p">(</span><span class="s">&#34;/data/test.txt&#34;</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">O_RDWR</span><span class="p">|</span><span class="nx">os</span><span class="p">.</span><span class="nx">O_CREATE</span><span class="p">,</span> <span class="mo">0766</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in creating /data/test.txt: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nx">klog</span><span class="p">.</span><span class="nf">Info</span><span class="p">(</span><span class="nx">localFile</span><span class="p">)</span>
+    <span class="k">defer</span> <span class="nx">localFile</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">Copy</span><span class="p">(</span><span class="nx">localFile</span><span class="p">,</span> <span class="nx">object</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in coping object from mybucket1 to localFile: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nx">file</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;/data/test.txt&#34;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in getting object from /data/test.txt: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">defer</span> <span class="nx">file</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+
+    <span class="nx">fileStat</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">file</span><span class="p">.</span><span class="nf">Stat</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in getting fileStat: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="c1">// Create a bucket at region &#39;us-east-1&#39; with object locking enabled.
+</span><span class="c1"></span>    <span class="nx">err</span> <span class="p">=</span> <span class="nx">minioClient</span><span class="p">.</span><span class="nf">MakeBucket</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="s">&#34;mybucket2&#34;</span><span class="p">,</span> <span class="nx">minio</span><span class="p">.</span><span class="nx">MakeBucketOptions</span><span class="p">{</span><span class="nx">Region</span><span class="p">:</span> <span class="s">&#34;cn-north-1&#34;</span><span class="p">,</span> <span class="nx">ObjectLocking</span><span class="p">:</span> <span class="kc">false</span><span class="p">})</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in creating mybucket2: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nx">uploadInfo</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">minioClient</span><span class="p">.</span><span class="nf">PutObject</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="s">&#34;mybucket2&#34;</span><span class="p">,</span> <span class="s">&#34;test.txt&#34;</span><span class="p">,</span> <span class="nx">file</span><span class="p">,</span> <span class="nx">fileStat</span><span class="p">.</span><span class="nf">Size</span><span class="p">(),</span> <span class="nx">minio</span><span class="p">.</span><span class="nx">PutObjectOptions</span><span class="p">{</span><span class="nx">ContentType</span><span class="p">:</span> <span class="s">&#34;application/octet-stream&#34;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">klog</span><span class="p">.</span><span class="nf">Errorln</span><span class="p">(</span><span class="s">&#34;Wrong in putting myobject to mybucket2: &#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nx">klog</span><span class="p">.</span><span class="nf">Infoln</span><span class="p">(</span><span class="s">&#34;Successfully uploaded bytes: &#34;</span><span class="p">,</span> <span class="nx">uploadInfo</span><span class="p">)</span>
+
+<span class="p">}</span>
+</code></pre></div><p>2，Dockerfile</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> scratch</span><span class="err">
+</span><span class="err"></span><span class="k">ADD</span> ./app /<span class="err">
+</span><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;/app&#34;</span><span class="p">]</span><span class="err">
+</span></code></pre></div><p>3，部署文件</p>
+<ol>
+<li>pod1.yaml</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span><span class="w"></span><span class="nt">stringData</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">AKIAIOSFODNN7EXAMPLE</span><span class="w">
+</span><span class="w">  </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</span><span class="w">
+</span><span class="w">  </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="m">10.20.9.60</span><span class="p">:</span><span class="m">30009</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Secret</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod1-secret</span><span class="w">
+</span><span class="w"></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Opaque</span><span class="w">
+</span><span class="w"></span><span class="nn">---</span><span class="w">
+</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">rbac.authorization.k8s.io/v1</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ClusterRole</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod1-get</span><span class="w">
+</span><span class="w"></span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span><span class="w"></span>- <span class="nt">apiGroups</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;&#34;</span><span class="p">]</span><span class="w">
+</span><span class="w">  </span><span class="nt">resources</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;secrets&#34;</span><span class="p">]</span><span class="w">
+</span><span class="w">  </span><span class="nt">verbs</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;get&#34;</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nn">---</span><span class="w">
+</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">rbac.authorization.k8s.io/v1</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ClusterRoleBinding</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod1-get-rbac</span><span class="w">
+</span><span class="w"></span><span class="nt">subjects</span><span class="p">:</span><span class="w">
+</span><span class="w"></span>- <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ServiceAccount</span><span class="w">
+</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">default</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod1-sa</span><span class="w">
+</span><span class="w"></span><span class="nt">roleRef</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ClusterRole</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod1-get</span><span class="w">
+</span><span class="w">  </span><span class="nt">apiGroup</span><span class="p">:</span><span class="w"> </span><span class="l">rbac.authorization.k8s.io</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nn">---</span><span class="w">
+</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ServiceAccount</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod1-sa</span><span class="w">
+</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">default</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nn">---</span><span class="w">
+</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1 </span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Pod </span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod1 </span><span class="w">
+</span><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">k8s-app</span><span class="p">:</span><span class="w"> </span><span class="l">pod1</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">  
+</span><span class="w">  </span><span class="nt">serviceAccountName</span><span class="p">:</span><span class="w"> </span><span class="l">pod1-sa</span><span class="w">
+</span><span class="w">  </span><span class="nt">restartPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Never</span><span class="w">
+</span><span class="w">  </span><span class="nt">containers</span><span class="p">:</span><span class="w">  
+</span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod1</span><span class="w">
+</span><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">beyond.io:5000/debug-test:0.1.1</span><span class="w">
+</span><span class="w">    </span><span class="nt">imagePullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Always </span><span class="w">
+</span><span class="w">    </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">  
+</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">volume</span><span class="w">
+</span><span class="w">      </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/data </span><span class="w">
+</span><span class="w">      </span><span class="nt">readOnly</span><span class="p">:</span><span class="w"> </span><span class="kc">False</span><span class="w">  
+</span><span class="w">  </span><span class="nt">volumes</span><span class="p">:</span><span class="w"> 
+</span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">volume </span><span class="w">
+</span><span class="w">    </span><span class="nt">emptyDir</span><span class="p">:</span><span class="w"> </span>{}<span class="w">  
+</span></code></pre></div><h3 id="实例三">实例三</h3>
+<p>1，test.sh</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#! /bin/sh
+</span><span class="cp"></span><span class="nb">echo</span> <span class="s2">&#34;Hello ldsdsy&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="k">$(</span>date +<span class="s2">&#34;%Y-%m-%d %H:%M:%S&#34;</span><span class="k">)</span>
+<span class="nb">echo</span> <span class="s2">&#34;Today is </span><span class="nv">$ttime</span><span class="s2">&#34;</span>
+</code></pre></div><p>2，Dockerfile</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> busybox:1.28</span><span class="err">
+</span><span class="err"></span><span class="k">RUN</span> mkdir /app<span class="err">
+</span><span class="err"></span><span class="k">ADD</span> ./test.sh /app<span class="err">
+</span><span class="err"></span><span class="k">RUN</span> chmod +x /app/test.sh<span class="err">
+</span><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;sh&#34;</span><span class="p">,</span><span class="s2">&#34;-c&#34;</span><span class="p">,</span><span class="s2">&#34;/app/test.sh&#34;</span><span class="p">]</span><span class="err">
+</span></code></pre></div><p>3，pod3.yaml</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1 </span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Pod </span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod3</span><span class="w">
+</span><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">k8s-app</span><span class="p">:</span><span class="w"> </span><span class="l">pod3</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">  
+</span><span class="w">  </span><span class="nt">restartPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Never</span><span class="w">
+</span><span class="w">  </span><span class="nt">containers</span><span class="p">:</span><span class="w">  
+</span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod3</span><span class="w">
+</span><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">beyond.io:5000/debug-test:0.1.3</span><span class="w">
+</span><span class="w">    </span><span class="nt">imagePullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Always </span><span class="w">
+</span></code></pre></div><h3 id="实例五">实例五</h3>
+<p>1，test.sh</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#! /bin/sh
+</span><span class="cp"></span><span class="nv">DATA_DIR</span><span class="o">=</span><span class="si">${</span><span class="nv">DATA_DIR</span><span class="si">}</span>
+<span class="nb">echo</span> <span class="s2">&#34;DIR is </span><span class="nv">$DATA_DIR</span><span class="s2">&#34;</span>
+<span class="k">for</span> file in <span class="nv">$DATA_DIR</span>/*
+<span class="k">do</span>
+<span class="nb">echo</span> <span class="nv">$file</span>
+<span class="k">if</span> <span class="o">[</span> -f <span class="nv">$file</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+cat <span class="nv">$file</span>
+<span class="k">fi</span>
+<span class="k">done</span>
+</code></pre></div><p>2，pod5.yaml</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1 </span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Pod </span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod5</span><span class="w">
+</span><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">k8s-app</span><span class="p">:</span><span class="w"> </span><span class="l">pod5</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">  
+</span><span class="w">  </span><span class="nt">restartPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Never</span><span class="w">
+</span><span class="w">  </span><span class="nt">containers</span><span class="p">:</span><span class="w">  
+</span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pod5 </span><span class="w">
+</span><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">beyond.io:5000/debug-test:0.1.5</span><span class="w">
+</span><span class="w">    </span><span class="nt">imagePullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Always </span><span class="w">
+</span><span class="w">    </span><span class="nt">env</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">DATA_DIR</span><span class="w">
+</span><span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l">/data</span><span class="w">
+</span><span class="w">    </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">  
+</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">volume</span><span class="w">
+</span><span class="w">      </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/data </span><span class="w">
+</span><span class="w">      </span><span class="nt">readOnly</span><span class="p">:</span><span class="w"> </span><span class="kc">False</span><span class="w">  
+</span><span class="w">  </span><span class="nt">volumes</span><span class="p">:</span><span class="w"> 
+</span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">volume </span><span class="w">
+</span><span class="w">    </span><span class="nt">hostPath</span><span class="p">:</span><span class="w">  
+</span><span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/home/centos/data</span><span class="w">
+</span></code></pre></div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">Related contents</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/k8s_clientset02/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">K8s_Clientset02</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/k8s_clientset01/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">K8s_Clientset01</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/k8s_%E5%AD%98%E5%82%A8%E9%99%90%E5%88%B6/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">K8s_存储限制</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">K8s_静态加密</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/docker/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Docker</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (DISQUS) {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2022 ldsdsy Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">Table of contents</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#kubectl-debug-是什么">kubectl debug 是什么</a></li>
+    <li><a href="#kubectl-debug-起源">kubectl debug 起源</a></li>
+    <li><a href="#kubectl-debug-工作原理">kubectl debug 工作原理</a></li>
+    <li><a href="#kubectl-debug-怎么用">kubectl debug 怎么用</a>
+      <ol>
+        <li><a href="#1开启功能">1，开启功能</a></li>
+        <li><a href="#2使用">2，使用</a></li>
+        <li><a href="#21-使用临时容器调试">2.1 使用临时容器调试</a></li>
+        <li><a href="#22-使用副本调试">2.2 使用副本调试</a>
+          <ol>
+            <li><a href="#221创建副本调试">2.2.1，创建副本调试</a></li>
+            <li><a href="#222创建副本时改变命令">2.2.2，创建副本时改变命令</a></li>
+            <li><a href="#223创建副本时改变镜像">2.2.3，创建副本时改变镜像</a></li>
+          </ol>
+        </li>
+        <li><a href="#23-使用-shell-调试">2.3 使用 shell 调试</a></li>
+      </ol>
+    </li>
+    <li><a href="#三种调试的区别">三种调试的区别</a></li>
+    <li><a href="#调研过程中遇到的问题">调研过程中遇到的问题</a>
+      <ol>
+        <li><a href="#1为什么编辑完-kube-apiserveryaml-及-kube-scheduleryaml-不用-apply-pod-就自动重启了">1，为什么编辑完 kube-apiserver.yaml 及 kube-scheduler.yaml 不用 apply ，pod 就自动重启了？</a></li>
+        <li><a href="#2为什么使用临时容器调试时kubectl-debug-后不生效">2，为什么使用临时容器调试时，kubectl debug 后不生效？</a></li>
+        <li><a href="#3kubelet-到底有多少种配置方式">3，kubelet 到底有多少种配置方式</a></li>
+      </ol>
+    </li>
+    <li><a href="#附录">附录</a>
+      <ol>
+        <li><a href="#实例一">实例一</a></li>
+        <li><a href="#实例三">实例三</a></li>
+        <li><a href="#实例五">实例五</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
