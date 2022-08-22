@@ -1,132 +1,11 @@
-<!DOCTYPE html>
-<html lang="en-us">
-    <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='网络层 主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.
-1 功能 1. 异构网互联 2. 路由和转发：路由选择，分组转发 3. 拥塞控制：开环控制（静态），闭环控制（动态） 2 路由算法 1. 静态路由（非自适应路由算法）： 1）管理员手动配置路由信息； 2）优点是简便，可靠，适用于负荷稳定，拓扑变化不大的网络。 2. 动态路由（自适应路由算法）： 1）路由表项通过相互连接的路由器之间彼此交换信息； 2）能改善网络性能并有助于流量控制； 3）分类：距离-向量路由算法（RIP），链路状态路由算法(OSPF)。 3.层次路由 因特网将整个互联网划分为许多较小的自治系统（其中包含很多局域网） 1）自治系统内使用的路由选择协议称为内部网关协议（IGP），也称域内路由选择，如 RIP,OSPF. 2）自治系统间使用的路由选择协议称为外部网关协议（EGP），也称域间路由选择，如 BGP. 3 IPv4 IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。 1. 分组格式：首部 &#43; 数据 首部：固定 20B ，其中协议表示应交付哪个传输层协议（6：TCP,17:UDP）； 首部长度，总长度，片偏移的单位分别是 4B,1B,8B(1总8片的首4). 2. IP 数据报分片： IP 数据报封装在链路层数据报中，所以链路层 MTU（最大传送单元） 严格限制了 IP 数据报的长度。 1）IP 首部中的标志位有 3 比特，后两比特分别是 DF 和 MF； 2）DF（Don&#39;t Fragment）：1:禁止分片，0：允许分片； 3）MF（More Fragment）：1：后面还有分片，0：此为最后一片。 3. IPv4 地址： 连接到因特网上的每台主机（或路由器）都分配一个 32 比特的全球唯一标识符，即 IP 地址。 1）分类：A,B,C,D,E 五类。 2）组成：网络号 &#43; 主机号。 3）主机号全为 0 表示本网络本身， 主机号全为 1 表示本网络的广播地址， 127.'><title>Network_four</title>
-
-<link rel='canonical' href='https://ldsdsy.github.io/p/network_four/'>
-
-<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Network_four'>
-<meta property='og:description' content='网络层 主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.
-1 功能 1. 异构网互联 2. 路由和转发：路由选择，分组转发 3. 拥塞控制：开环控制（静态），闭环控制（动态） 2 路由算法 1. 静态路由（非自适应路由算法）： 1）管理员手动配置路由信息； 2）优点是简便，可靠，适用于负荷稳定，拓扑变化不大的网络。 2. 动态路由（自适应路由算法）： 1）路由表项通过相互连接的路由器之间彼此交换信息； 2）能改善网络性能并有助于流量控制； 3）分类：距离-向量路由算法（RIP），链路状态路由算法(OSPF)。 3.层次路由 因特网将整个互联网划分为许多较小的自治系统（其中包含很多局域网） 1）自治系统内使用的路由选择协议称为内部网关协议（IGP），也称域内路由选择，如 RIP,OSPF. 2）自治系统间使用的路由选择协议称为外部网关协议（EGP），也称域间路由选择，如 BGP. 3 IPv4 IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。 1. 分组格式：首部 &#43; 数据 首部：固定 20B ，其中协议表示应交付哪个传输层协议（6：TCP,17:UDP）； 首部长度，总长度，片偏移的单位分别是 4B,1B,8B(1总8片的首4). 2. IP 数据报分片： IP 数据报封装在链路层数据报中，所以链路层 MTU（最大传送单元） 严格限制了 IP 数据报的长度。 1）IP 首部中的标志位有 3 比特，后两比特分别是 DF 和 MF； 2）DF（Don&#39;t Fragment）：1:禁止分片，0：允许分片； 3）MF（More Fragment）：1：后面还有分片，0：此为最后一片。 3. IPv4 地址： 连接到因特网上的每台主机（或路由器）都分配一个 32 比特的全球唯一标识符，即 IP 地址。 1）分类：A,B,C,D,E 五类。 2）组成：网络号 &#43; 主机号。 3）主机号全为 0 表示本网络本身， 主机号全为 1 表示本网络的广播地址， 127.'>
-<meta property='og:url' content='https://ldsdsy.github.io/p/network_four/'>
-<meta property='og:site_name' content='ldsdsy Site'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-02-27T13:19:58&#43;08:00'/><meta property='article:modified_time' content='2021-02-27T13:19:58&#43;08:00'/>
-<meta name="twitter:title" content="Network_four">
-<meta name="twitter:description" content="网络层 主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.
-1 功能 1. 异构网互联 2. 路由和转发：路由选择，分组转发 3. 拥塞控制：开环控制（静态），闭环控制（动态） 2 路由算法 1. 静态路由（非自适应路由算法）： 1）管理员手动配置路由信息； 2）优点是简便，可靠，适用于负荷稳定，拓扑变化不大的网络。 2. 动态路由（自适应路由算法）： 1）路由表项通过相互连接的路由器之间彼此交换信息； 2）能改善网络性能并有助于流量控制； 3）分类：距离-向量路由算法（RIP），链路状态路由算法(OSPF)。 3.层次路由 因特网将整个互联网划分为许多较小的自治系统（其中包含很多局域网） 1）自治系统内使用的路由选择协议称为内部网关协议（IGP），也称域内路由选择，如 RIP,OSPF. 2）自治系统间使用的路由选择协议称为外部网关协议（EGP），也称域间路由选择，如 BGP. 3 IPv4 IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。 1. 分组格式：首部 &#43; 数据 首部：固定 20B ，其中协议表示应交付哪个传输层协议（6：TCP,17:UDP）； 首部长度，总长度，片偏移的单位分别是 4B,1B,8B(1总8片的首4). 2. IP 数据报分片： IP 数据报封装在链路层数据报中，所以链路层 MTU（最大传送单元） 严格限制了 IP 数据报的长度。 1）IP 首部中的标志位有 3 比特，后两比特分别是 DF 和 MF； 2）DF（Don&#39;t Fragment）：1:禁止分片，0：允许分片； 3）MF（More Fragment）：1：后面还有分片，0：此为最后一片。 3. IPv4 地址： 连接到因特网上的每台主机（或路由器）都分配一个 32 比特的全球唯一标识符，即 IP 地址。 1）分类：A,B,C,D,E 五类。 2）组成：网络号 &#43; 主机号。 3）主机号全为 0 表示本网络本身， 主机号全为 1 表示本网络的广播地址， 127.">
-    </head>
-    <body class="
-    article-page has-toc
-">
-    <script>
-        (function() {
-            const colorSchemeKey = 'StackColorScheme';
-            if(!localStorage.getItem(colorSchemeKey)){
-                localStorage.setItem(colorSchemeKey, "auto");
-            }
-        })();
-    </script><script>
-    (function() {
-        const colorSchemeKey = 'StackColorScheme';
-        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
-        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
-
-        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
-            
-
-            document.documentElement.dataset.scheme = 'dark';
-        } else {
-            document.documentElement.dataset.scheme = 'light';
-        }
-    })();
-</script>
-<div class="container main-container flex 
-    
-        extended
-    
-">
-    
-        <div id="article-toolbar">
-            <a href="https://ldsdsy.github.io/" class="back-home">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <polyline points="15 6 9 12 15 18" />
-</svg>
-
-
-
-                <span>Back</span>
-            </a>
-        </div>
-    
-<main class="main full-width">
-    <article class="main-article">
-    <header class="article-header">
-
-    <div class="article-details">
-    
-    <header class="article-category">
-        
-            <a href="/categories/technology-related/" style="background-color: #2a9d8f; color: #fff;">
-                Technology-related
-            </a>
-        
-    </header>
-    
-
-    <h2 class="article-title">
-        <a href="/p/network_four/">Network_four</a>
-    </h2>
-
-    
-
-    
-    <footer class="article-time">
-        
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-  <circle cx="18" cy="18" r="4" />
-  <path d="M15 3v4" />
-  <path d="M7 3v4" />
-  <path d="M3 11h16" />
-  <path d="M18 16.496v1.504l1 1" />
-</svg>
-                <time class="article-time--published">Feb 27, 2021</time>
-            </div>
-        
-
-        
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    3 minute read
-                </time>
-            </div>
-        
-    </footer>
-    
-</div>
-</header>
-
-    <section class="article-content">
-    <h1 id="网络层">网络层</h1>
-<p><em>主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.</em></p>
-<h2 id="1-功能">1 功能</h2>
-<pre tabindex="0"><code>1. 异构网互联
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="网络层 主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.
+1 功能 1. 异构网互联 2. 路由和转发：路由选择，分组转发 3. 拥塞控制：开环控制（静态），闭环控制（动态） 2 路由算法 1. 静态路由（非自适应路由算法）： 1）管理员手动配置路由信息； 2）优点是简便，可靠，适用于负荷稳定，拓扑变化不大的网络。 2. 动态路由（自适应路由算法）： 1）路由表项通过相互连接的路由器之间彼此交换信息； 2）能改善网络性能并有助于流量控制； 3）分类：距离-向量路由算法（RIP），链路状态路由算法(OSPF)。 3.层次路由 因特网将整个互联网划分为许多较小的自治系统（其中包含很多局域网） 1）自治系统内使用的路由选择协议称为内部网关协议（IGP），也称域内路由选择，如 RIP,OSPF. 2）自治系统间使用的路由选择协议称为外部网关协议（EGP），也称域间路由选择，如 BGP. 3 IPv4 IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。 1. 分组格式：首部 + 数据 首部：固定 20B ，其中协议表示应交付哪个传输层协议（6：TCP,17:UDP）； 首部长度，总长度，片偏移的单位分别是 4B,1B,8B(1总8片的首4). 2. IP 数据报分片： IP 数据报封装在链路层数据报中，所以链路层 MTU（最大传送单元） 严格限制了 IP 数据报的长度。 1）IP 首部中的标志位有 3 比特，后两比特分别是 DF 和 MF； 2）DF（Don&amp;#39;t Fragment）：1:禁止分片，0：允许分片； 3）MF（More Fragment）：1：后面还有分片，0：此为最后一片。 3. IPv4 地址： 连接到因特网上的每台主机（或路由器）都分配一个 32 比特的全球唯一标识符，即 IP 地址。 1）分类：A,B,C,D,E 五类。 2）组成：网络号 + 主机号。 3）主机号全为 0 表示本网络本身， 主机号全为 1 表示本网络的广播地址， 127."><title>Network_four</title><link rel=canonical href=https://ldsdsy.github.io/p/network_four/><link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="Network_four"><meta property="og:description" content="网络层 主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.
+1 功能 1. 异构网互联 2. 路由和转发：路由选择，分组转发 3. 拥塞控制：开环控制（静态），闭环控制（动态） 2 路由算法 1. 静态路由（非自适应路由算法）： 1）管理员手动配置路由信息； 2）优点是简便，可靠，适用于负荷稳定，拓扑变化不大的网络。 2. 动态路由（自适应路由算法）： 1）路由表项通过相互连接的路由器之间彼此交换信息； 2）能改善网络性能并有助于流量控制； 3）分类：距离-向量路由算法（RIP），链路状态路由算法(OSPF)。 3.层次路由 因特网将整个互联网划分为许多较小的自治系统（其中包含很多局域网） 1）自治系统内使用的路由选择协议称为内部网关协议（IGP），也称域内路由选择，如 RIP,OSPF. 2）自治系统间使用的路由选择协议称为外部网关协议（EGP），也称域间路由选择，如 BGP. 3 IPv4 IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。 1. 分组格式：首部 + 数据 首部：固定 20B ，其中协议表示应交付哪个传输层协议（6：TCP,17:UDP）； 首部长度，总长度，片偏移的单位分别是 4B,1B,8B(1总8片的首4). 2. IP 数据报分片： IP 数据报封装在链路层数据报中，所以链路层 MTU（最大传送单元） 严格限制了 IP 数据报的长度。 1）IP 首部中的标志位有 3 比特，后两比特分别是 DF 和 MF； 2）DF（Don&amp;#39;t Fragment）：1:禁止分片，0：允许分片； 3）MF（More Fragment）：1：后面还有分片，0：此为最后一片。 3. IPv4 地址： 连接到因特网上的每台主机（或路由器）都分配一个 32 比特的全球唯一标识符，即 IP 地址。 1）分类：A,B,C,D,E 五类。 2）组成：网络号 + 主机号。 3）主机号全为 0 表示本网络本身， 主机号全为 1 表示本网络的广播地址， 127."><meta property="og:url" content="https://ldsdsy.github.io/p/network_four/"><meta property="og:site_name" content="ldsdsy Site"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-02-27T13:19:58+08:00"><meta property="article:modified_time" content="2021-02-27T13:19:58+08:00"><meta name=twitter:title content="Network_four"><meta name=twitter:description content="网络层 主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.
+1 功能 1. 异构网互联 2. 路由和转发：路由选择，分组转发 3. 拥塞控制：开环控制（静态），闭环控制（动态） 2 路由算法 1. 静态路由（非自适应路由算法）： 1）管理员手动配置路由信息； 2）优点是简便，可靠，适用于负荷稳定，拓扑变化不大的网络。 2. 动态路由（自适应路由算法）： 1）路由表项通过相互连接的路由器之间彼此交换信息； 2）能改善网络性能并有助于流量控制； 3）分类：距离-向量路由算法（RIP），链路状态路由算法(OSPF)。 3.层次路由 因特网将整个互联网划分为许多较小的自治系统（其中包含很多局域网） 1）自治系统内使用的路由选择协议称为内部网关协议（IGP），也称域内路由选择，如 RIP,OSPF. 2）自治系统间使用的路由选择协议称为外部网关协议（EGP），也称域间路由选择，如 BGP. 3 IPv4 IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。 1. 分组格式：首部 + 数据 首部：固定 20B ，其中协议表示应交付哪个传输层协议（6：TCP,17:UDP）； 首部长度，总长度，片偏移的单位分别是 4B,1B,8B(1总8片的首4). 2. IP 数据报分片： IP 数据报封装在链路层数据报中，所以链路层 MTU（最大传送单元） 严格限制了 IP 数据报的长度。 1）IP 首部中的标志位有 3 比特，后两比特分别是 DF 和 MF； 2）DF（Don&amp;#39;t Fragment）：1:禁止分片，0：允许分片； 3）MF（More Fragment）：1：后面还有分片，0：此为最后一片。 3. IPv4 地址： 连接到因特网上的每台主机（或路由器）都分配一个 32 比特的全球唯一标识符，即 IP 地址。 1）分类：A,B,C,D,E 五类。 2）组成：网络号 + 主机号。 3）主机号全为 0 表示本网络本身， 主机号全为 1 表示本网络的广播地址， 127."></head><body class="article-page has-toc"><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex
+extended"><div id=article-toolbar><a href=https://ldsdsy.github.io/ class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg><span>Back</span></a></div><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/technology-related/ style=background-color:#2a9d8f;color:#fff>Technology-related</a></header><h2 class=article-title><a href=/p/network_four/>Network_four</a></h2><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Feb 27, 2021</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>3 minute read</time></div></footer></div></header><section class=article-content><h1 id=网络层>网络层</h1><p><em>主要任务是把分组从源端传到目的端，为分组交换网上的不同主机提供通信服务。网络层传输单位为数据报（数据报划分为了分组）.</em></p><h2 id=1-功能>1 功能</h2><pre tabindex=0><code>1. 异构网互联
 2. 路由和转发：路由选择，分组转发
 3. 拥塞控制：开环控制（静态），闭环控制（动态）
-</code></pre><h2 id="2-路由算法">2 路由算法</h2>
-<pre tabindex="0"><code>1. 静态路由（非自适应路由算法）：
+</code></pre><h2 id=2-路由算法>2 路由算法</h2><pre tabindex=0><code>1. 静态路由（非自适应路由算法）：
     1）管理员手动配置路由信息；
     2）优点是简便，可靠，适用于负荷稳定，拓扑变化不大的网络。
 
@@ -139,8 +18,7 @@
     因特网将整个互联网划分为许多较小的自治系统（其中包含很多局域网）
     1）自治系统内使用的路由选择协议称为内部网关协议（IGP），也称域内路由选择，如 RIP,OSPF.
     2）自治系统间使用的路由选择协议称为外部网关协议（EGP），也称域间路由选择，如 BGP.
-</code></pre><h2 id="3-ipv4">3 IPv4</h2>
-<pre tabindex="0"><code>IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。
+</code></pre><h2 id=3-ipv4>3 IPv4</h2><pre tabindex=0><code>IP 定义数据传送的基本单位—— IP 分组以及其确切的数据格式。
 
 1. 分组格式：首部 + 数据
     首部：固定 20B ，其中协议表示应交付哪个传输层协议（6：TCP,17:UDP）；
@@ -150,7 +28,7 @@
     IP 数据报封装在链路层数据报中，所以链路层 MTU（最大传送单元） 严格限制了 IP 数据报的长度。
 
     1）IP 首部中的标志位有 3 比特，后两比特分别是 DF 和 MF；
-    2）DF（Don't Fragment）：1:禁止分片，0：允许分片；
+    2）DF（Don&#39;t Fragment）：1:禁止分片，0：允许分片；
     3）MF（More Fragment）：1：后面还有分片，0：此为最后一片。
 
 3. IPv4 地址：
@@ -206,7 +84,7 @@
     DHCP 协议常用于给主机动态分配 IP 地址（应用层协议，基于 UDP）。
     工作过程（全程广播）：
         ① 主机广播 ”DHCP 发现“ 消息，试图找到 DHCP 服务器；
-        ② DHCP 服务器收到后，广播 &quot;DHCP 提供&quot; 消息；
+        ② DHCP 服务器收到后，广播 &#34;DHCP 提供&#34; 消息；
         ③ 主机收到回应后再广播 ”DHCP 请求“ 消息；
         ④ DHCP 服务器广播 ”DHCP 确认“ 消息，将 IP 地址分配给主机。
 
@@ -226,8 +104,7 @@
         ④ 路由器询问和通告报文。
         // 分组网间 PING ：测试两台主机之间的连通性
         // Traceroute :用来跟踪分组经过的路由
-</code></pre><h2 id="4-ipv6">4 IPv6</h2>
-<pre tabindex="0"><code>解决 IP 地址耗尽的措施：
+</code></pre><h2 id=4-ipv6>4 IPv6</h2><pre tabindex=0><code>解决 IP 地址耗尽的措施：
     1）采用 CIDR ，使 IP 分配更合理；
     2）采用 NAT 以节省 IP 地址；
     3）采用更大地址空间的新版本 IPv6.
@@ -247,8 +124,7 @@
 3. IPv4 向 IPv6 的过渡：
     1）双协议栈：让主机或路由器装有两个协议栈，一个 4 一个 6.
     2）隧道技术：将整个 IPv6 数据报封装到 IPv4 数据报的数据部分，使其可在 IPv4 的隧道中传输。
-</code></pre><h2 id="5-路由协议">5 路由协议</h2>
-<pre tabindex="0"><code>1. 路由信息协议（RIP）:
+</code></pre><h2 id=5-路由协议>5 路由协议</h2><pre tabindex=0><code>1. 路由信息协议（RIP）:
     RIP 是一种分布式的基于距离向量的路由选择协议，最大优点：简单。
 
     1）RIP 会优先选择跳数少的路径。
@@ -271,8 +147,7 @@
     1）只力求寻找一条较好（非最佳）的路由。
     2）BGP 是应用层协议，基于 TCP.
     3）与相邻路由器交换信息，首次交换整个路由表，非首次交换有变化的部分。
-</code></pre><h2 id="6-ip-组播">6 IP 组播</h2>
-<pre tabindex="0"><code> 主机组播时仅发送一份数据，在传送路径出现分岔时才复制分组并转发。
+</code></pre><h2 id=6-ip-组播>6 IP 组播</h2><pre tabindex=0><code> 主机组播时仅发送一份数据，在传送路径出现分岔时才复制分组并转发。
  组播仅应用于 UDP.
 
  1. IP 组播地址：
@@ -290,8 +165,7 @@
         1）基于链路状态的路由选择；
         2）基于距离-向量的路由选择；
         3）可建立在任何路由器协议上，称为协议无关的组播（PIM）.
-</code></pre><h2 id="7-移动-ip">7 移动 IP</h2>
-<pre tabindex="0"><code>支持移动性的因特网体系结构与协议共称为移动 IP。
+</code></pre><h2 id=7-移动-ip>7 移动 IP</h2><pre tabindex=0><code>支持移动性的因特网体系结构与协议共称为移动 IP。
 （使用移动 IP 可以让一个移动结点在不改变 IP 地址的情况下改变驻留位置）
 
 1. 基于 IPv4 的移动 IP 定义三种功能实体：
@@ -301,8 +175,7 @@
 
 2. 移动 IP 通信过程：
     本地代理接受消息，传给外部代理，载传给移动主机。
-</code></pre><h2 id="8-网络层设备">8 网络层设备</h2>
-<pre tabindex="0"><code>1. 路由器的组成和功能：
+</code></pre><h2 id=8-网络层设备>8 网络层设备</h2><pre tabindex=0><code>1. 路由器的组成和功能：
     路由器是一种具有多个输入/输出端口的专用计算机，其任务是连接异构网并完成路由转发。
 
     两个主要功能：
@@ -315,297 +188,11 @@
     1）路由表项 = 目的网络 IP 地址，子网掩码，下一跳 IP 地址，接口。
     2）转发表是从路由表得出的，但是格式不同。
     3）路由表用软件实现，转发表可以软件实现，甚至可用特殊的硬件来实现。
-</code></pre>
-</section>
-
-
-    <footer class="article-footer">
-    
-
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>Licensed under CC BY-NC-SA 4.0</span>
-    </section>
-    </footer>
-
-
-    
-</article>
-
-    <aside class="related-contents--wrapper">
-    
-    
-        <h2 class="section-title">Related contents</h2>
-        <div class="related-contents">
-            <div class="flex article-list--tile">
-                
-                    
-<article class="">
-    <a href="/p/k8s_kubectl_debug/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_kubectl_debug</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/k8s_clientset02/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_Clientset02</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/k8s_clientset01/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_Clientset01</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/k8s_%E5%AD%98%E5%82%A8%E9%99%90%E5%88%B6/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_存储限制</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_静态加密</h2>
-        </div>
-    </a>
-</article>
-                
-            </div>
-        </div>
-    
-</aside>
-
-     
-    
-        
-    <div class="disqus-container">
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-</div>
-
-<style>
-    .disqus-container {
-        background-color: var(--card-background);
-        border-radius: var(--card-border-radius);
-        box-shadow: var(--shadow-l1);
-        padding: var(--card-padding);
-    }
-</style>
-
-<script>
-    window.addEventListener('onColorSchemeChange', (e) => {
-        if (DISQUS) {
-            DISQUS.reset({
-                reload: true
-            });
-        }
-    })
-</script>
-
-    
-
-    <footer class="site-footer">
-    <section class="copyright">
-        &copy; 
-        
-            2020 - 
-        
-        2022 ldsdsy Site
-    </section>
-    
-    <section class="powerby">
-        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
-    </section>
-</footer>
-
-
-    
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-
-    
-    <div class="pswp__bg"></div>
-
-    
-    <div class="pswp__scroll-wrap">
-
-        
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                
-                
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div><script 
-                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
-                defer="true"
-                >
-            </script><script 
-                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
-                defer="true"
-                >
-            </script><link 
-                rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
-            ><link 
-                rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
-            >
-
-            </main>
-    
-        <aside class="sidebar right-sidebar sticky">
-            <section class="widget archives">
-                <div class="widget-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <line x1="5" y1="9" x2="19" y2="9" />
-  <line x1="5" y1="15" x2="19" y2="15" />
-  <line x1="11" y1="4" x2="7" y2="20" />
-  <line x1="17" y1="4" x2="13" y2="20" />
-</svg>
-
-
-
-                </div>
-                <h2 class="widget-title section-title">Table of contents</h2>
-                
-                <div class="widget--toc">
-                    <nav id="TableOfContents">
-  <ol>
-    <li><a href="#1-功能">1 功能</a></li>
-    <li><a href="#2-路由算法">2 路由算法</a></li>
-    <li><a href="#3-ipv4">3 IPv4</a></li>
-    <li><a href="#4-ipv6">4 IPv6</a></li>
-    <li><a href="#5-路由协议">5 路由协议</a></li>
-    <li><a href="#6-ip-组播">6 IP 组播</a></li>
-    <li><a href="#7-移动-ip">7 移动 IP</a></li>
-    <li><a href="#8-网络层设备">8 网络层设备</a></li>
-  </ol>
-</nav>
-                </div>
-            </section>
-        </aside>
-    
-
-        </div>
-        <script 
-                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
-                defer="false"
-                >
-            </script><script type="text/javascript" src="/ts/main.js" defer></script>
-<script>
-    (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
-
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-
-        document.head.appendChild(customFont);
-    }());
-</script>
-
-    </body>
-</html>
+</code></pre></section><footer class=article-footer><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-contents--wrapper><h2 class=section-title>Related contents</h2><div class=related-contents><div class="flex article-list--tile"><article><a href=/p/k8s_kubectl_debug/><div class=article-details><h2 class=article-title>K8s_kubectl_debug</h2></div></a></article><article><a href=/p/k8s_clientset02/><div class=article-details><h2 class=article-title>K8s_Clientset02</h2></div></a></article><article><a href=/p/k8s_clientset01/><div class=article-details><h2 class=article-title>K8s_Clientset01</h2></div></a></article><article><a href=/p/k8s_%E5%AD%98%E5%82%A8%E9%99%90%E5%88%B6/><div class=article-details><h2 class=article-title>K8s_存储限制</h2></div></a></article><article><a href=/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/><div class=article-details><h2 class=article-title>K8s_静态加密</h2></div></a></article></div></div></aside><div class=disqus-container><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{DISQUS&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2022 ldsdsy Site</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous></main><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#1-功能>1 功能</a></li><li><a href=#2-路由算法>2 路由算法</a></li><li><a href=#3-ipv4>3 IPv4</a></li><li><a href=#4-ipv6>4 IPv6</a></li><li><a href=#5-路由协议>5 路由协议</a></li><li><a href=#6-ip-组播>6 IP 组播</a></li><li><a href=#7-移动-ip>7 移动 IP</a></li><li><a href=#8-网络层设备>8 网络层设备</a></li></ol></nav></div></section></aside></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

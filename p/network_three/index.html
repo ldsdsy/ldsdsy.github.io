@@ -1,128 +1,8 @@
-<!DOCTYPE html>
-<html lang="en-us">
-    <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='数据链路层 负责从一个节点到直接相连的相邻节点传输数据报
-1 功能 1. 为网络层服务： 1）无确认的无连接服务：适用于实时通信或误码率较低的通信信道，如以太网。 2）有确认的无连接服务：适用于误码率较高的通信网络，如无线通信。 3）有确认的面向连接服务：适用于通信要求（可靠性，实时性）较高的场合。 2. 链路管理：指数据链路层连接的建立，维持，释放过程。 3. 帧定界：帧的首部与尾部的一个重要作用就是确定帧的界限，及帧定界。 帧同步：指接收方应能从接收到的二进制比特流中区分处帧的起始和终止。 透明传输：不管所传数据是什么样的比特组合都应当能在链路上传送。 4. 流量控制：指控制发送方的数据流量，使其发送速率不应超过接收方的接受能力。 5. 差错控制：指用以使发送方确定接收方是否正确收到其发送的数据的方法；错误分为帧错和位错。 // 帧错：帧的丢失，重复，失序（引入定时器，编号机制来解决）。 // 位错：1 变 0 ，0 变 1 。 2 组帧 把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。 1. 字符计数法：指在帧头部使用一个计数字段来标明帧内字符数。 2. 字符填充的首尾定界符：使用一些特殊的字符来定界帧的开始与结束。 3. 比特填充的首尾标志法：使用一个特定的比特模式，如 01111110 ，在传输数据中遇到 5 个 1 就填充 1 个 0 ，同样接收方接受数据时遇到 5 个 1 就去掉后面的 1 个 0（5 1 1 0）。 4. 违规编码法：如曼彻斯特编码，用 “高-低”电平表示 1 ，“低-高” 为 0，则 “高-高”，“低-低”就可用于表示开始和结束。 3 差错控制 差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。 1. 检错编码： 1）奇偶校验码：它由 n-1 位信息元和 1 位校验元组成；奇校验码是加上校验元后整体有奇数个 1，偶检验码则是整体有偶数个 1 。 2）循环冗余码（多项式码）： 数据 A 尾部加 0（0 的个数为帧检验序列位数减一）； 新 A 对帧检验序列进行模 2 除法，都到余数为冗余码（位数等于第一步中加 0 的个数）； 把冗余码替换掉 A 后面加的那些 0，即为传输的数据； 接收方接受到数据，用此数据对帧检验序列进行模 2 除法，若余数为 0 则无错误，否则数据有误。 2.'><title>Network_three</title>
-
-<link rel='canonical' href='https://ldsdsy.github.io/p/network_three/'>
-
-<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Network_three'>
-<meta property='og:description' content='数据链路层 负责从一个节点到直接相连的相邻节点传输数据报
-1 功能 1. 为网络层服务： 1）无确认的无连接服务：适用于实时通信或误码率较低的通信信道，如以太网。 2）有确认的无连接服务：适用于误码率较高的通信网络，如无线通信。 3）有确认的面向连接服务：适用于通信要求（可靠性，实时性）较高的场合。 2. 链路管理：指数据链路层连接的建立，维持，释放过程。 3. 帧定界：帧的首部与尾部的一个重要作用就是确定帧的界限，及帧定界。 帧同步：指接收方应能从接收到的二进制比特流中区分处帧的起始和终止。 透明传输：不管所传数据是什么样的比特组合都应当能在链路上传送。 4. 流量控制：指控制发送方的数据流量，使其发送速率不应超过接收方的接受能力。 5. 差错控制：指用以使发送方确定接收方是否正确收到其发送的数据的方法；错误分为帧错和位错。 // 帧错：帧的丢失，重复，失序（引入定时器，编号机制来解决）。 // 位错：1 变 0 ，0 变 1 。 2 组帧 把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。 1. 字符计数法：指在帧头部使用一个计数字段来标明帧内字符数。 2. 字符填充的首尾定界符：使用一些特殊的字符来定界帧的开始与结束。 3. 比特填充的首尾标志法：使用一个特定的比特模式，如 01111110 ，在传输数据中遇到 5 个 1 就填充 1 个 0 ，同样接收方接受数据时遇到 5 个 1 就去掉后面的 1 个 0（5 1 1 0）。 4. 违规编码法：如曼彻斯特编码，用 “高-低”电平表示 1 ，“低-高” 为 0，则 “高-高”，“低-低”就可用于表示开始和结束。 3 差错控制 差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。 1. 检错编码： 1）奇偶校验码：它由 n-1 位信息元和 1 位校验元组成；奇校验码是加上校验元后整体有奇数个 1，偶检验码则是整体有偶数个 1 。 2）循环冗余码（多项式码）： 数据 A 尾部加 0（0 的个数为帧检验序列位数减一）； 新 A 对帧检验序列进行模 2 除法，都到余数为冗余码（位数等于第一步中加 0 的个数）； 把冗余码替换掉 A 后面加的那些 0，即为传输的数据； 接收方接受到数据，用此数据对帧检验序列进行模 2 除法，若余数为 0 则无错误，否则数据有误。 2.'>
-<meta property='og:url' content='https://ldsdsy.github.io/p/network_three/'>
-<meta property='og:site_name' content='ldsdsy Site'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2021-02-23T11:20:17&#43;08:00'/><meta property='article:modified_time' content='2021-02-23T11:20:17&#43;08:00'/>
-<meta name="twitter:title" content="Network_three">
-<meta name="twitter:description" content="数据链路层 负责从一个节点到直接相连的相邻节点传输数据报
-1 功能 1. 为网络层服务： 1）无确认的无连接服务：适用于实时通信或误码率较低的通信信道，如以太网。 2）有确认的无连接服务：适用于误码率较高的通信网络，如无线通信。 3）有确认的面向连接服务：适用于通信要求（可靠性，实时性）较高的场合。 2. 链路管理：指数据链路层连接的建立，维持，释放过程。 3. 帧定界：帧的首部与尾部的一个重要作用就是确定帧的界限，及帧定界。 帧同步：指接收方应能从接收到的二进制比特流中区分处帧的起始和终止。 透明传输：不管所传数据是什么样的比特组合都应当能在链路上传送。 4. 流量控制：指控制发送方的数据流量，使其发送速率不应超过接收方的接受能力。 5. 差错控制：指用以使发送方确定接收方是否正确收到其发送的数据的方法；错误分为帧错和位错。 // 帧错：帧的丢失，重复，失序（引入定时器，编号机制来解决）。 // 位错：1 变 0 ，0 变 1 。 2 组帧 把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。 1. 字符计数法：指在帧头部使用一个计数字段来标明帧内字符数。 2. 字符填充的首尾定界符：使用一些特殊的字符来定界帧的开始与结束。 3. 比特填充的首尾标志法：使用一个特定的比特模式，如 01111110 ，在传输数据中遇到 5 个 1 就填充 1 个 0 ，同样接收方接受数据时遇到 5 个 1 就去掉后面的 1 个 0（5 1 1 0）。 4. 违规编码法：如曼彻斯特编码，用 “高-低”电平表示 1 ，“低-高” 为 0，则 “高-高”，“低-低”就可用于表示开始和结束。 3 差错控制 差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。 1. 检错编码： 1）奇偶校验码：它由 n-1 位信息元和 1 位校验元组成；奇校验码是加上校验元后整体有奇数个 1，偶检验码则是整体有偶数个 1 。 2）循环冗余码（多项式码）： 数据 A 尾部加 0（0 的个数为帧检验序列位数减一）； 新 A 对帧检验序列进行模 2 除法，都到余数为冗余码（位数等于第一步中加 0 的个数）； 把冗余码替换掉 A 后面加的那些 0，即为传输的数据； 接收方接受到数据，用此数据对帧检验序列进行模 2 除法，若余数为 0 则无错误，否则数据有误。 2.">
-    </head>
-    <body class="
-    article-page has-toc
-">
-    <script>
-        (function() {
-            const colorSchemeKey = 'StackColorScheme';
-            if(!localStorage.getItem(colorSchemeKey)){
-                localStorage.setItem(colorSchemeKey, "auto");
-            }
-        })();
-    </script><script>
-    (function() {
-        const colorSchemeKey = 'StackColorScheme';
-        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
-        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
-
-        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
-            
-
-            document.documentElement.dataset.scheme = 'dark';
-        } else {
-            document.documentElement.dataset.scheme = 'light';
-        }
-    })();
-</script>
-<div class="container main-container flex 
-    
-        extended
-    
-">
-    
-        <div id="article-toolbar">
-            <a href="https://ldsdsy.github.io/" class="back-home">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <polyline points="15 6 9 12 15 18" />
-</svg>
-
-
-
-                <span>Back</span>
-            </a>
-        </div>
-    
-<main class="main full-width">
-    <article class="main-article">
-    <header class="article-header">
-
-    <div class="article-details">
-    
-    <header class="article-category">
-        
-            <a href="/categories/technology-related/" style="background-color: #2a9d8f; color: #fff;">
-                Technology-related
-            </a>
-        
-    </header>
-    
-
-    <h2 class="article-title">
-        <a href="/p/network_three/">Network_three</a>
-    </h2>
-
-    
-
-    
-    <footer class="article-time">
-        
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-  <circle cx="18" cy="18" r="4" />
-  <path d="M15 3v4" />
-  <path d="M7 3v4" />
-  <path d="M3 11h16" />
-  <path d="M18 16.496v1.504l1 1" />
-</svg>
-                <time class="article-time--published">Feb 23, 2021</time>
-            </div>
-        
-
-        
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    2 minute read
-                </time>
-            </div>
-        
-    </footer>
-    
-</div>
-</header>
-
-    <section class="article-content">
-    <h1 id="数据链路层">数据链路层</h1>
-<p><em>负责从一个节点到直接相连的相邻节点传输数据报</em></p>
-<h2 id="1-功能">1 功能</h2>
-<pre tabindex="0"><code>1. 为网络层服务：
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="数据链路层 负责从一个节点到直接相连的相邻节点传输数据报
+1 功能 1. 为网络层服务： 1）无确认的无连接服务：适用于实时通信或误码率较低的通信信道，如以太网。 2）有确认的无连接服务：适用于误码率较高的通信网络，如无线通信。 3）有确认的面向连接服务：适用于通信要求（可靠性，实时性）较高的场合。 2. 链路管理：指数据链路层连接的建立，维持，释放过程。 3. 帧定界：帧的首部与尾部的一个重要作用就是确定帧的界限，及帧定界。 帧同步：指接收方应能从接收到的二进制比特流中区分处帧的起始和终止。 透明传输：不管所传数据是什么样的比特组合都应当能在链路上传送。 4. 流量控制：指控制发送方的数据流量，使其发送速率不应超过接收方的接受能力。 5. 差错控制：指用以使发送方确定接收方是否正确收到其发送的数据的方法；错误分为帧错和位错。 // 帧错：帧的丢失，重复，失序（引入定时器，编号机制来解决）。 // 位错：1 变 0 ，0 变 1 。 2 组帧 把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。 1. 字符计数法：指在帧头部使用一个计数字段来标明帧内字符数。 2. 字符填充的首尾定界符：使用一些特殊的字符来定界帧的开始与结束。 3. 比特填充的首尾标志法：使用一个特定的比特模式，如 01111110 ，在传输数据中遇到 5 个 1 就填充 1 个 0 ，同样接收方接受数据时遇到 5 个 1 就去掉后面的 1 个 0（5 1 1 0）。 4. 违规编码法：如曼彻斯特编码，用 “高-低”电平表示 1 ，“低-高” 为 0，则 “高-高”，“低-低”就可用于表示开始和结束。 3 差错控制 差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。 1. 检错编码： 1）奇偶校验码：它由 n-1 位信息元和 1 位校验元组成；奇校验码是加上校验元后整体有奇数个 1，偶检验码则是整体有偶数个 1 。 2）循环冗余码（多项式码）： 数据 A 尾部加 0（0 的个数为帧检验序列位数减一）； 新 A 对帧检验序列进行模 2 除法，都到余数为冗余码（位数等于第一步中加 0 的个数）； 把冗余码替换掉 A 后面加的那些 0，即为传输的数据； 接收方接受到数据，用此数据对帧检验序列进行模 2 除法，若余数为 0 则无错误，否则数据有误。 2."><title>Network_three</title><link rel=canonical href=https://ldsdsy.github.io/p/network_three/><link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="Network_three"><meta property="og:description" content="数据链路层 负责从一个节点到直接相连的相邻节点传输数据报
+1 功能 1. 为网络层服务： 1）无确认的无连接服务：适用于实时通信或误码率较低的通信信道，如以太网。 2）有确认的无连接服务：适用于误码率较高的通信网络，如无线通信。 3）有确认的面向连接服务：适用于通信要求（可靠性，实时性）较高的场合。 2. 链路管理：指数据链路层连接的建立，维持，释放过程。 3. 帧定界：帧的首部与尾部的一个重要作用就是确定帧的界限，及帧定界。 帧同步：指接收方应能从接收到的二进制比特流中区分处帧的起始和终止。 透明传输：不管所传数据是什么样的比特组合都应当能在链路上传送。 4. 流量控制：指控制发送方的数据流量，使其发送速率不应超过接收方的接受能力。 5. 差错控制：指用以使发送方确定接收方是否正确收到其发送的数据的方法；错误分为帧错和位错。 // 帧错：帧的丢失，重复，失序（引入定时器，编号机制来解决）。 // 位错：1 变 0 ，0 变 1 。 2 组帧 把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。 1. 字符计数法：指在帧头部使用一个计数字段来标明帧内字符数。 2. 字符填充的首尾定界符：使用一些特殊的字符来定界帧的开始与结束。 3. 比特填充的首尾标志法：使用一个特定的比特模式，如 01111110 ，在传输数据中遇到 5 个 1 就填充 1 个 0 ，同样接收方接受数据时遇到 5 个 1 就去掉后面的 1 个 0（5 1 1 0）。 4. 违规编码法：如曼彻斯特编码，用 “高-低”电平表示 1 ，“低-高” 为 0，则 “高-高”，“低-低”就可用于表示开始和结束。 3 差错控制 差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。 1. 检错编码： 1）奇偶校验码：它由 n-1 位信息元和 1 位校验元组成；奇校验码是加上校验元后整体有奇数个 1，偶检验码则是整体有偶数个 1 。 2）循环冗余码（多项式码）： 数据 A 尾部加 0（0 的个数为帧检验序列位数减一）； 新 A 对帧检验序列进行模 2 除法，都到余数为冗余码（位数等于第一步中加 0 的个数）； 把冗余码替换掉 A 后面加的那些 0，即为传输的数据； 接收方接受到数据，用此数据对帧检验序列进行模 2 除法，若余数为 0 则无错误，否则数据有误。 2."><meta property="og:url" content="https://ldsdsy.github.io/p/network_three/"><meta property="og:site_name" content="ldsdsy Site"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2021-02-23T11:20:17+08:00"><meta property="article:modified_time" content="2021-02-23T11:20:17+08:00"><meta name=twitter:title content="Network_three"><meta name=twitter:description content="数据链路层 负责从一个节点到直接相连的相邻节点传输数据报
+1 功能 1. 为网络层服务： 1）无确认的无连接服务：适用于实时通信或误码率较低的通信信道，如以太网。 2）有确认的无连接服务：适用于误码率较高的通信网络，如无线通信。 3）有确认的面向连接服务：适用于通信要求（可靠性，实时性）较高的场合。 2. 链路管理：指数据链路层连接的建立，维持，释放过程。 3. 帧定界：帧的首部与尾部的一个重要作用就是确定帧的界限，及帧定界。 帧同步：指接收方应能从接收到的二进制比特流中区分处帧的起始和终止。 透明传输：不管所传数据是什么样的比特组合都应当能在链路上传送。 4. 流量控制：指控制发送方的数据流量，使其发送速率不应超过接收方的接受能力。 5. 差错控制：指用以使发送方确定接收方是否正确收到其发送的数据的方法；错误分为帧错和位错。 // 帧错：帧的丢失，重复，失序（引入定时器，编号机制来解决）。 // 位错：1 变 0 ，0 变 1 。 2 组帧 把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。 1. 字符计数法：指在帧头部使用一个计数字段来标明帧内字符数。 2. 字符填充的首尾定界符：使用一些特殊的字符来定界帧的开始与结束。 3. 比特填充的首尾标志法：使用一个特定的比特模式，如 01111110 ，在传输数据中遇到 5 个 1 就填充 1 个 0 ，同样接收方接受数据时遇到 5 个 1 就去掉后面的 1 个 0（5 1 1 0）。 4. 违规编码法：如曼彻斯特编码，用 “高-低”电平表示 1 ，“低-高” 为 0，则 “高-高”，“低-低”就可用于表示开始和结束。 3 差错控制 差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。 1. 检错编码： 1）奇偶校验码：它由 n-1 位信息元和 1 位校验元组成；奇校验码是加上校验元后整体有奇数个 1，偶检验码则是整体有偶数个 1 。 2）循环冗余码（多项式码）： 数据 A 尾部加 0（0 的个数为帧检验序列位数减一）； 新 A 对帧检验序列进行模 2 除法，都到余数为冗余码（位数等于第一步中加 0 的个数）； 把冗余码替换掉 A 后面加的那些 0，即为传输的数据； 接收方接受到数据，用此数据对帧检验序列进行模 2 除法，若余数为 0 则无错误，否则数据有误。 2."></head><body class="article-page has-toc"><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex
+extended"><div id=article-toolbar><a href=https://ldsdsy.github.io/ class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg><span>Back</span></a></div><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/technology-related/ style=background-color:#2a9d8f;color:#fff>Technology-related</a></header><h2 class=article-title><a href=/p/network_three/>Network_three</a></h2><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Feb 23, 2021</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>2 minute read</time></div></footer></div></header><section class=article-content><h1 id=数据链路层>数据链路层</h1><p><em>负责从一个节点到直接相连的相邻节点传输数据报</em></p><h2 id=1-功能>1 功能</h2><pre tabindex=0><code>1. 为网络层服务：
     1）无确认的无连接服务：适用于实时通信或误码率较低的通信信道，如以太网。
     2）有确认的无连接服务：适用于误码率较高的通信网络，如无线通信。
     3）有确认的面向连接服务：适用于通信要求（可靠性，实时性）较高的场合。
@@ -138,15 +18,13 @@
 5. 差错控制：指用以使发送方确定接收方是否正确收到其发送的数据的方法；错误分为帧错和位错。
    // 帧错：帧的丢失，重复，失序（引入定时器，编号机制来解决）。
    // 位错：1 变 0 ，0 变 1 。
-</code></pre><h2 id="2-组帧">2 组帧</h2>
-<pre tabindex="0"><code>把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。
+</code></pre><h2 id=2-组帧>2 组帧</h2><pre tabindex=0><code>把比特组成帧传输，就可再出错时只重传出错的帧，而不是所有数据，提高效率。
 
 1. 字符计数法：指在帧头部使用一个计数字段来标明帧内字符数。
 2. 字符填充的首尾定界符：使用一些特殊的字符来定界帧的开始与结束。
 3. 比特填充的首尾标志法：使用一个特定的比特模式，如 01111110 ，在传输数据中遇到 5 个 1 就填充 1 个 0 ，同样接收方接受数据时遇到 5 个 1 就去掉后面的 1 个 0（5 1 1 0）。
 4. 违规编码法：如曼彻斯特编码，用 “高-低”电平表示 1 ，“低-高” 为 0，则 “高-高”，“低-低”就可用于表示开始和结束。
-</code></pre><h2 id="3-差错控制">3 差错控制</h2>
-<pre tabindex="0"><code>差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。
+</code></pre><h2 id=3-差错控制>3 差错控制</h2><pre tabindex=0><code>差错都是噪声引起，一是信道固有的随机热噪声，二是短暂原因造成的冲击噪声；前者可提高信噪比，后者只能采用编码技术来解决。
 
 1. 检错编码：
     1）奇偶校验码：它由 n-1 位信息元和 1 位校验元组成；奇校验码是加上校验元后整体有奇数个 1，偶检验码则是整体有偶数个 1 。
@@ -159,8 +37,7 @@
 2. 纠错编码：
     海明码：发现双比特错，纠正单比特错。
     海明不等式：2^r &gt;= k+r+1    //r: 冗余信息位，k: 信息位
-</code></pre><h2 id="4-流量控制与可靠传输机制">4 流量控制与可靠传输机制</h2>
-<pre tabindex="0"><code>1. 停止-等待协议：
+</code></pre><h2 id=4-流量控制与可靠传输机制>4 流量控制与可靠传输机制</h2><pre tabindex=0><code>1. 停止-等待协议：
     发送方每发送一帧就要等待接收方的应答信号，之后再发送下一帧。
 
 2. 滑动窗口协议：
@@ -172,8 +49,7 @@
     // 对数据帧逐一确认；
     // 只重传出错帧；
     // 接收方有缓存。
-</code></pre><h2 id="5-介质访问控制">5 介质访问控制</h2>
-<pre tabindex="0"><code>采取一定措施，使结点间的通信不会发生相互干扰。
+</code></pre><h2 id=5-介质访问控制>5 介质访问控制</h2><pre tabindex=0><code>采取一定措施，使结点间的通信不会发生相互干扰。
 
 1. 信道划分介质访问控制：
     1）频分多路复用
@@ -212,8 +88,7 @@
 3.轮询访问介质访问控制：
     用户通过一个集中控制的监控站，以循环的方式逐个获取信道使用权。
     令牌传递协议：得到令牌的机器才能发送数据，其他的等待。
-</code></pre><h2 id="6-局域网">6 局域网</h2>
-<pre tabindex="0"><code>局域网是指在一个较小的范围内，将各种计算机，外部设备和数据库系统等通过双绞线，同轴电缆等连接起来，组成资源和信息共享的计算机互联网络。
+</code></pre><h2 id=6-局域网>6 局域网</h2><pre tabindex=0><code>局域网是指在一个较小的范围内，将各种计算机，外部设备和数据库系统等通过双绞线，同轴电缆等连接起来，组成资源和信息共享的计算机互联网络。
 
     1. 特性：
         1）拓扑结构：星形结构，环形结构，总线形结构（常用），树形（星形 + 总线形）。
@@ -237,15 +112,13 @@
     5. IEEE 802.11:
         指无线局域网的一系列协议标准；
         无线局域网分为：固定基础设施无线局域网，无固定基础设施无线局域网自组织网络。
-</code></pre><h2 id="7-广域网">7 广域网</h2>
-<pre tabindex="0"><code>广域网不等于互联网，互联网用路由器连接，可以连接不同类型的网络（局域网和广域网）；广域网则采用节点交换机连接一个网络。
+</code></pre><h2 id=7-广域网>7 广域网</h2><pre tabindex=0><code>广域网不等于互联网，互联网用路由器连接，可以连接不同类型的网络（局域网和广域网）；广域网则采用节点交换机连接一个网络。
 
 1. PPP 协议：
     面向字节，采用字节填充方式，只支持全双工链路。
 2. HDLC 协议：
     面向比特，采用 0 比特插入法，帧类分为信息帧，监督帧，无编号帧。
-</code></pre><h2 id="8-数据链路层设备">8 数据链路层设备</h2>
-<pre tabindex="0"><code>1. 网桥：
+</code></pre><h2 id=8-数据链路层设备>8 数据链路层设备</h2><pre tabindex=0><code>1. 网桥：
     特点：把两个或多个以太网通过网桥连接起来变成一个网段。
     类型：
         1）透明网桥：按照自学习算法填写转发表，按转发表转发；不是最佳路由。
@@ -257,297 +130,11 @@
         2）存储转发：先将接收到的帧缓存到高速缓存器，检查数据正确性。
 
 二者相同点：按 MAC 地址转发，都能隔离冲突域，不能隔离广播域。
-</code></pre>
-</section>
-
-
-    <footer class="article-footer">
-    
-
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>Licensed under CC BY-NC-SA 4.0</span>
-    </section>
-    </footer>
-
-
-    
-</article>
-
-    <aside class="related-contents--wrapper">
-    
-    
-        <h2 class="section-title">Related contents</h2>
-        <div class="related-contents">
-            <div class="flex article-list--tile">
-                
-                    
-<article class="">
-    <a href="/p/k8s_kubectl_debug/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_kubectl_debug</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/k8s_clientset02/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_Clientset02</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/k8s_clientset01/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_Clientset01</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/k8s_%E5%AD%98%E5%82%A8%E9%99%90%E5%88%B6/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_存储限制</h2>
-        </div>
-    </a>
-</article>
-                
-                    
-<article class="">
-    <a href="/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">K8s_静态加密</h2>
-        </div>
-    </a>
-</article>
-                
-            </div>
-        </div>
-    
-</aside>
-
-     
-    
-        
-    <div class="disqus-container">
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
-    
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-</div>
-
-<style>
-    .disqus-container {
-        background-color: var(--card-background);
-        border-radius: var(--card-border-radius);
-        box-shadow: var(--shadow-l1);
-        padding: var(--card-padding);
-    }
-</style>
-
-<script>
-    window.addEventListener('onColorSchemeChange', (e) => {
-        if (DISQUS) {
-            DISQUS.reset({
-                reload: true
-            });
-        }
-    })
-</script>
-
-    
-
-    <footer class="site-footer">
-    <section class="copyright">
-        &copy; 
-        
-            2020 - 
-        
-        2022 ldsdsy Site
-    </section>
-    
-    <section class="powerby">
-        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.2.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
-    </section>
-</footer>
-
-
-    
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-
-    
-    <div class="pswp__bg"></div>
-
-    
-    <div class="pswp__scroll-wrap">
-
-        
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                
-                
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div><script 
-                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
-                defer="true"
-                >
-            </script><script 
-                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
-                defer="true"
-                >
-            </script><link 
-                rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
-            ><link 
-                rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
-            >
-
-            </main>
-    
-        <aside class="sidebar right-sidebar sticky">
-            <section class="widget archives">
-                <div class="widget-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <line x1="5" y1="9" x2="19" y2="9" />
-  <line x1="5" y1="15" x2="19" y2="15" />
-  <line x1="11" y1="4" x2="7" y2="20" />
-  <line x1="17" y1="4" x2="13" y2="20" />
-</svg>
-
-
-
-                </div>
-                <h2 class="widget-title section-title">Table of contents</h2>
-                
-                <div class="widget--toc">
-                    <nav id="TableOfContents">
-  <ol>
-    <li><a href="#1-功能">1 功能</a></li>
-    <li><a href="#2-组帧">2 组帧</a></li>
-    <li><a href="#3-差错控制">3 差错控制</a></li>
-    <li><a href="#4-流量控制与可靠传输机制">4 流量控制与可靠传输机制</a></li>
-    <li><a href="#5-介质访问控制">5 介质访问控制</a></li>
-    <li><a href="#6-局域网">6 局域网</a></li>
-    <li><a href="#7-广域网">7 广域网</a></li>
-    <li><a href="#8-数据链路层设备">8 数据链路层设备</a></li>
-  </ol>
-</nav>
-                </div>
-            </section>
-        </aside>
-    
-
-        </div>
-        <script 
-                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
-                defer="false"
-                >
-            </script><script type="text/javascript" src="/ts/main.js" defer></script>
-<script>
-    (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
-
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-
-        document.head.appendChild(customFont);
-    }());
-</script>
-
-    </body>
-</html>
+</code></pre></section><footer class=article-footer><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-contents--wrapper><h2 class=section-title>Related contents</h2><div class=related-contents><div class="flex article-list--tile"><article><a href=/p/k8s_kubectl_debug/><div class=article-details><h2 class=article-title>K8s_kubectl_debug</h2></div></a></article><article><a href=/p/k8s_clientset02/><div class=article-details><h2 class=article-title>K8s_Clientset02</h2></div></a></article><article><a href=/p/k8s_clientset01/><div class=article-details><h2 class=article-title>K8s_Clientset01</h2></div></a></article><article><a href=/p/k8s_%E5%AD%98%E5%82%A8%E9%99%90%E5%88%B6/><div class=article-details><h2 class=article-title>K8s_存储限制</h2></div></a></article><article><a href=/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/><div class=article-details><h2 class=article-title>K8s_静态加密</h2></div></a></article></div></div></aside><div class=disqus-container><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{DISQUS&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2022 ldsdsy Site</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous></main><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#1-功能>1 功能</a></li><li><a href=#2-组帧>2 组帧</a></li><li><a href=#3-差错控制>3 差错控制</a></li><li><a href=#4-流量控制与可靠传输机制>4 流量控制与可靠传输机制</a></li><li><a href=#5-介质访问控制>5 介质访问控制</a></li><li><a href=#6-局域网>6 局域网</a></li><li><a href=#7-广域网>7 广域网</a></li><li><a href=#8-数据链路层设备>8 数据链路层设备</a></li></ol></nav></div></section></aside></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
