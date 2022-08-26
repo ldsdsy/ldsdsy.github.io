@@ -11,6 +11,9 @@ extended"><div id=article-toolbar><a href=https://ldsdsy.github.io/ class=back-h
 a. 进入 master 节点，编辑 /etc/kubernetes/manifests/ 下的 kube-apiserver.yaml,kube-controller-manager.yaml 及 kube-scheduler.yaml，在 command 部分添加 - --feature-gates=EphemeralContainers=true；
 
 b. ！！！同时也要在被调试 pod 所在的节点上编辑 /var/lib/kubelet/kubeadm-flags.env，添加 --feature-gates=EphemeralContainers=true；
+or
+$ cat /etc/sysconfig/kubelet
+KUBELET_EXTRA_ARGS=&#34;--feature-gates=EphemeralContainers=true&#34;
 
 c. 重启 kubelet：
 $ systemctl daemon-reload

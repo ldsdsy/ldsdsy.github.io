@@ -18,6 +18,9 @@
 &lt;pre tabindex="0">&lt;code>1) 根据集群版本判断是否需要手动开启此功能（我的环境为 1.21 所以是需要手动开启的）：
 a. 进入 master 节点，编辑 /etc/kubernetes/manifests/ 下的 kube-apiserver.yaml,kube-controller-manager.yaml 及 kube-scheduler.yaml，在 command 部分添加 - --feature-gates=EphemeralContainers=true；
 b. ！！！同时也要在被调试 pod 所在的节点上编辑 /var/lib/kubelet/kubeadm-flags.env，添加 --feature-gates=EphemeralContainers=true；
+or
+$ cat /etc/sysconfig/kubelet
+KUBELET_EXTRA_ARGS=&amp;#34;--feature-gates=EphemeralContainers=true&amp;#34;
 c. 重启 kubelet：
 $ systemctl daemon-reload
 $ systemctl restart kubelet
