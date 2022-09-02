@@ -1,0 +1,79 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Go —— GC（垃圾回收） 本博客为一课程笔记，方便快速回顾。此课程所讲的 GC 有针对栈空间，但大多数博客均称 golang GC 只针对堆，不针对栈。
+一，GC 存在的意义 让人能更专注于业务的编写，而不用担心内存的回收问题。
+二，GC 的发展阶段 1，goV1.3 之前：标记-清除（mark and sweep） 1.1 逻辑：
+STW（stop the world）——&amp;gt; 标记程序可达对象 ——&amp;gt; GC 清理不可达对象 ——&amp;gt; 停止暂停，程序继续执行
+// 循环上述过程，直到程序生命周期结束
+1.2 缺点： 1) STW，程序暂停，出现卡顿；
+2) 标记需要扫描整个 heap；
+3) 清除数据会产生 heap 碎片。
+/*堆栈区别：堆（heap）和栈（stack）有两个含义，一个是指抽象数据结构，另一个是指操作系统中的内存空间。前者它们实现和作用都有很大差异所以比较少被放在一起比较，后者则是同气连枝常常被“相提并论”。堆在操作系统中为按需申请、动态分配，由于内存中的空闲空间不是连续的，操作系统会根据应用程序提出的申请从堆中按照一定的算法找出可用内存标记后给程序使用；而操作系统中的栈则是程序运行时自动拥有的一小块内存，大小由编译器参数决定，用于存放局部变量或者函数调用栈的保存。它们的区别如果长篇大论会讲非常多的内容，简单总结起来就是： 堆：时效持久、全局可见、手动申请、手动释放 栈：时效临时、局部可见、自动申请、自动释放*/ 2，goV1.5: 三色标记法 2.1 逻辑： 白 ——&amp;gt; 灰 ——&amp;gt; 黑: 1，所有创建的新对象都标记为“白色”； 2，每次 GC 开始，从根节点遍历所有对象，把遍历到对象从“白色”集合中放入“灰色”集合； 3，遍历灰色集合，将灰色集合中的对象引用的对象从白色变为灰色，再把此灰色对象放入黑色集合； 4，重复第三步，直到没有灰色节点； 5，回收所有白色标记的对象。
+2.2 隐含问题：
+如果三色标记法不被 STW 保护： 1，一个白色对象被黑色对象引用；
+2，灰色对象与其可达的白色对象遭到破坏；
+以上两条同时满足，就会出现对象丢失现象。
+解决办法："><title>Go_GC</title><link rel=canonical href=https://ldsdsy.github.io/p/go_gc/><link rel=stylesheet href=/scss/style.min.css><meta property="og:title" content="Go_GC"><meta property="og:description" content="Go —— GC（垃圾回收） 本博客为一课程笔记，方便快速回顾。此课程所讲的 GC 有针对栈空间，但大多数博客均称 golang GC 只针对堆，不针对栈。
+一，GC 存在的意义 让人能更专注于业务的编写，而不用担心内存的回收问题。
+二，GC 的发展阶段 1，goV1.3 之前：标记-清除（mark and sweep） 1.1 逻辑：
+STW（stop the world）——&amp;gt; 标记程序可达对象 ——&amp;gt; GC 清理不可达对象 ——&amp;gt; 停止暂停，程序继续执行
+// 循环上述过程，直到程序生命周期结束
+1.2 缺点： 1) STW，程序暂停，出现卡顿；
+2) 标记需要扫描整个 heap；
+3) 清除数据会产生 heap 碎片。
+/*堆栈区别：堆（heap）和栈（stack）有两个含义，一个是指抽象数据结构，另一个是指操作系统中的内存空间。前者它们实现和作用都有很大差异所以比较少被放在一起比较，后者则是同气连枝常常被“相提并论”。堆在操作系统中为按需申请、动态分配，由于内存中的空闲空间不是连续的，操作系统会根据应用程序提出的申请从堆中按照一定的算法找出可用内存标记后给程序使用；而操作系统中的栈则是程序运行时自动拥有的一小块内存，大小由编译器参数决定，用于存放局部变量或者函数调用栈的保存。它们的区别如果长篇大论会讲非常多的内容，简单总结起来就是： 堆：时效持久、全局可见、手动申请、手动释放 栈：时效临时、局部可见、自动申请、自动释放*/ 2，goV1.5: 三色标记法 2.1 逻辑： 白 ——&amp;gt; 灰 ——&amp;gt; 黑: 1，所有创建的新对象都标记为“白色”； 2，每次 GC 开始，从根节点遍历所有对象，把遍历到对象从“白色”集合中放入“灰色”集合； 3，遍历灰色集合，将灰色集合中的对象引用的对象从白色变为灰色，再把此灰色对象放入黑色集合； 4，重复第三步，直到没有灰色节点； 5，回收所有白色标记的对象。
+2.2 隐含问题：
+如果三色标记法不被 STW 保护： 1，一个白色对象被黑色对象引用；
+2，灰色对象与其可达的白色对象遭到破坏；
+以上两条同时满足，就会出现对象丢失现象。
+解决办法："><meta property="og:url" content="https://ldsdsy.github.io/p/go_gc/"><meta property="og:site_name" content="ldsdsy Site"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:published_time" content="2022-08-31T21:07:48+08:00"><meta property="article:modified_time" content="2022-08-31T21:07:48+08:00"><meta name=twitter:title content="Go_GC"><meta name=twitter:description content="Go —— GC（垃圾回收） 本博客为一课程笔记，方便快速回顾。此课程所讲的 GC 有针对栈空间，但大多数博客均称 golang GC 只针对堆，不针对栈。
+一，GC 存在的意义 让人能更专注于业务的编写，而不用担心内存的回收问题。
+二，GC 的发展阶段 1，goV1.3 之前：标记-清除（mark and sweep） 1.1 逻辑：
+STW（stop the world）——&amp;gt; 标记程序可达对象 ——&amp;gt; GC 清理不可达对象 ——&amp;gt; 停止暂停，程序继续执行
+// 循环上述过程，直到程序生命周期结束
+1.2 缺点： 1) STW，程序暂停，出现卡顿；
+2) 标记需要扫描整个 heap；
+3) 清除数据会产生 heap 碎片。
+/*堆栈区别：堆（heap）和栈（stack）有两个含义，一个是指抽象数据结构，另一个是指操作系统中的内存空间。前者它们实现和作用都有很大差异所以比较少被放在一起比较，后者则是同气连枝常常被“相提并论”。堆在操作系统中为按需申请、动态分配，由于内存中的空闲空间不是连续的，操作系统会根据应用程序提出的申请从堆中按照一定的算法找出可用内存标记后给程序使用；而操作系统中的栈则是程序运行时自动拥有的一小块内存，大小由编译器参数决定，用于存放局部变量或者函数调用栈的保存。它们的区别如果长篇大论会讲非常多的内容，简单总结起来就是： 堆：时效持久、全局可见、手动申请、手动释放 栈：时效临时、局部可见、自动申请、自动释放*/ 2，goV1.5: 三色标记法 2.1 逻辑： 白 ——&amp;gt; 灰 ——&amp;gt; 黑: 1，所有创建的新对象都标记为“白色”； 2，每次 GC 开始，从根节点遍历所有对象，把遍历到对象从“白色”集合中放入“灰色”集合； 3，遍历灰色集合，将灰色集合中的对象引用的对象从白色变为灰色，再把此灰色对象放入黑色集合； 4，重复第三步，直到没有灰色节点； 5，回收所有白色标记的对象。
+2.2 隐含问题：
+如果三色标记法不被 STW 保护： 1，一个白色对象被黑色对象引用；
+2，灰色对象与其可达的白色对象遭到破坏；
+以上两条同时满足，就会出现对象丢失现象。
+解决办法："></head><body class="article-page has-toc"><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex
+extended"><div id=article-toolbar><a href=https://ldsdsy.github.io/ class=back-home><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18"/></svg><span>Back</span></a></div><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/technology-related/ style=background-color:#2a9d8f;color:#fff>Technology-related</a></header><h2 class=article-title><a href=/p/go_gc/>Go_GC</a></h2><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Aug 31, 2022</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>1 minute read</time></div></footer></div></header><section class=article-content><h1 id=go--gc垃圾回收>Go —— GC（垃圾回收）</h1><p><em>本博客为一课程笔记，方便快速回顾。此课程所讲的 GC 有针对栈空间，但大多数博客均称 golang GC 只针对堆，不针对栈。</em></p><h2 id=一gc-存在的意义>一，GC 存在的意义</h2><p>让人能更专注于业务的编写，而不用担心内存的回收问题。</p><h2 id=二gc-的发展阶段>二，GC 的发展阶段</h2><h3 id=1gov13-之前标记-清除mark-and-sweep>1，goV1.3 之前：标记-清除（mark and sweep）</h3><p>1.1 逻辑：<br>STW（stop the world）——> 标记程序可达对象 ——> GC 清理不可达对象 ——> 停止暂停，程序继续执行<br>// 循环上述过程，直到程序生命周期结束</p><p>1.2 缺点：<br>1) STW，程序暂停，出现卡顿；<br>2) 标记需要扫描整个 heap；<br>3) 清除数据会产生 heap 碎片。</p><pre><code>/*堆栈区别：堆（heap）和栈（stack）有两个含义，一个是指抽象数据结构，另一个是指操作系统中的内存空间。前者它们实现和作用都有很大差异所以比较少被放在一起比较，后者则是同气连枝常常被“相提并论”。堆在操作系统中为按需申请、动态分配，由于内存中的空闲空间不是连续的，操作系统会根据应用程序提出的申请从堆中按照一定的算法找出可用内存标记后给程序使用；而操作系统中的栈则是程序运行时自动拥有的一小块内存，大小由编译器参数决定，用于存放局部变量或者函数调用栈的保存。它们的区别如果长篇大论会讲非常多的内容，简单总结起来就是：
+堆：时效持久、全局可见、手动申请、手动释放
+栈：时效临时、局部可见、自动申请、自动释放*/    
+</code></pre><h3 id=2gov15-三色标记法>2，goV1.5: 三色标记法</h3><p>2.1 逻辑：<br>白 ——> 灰 ——> 黑:<br>1，所有创建的新对象都标记为“白色”；<br>2，每次 GC 开始，从根节点遍历所有对象，把遍历到对象从“白色”集合中放入“灰色”集合；<br>3，遍历灰色集合，将灰色集合中的对象引用的对象从白色变为灰色，再把此灰色对象放入黑色集合；<br>4，重复第三步，直到没有灰色节点；<br>5，回收所有白色标记的对象。</p><p>2.2 隐含问题：<br>如果三色标记法不被 STW 保护：<br>1，一个白色对象被黑色对象引用；<br>2，灰色对象与其可达的白色对象遭到破坏；<br>以上两条同时满足，就会出现对象丢失现象。</p><p>解决办法：<br>1）强三色不变式：<br>强制性的不允许黑色对象引用白色对象。（破坏上述第一条可能）<br>2）弱三色不变式：<br>黑色对象可以引用白色对象，但白色对象的链路上游必须存在有灰色对象<br>// 三色标记法中只要满足强/弱之一，就可保证对象不丢失。</p><p>2.3 屏障机制（实现强/弱三色不变式的方法）：<br>1，插入屏障<br>对象被引用时触发的机制：<br>在 A 对象引用 B 对象时，把 B 标记为灰色（不管 B 之前是白色还是灰色）—— 强三色不变式。</p><pre><code>// 伪码
+添加下游对象（当前下游对象 slot，新下游对象 ptr）{
+  // 1
+  标记灰色（ptr）
+  // 2
+  slot=ptr
+}
+场景一：A.添加下游对象（nil，B） // A 之前没有下游，新添加下游 B，B 标记为灰色
+场景二：A.添加下游对象（C，B）   // A 将下游 C 更换为 B，B 标记为灰色
+</code></pre><p>// 不在栈上使用，为了保证栈的运行效率（栈本身空间小，且对速率有一定要求），那怎么保证栈空间没有无辜的对象对清除呢？<br>答：在按照插入屏障机制完成三色标记法后，堆空间里被引用的对象肯定都标为黑色了，在清除白色对象前对栈空间的对象调用一次 STW ，重新从头扫描标记，以防止中途引入的对象没有被标记为黑色，然后再清除白色对象。</p><p>所以插入屏障的不足：结束时还是需要一次 STW 来重新扫描栈，大约需要 10～100ms。</p><p>2，删除屏障<br>对象被删除时触发的机制：<br>把要被删除（被断开）的对象标记为灰色，不管它本身是灰色白色。</p><pre><code>// 伪码
+添加下游对象（当前下游对象 slot，新下游对象 ptr）{
+  // 1
+  if (slot 是灰色 ｜｜ slot 是白色){
+    标记灰色（slot）
+  }
+  // 2
+  slot=ptr
+}
+场景一：A.添加下游对象（B，nil） // A对象删除对B对象的引用。B 被 A 删除，被标记为灰色
+场景二：A.添加下游对象（B，C）   // A对象更换下游对象为 C。B 被 A 删除，被标记为灰色
+</code></pre><p>不足：回收精度低<br>一个对象即使被删除了（不被引用了），仍可以活过这一轮，直到下一轮 GC 中被清理掉。</p><h3 id=3go-v18三色标记法混合写屏障机制>3，go v1.8：三色标记法+混合写屏障机制</h3><p>3.1 逻辑：<br>1，GC 开始直接将栈上的全部可达对象扫描并标记黑色（之后就无需 STW 再二次重复扫描）；<br>2，GC 期间，任何在栈上创建的新对象，均标为黑色；<br>3，堆上被删除对象标记为灰色；<br>4，堆上被添加的对象标记为灰色；</p><pre><code>// 伪码
+添加下游对象（当前下游对象 slot，新下游对象 ptr） {
+    // 1
+    标记灰色（slot）
+    // 2
+    标记灰色（ptr）
+    // 3
+    slot=ptr
+}</code></pre></section><footer class=article-footer><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-contents--wrapper><h2 class=section-title>Related contents</h2><div class=related-contents><div class="flex article-list--tile"><article><a href=/p/k8s_kubectl_debug/><div class=article-details><h2 class=article-title>K8s_kubectl_debug</h2></div></a></article><article><a href=/p/k8s_clientset02/><div class=article-details><h2 class=article-title>K8s_Clientset02</h2></div></a></article><article><a href=/p/k8s_clientset01/><div class=article-details><h2 class=article-title>K8s_Clientset01</h2></div></a></article><article><a href=/p/k8s_%E5%AD%98%E5%82%A8%E9%99%90%E5%88%B6/><div class=article-details><h2 class=article-title>K8s_存储限制</h2></div></a></article><article><a href=/p/k8s_%E9%9D%99%E6%80%81%E5%8A%A0%E5%AF%86/><div class=article-details><h2 class=article-title>K8s_静态加密</h2></div></a></article></div></div></aside><div class=disqus-container><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{DISQUS&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2022 ldsdsy Site</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.2.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css integrity="sha256-c0uckgykQ9v5k+IqViZOZKc47Jn7KQil4/MP3ySA3F8=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE=" crossorigin=anonymous></main><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#一gc-存在的意义>一，GC 存在的意义</a></li><li><a href=#二gc-的发展阶段>二，GC 的发展阶段</a><ol><li><a href=#1gov13-之前标记-清除mark-and-sweep>1，goV1.3 之前：标记-清除（mark and sweep）</a></li><li><a href=#2gov15-三色标记法>2，goV1.5: 三色标记法</a></li><li><a href=#3go-v18三色标记法混合写屏障机制>3，go v1.8：三色标记法+混合写屏障机制</a></li></ol></li></ol></nav></div></section></aside></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g=" crossorigin=anonymous defer></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

@@ -1,4 +1,88 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ldsdsy Site</title><link>https://ldsdsy.github.io/</link><description>Recent content on ldsdsy Site</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 19 Jun 2022 22:45:37 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>原来如此_2022</title><link>https://ldsdsy.github.io/p/%E5%8E%9F%E6%9D%A5%E5%A6%82%E6%AD%A4_2022/</link><pubDate>Sun, 19 Jun 2022 22:45:37 +0800</pubDate><guid>https://ldsdsy.github.io/p/%E5%8E%9F%E6%9D%A5%E5%A6%82%E6%AD%A4_2022/</guid><description>&lt;h1 id="原来如此_2022">原来如此_2022&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ldsdsy Site</title><link>https://ldsdsy.github.io/</link><description>Recent content on ldsdsy Site</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 31 Aug 2022 21:07:48 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Go_GC</title><link>https://ldsdsy.github.io/p/go_gc/</link><pubDate>Wed, 31 Aug 2022 21:07:48 +0800</pubDate><guid>https://ldsdsy.github.io/p/go_gc/</guid><description>&lt;h1 id="go--gc垃圾回收">Go —— GC（垃圾回收）&lt;/h1>
+&lt;p>&lt;em>本博客为一课程笔记，方便快速回顾。此课程所讲的 GC 有针对栈空间，但大多数博客均称 golang GC 只针对堆，不针对栈。&lt;/em>&lt;/p>
+&lt;h2 id="一gc-存在的意义">一，GC 存在的意义&lt;/h2>
+&lt;p>让人能更专注于业务的编写，而不用担心内存的回收问题。&lt;/p>
+&lt;h2 id="二gc-的发展阶段">二，GC 的发展阶段&lt;/h2>
+&lt;h3 id="1gov13-之前标记-清除mark-and-sweep">1，goV1.3 之前：标记-清除（mark and sweep）&lt;/h3>
+&lt;p>1.1 逻辑：&lt;br>
+STW（stop the world）——&amp;gt; 标记程序可达对象 ——&amp;gt; GC 清理不可达对象 ——&amp;gt; 停止暂停，程序继续执行&lt;br>
+// 循环上述过程，直到程序生命周期结束&lt;/p>
+&lt;p>1.2 缺点： &lt;br>
+1) STW，程序暂停，出现卡顿；&lt;br>
+2) 标记需要扫描整个 heap；&lt;br>
+3) 清除数据会产生 heap 碎片。&lt;/p>
+&lt;pre>&lt;code>/*堆栈区别：堆（heap）和栈（stack）有两个含义，一个是指抽象数据结构，另一个是指操作系统中的内存空间。前者它们实现和作用都有很大差异所以比较少被放在一起比较，后者则是同气连枝常常被“相提并论”。堆在操作系统中为按需申请、动态分配，由于内存中的空闲空间不是连续的，操作系统会根据应用程序提出的申请从堆中按照一定的算法找出可用内存标记后给程序使用；而操作系统中的栈则是程序运行时自动拥有的一小块内存，大小由编译器参数决定，用于存放局部变量或者函数调用栈的保存。它们的区别如果长篇大论会讲非常多的内容，简单总结起来就是：
+堆：时效持久、全局可见、手动申请、手动释放
+栈：时效临时、局部可见、自动申请、自动释放*/
+&lt;/code>&lt;/pre>
+&lt;h3 id="2gov15-三色标记法">2，goV1.5: 三色标记法&lt;/h3>
+&lt;p>2.1 逻辑： &lt;br>
+白 ——&amp;gt; 灰 ——&amp;gt; 黑: &lt;br>
+1，所有创建的新对象都标记为“白色”； &lt;br>
+2，每次 GC 开始，从根节点遍历所有对象，把遍历到对象从“白色”集合中放入“灰色”集合； &lt;br>
+3，遍历灰色集合，将灰色集合中的对象引用的对象从白色变为灰色，再把此灰色对象放入黑色集合； &lt;br>
+4，重复第三步，直到没有灰色节点； &lt;br>
+5，回收所有白色标记的对象。&lt;/p>
+&lt;p>2.2 隐含问题：&lt;br>
+如果三色标记法不被 STW 保护： &lt;br>
+1，一个白色对象被黑色对象引用；&lt;br>
+2，灰色对象与其可达的白色对象遭到破坏；&lt;br>
+以上两条同时满足，就会出现对象丢失现象。&lt;/p>
+&lt;p>解决办法：&lt;br>
+1）强三色不变式：&lt;br>
+强制性的不允许黑色对象引用白色对象。（破坏上述第一条可能）&lt;br>
+2）弱三色不变式：&lt;br>
+黑色对象可以引用白色对象，但白色对象的链路上游必须存在有灰色对象 &lt;br>
+// 三色标记法中只要满足强/弱之一，就可保证对象不丢失。&lt;/p>
+&lt;p>2.3 屏障机制（实现强/弱三色不变式的方法）： &lt;br>
+1，插入屏障 &lt;br>
+对象被引用时触发的机制： &lt;br>
+在 A 对象引用 B 对象时，把 B 标记为灰色（不管 B 之前是白色还是灰色）—— 强三色不变式。&lt;/p>
+&lt;pre>&lt;code>// 伪码
+添加下游对象（当前下游对象 slot，新下游对象 ptr）{
+// 1
+标记灰色（ptr）
+// 2
+slot=ptr
+}
+场景一：A.添加下游对象（nil，B） // A 之前没有下游，新添加下游 B，B 标记为灰色
+场景二：A.添加下游对象（C，B） // A 将下游 C 更换为 B，B 标记为灰色
+&lt;/code>&lt;/pre>
+&lt;p>// 不在栈上使用，为了保证栈的运行效率（栈本身空间小，且对速率有一定要求），那怎么保证栈空间没有无辜的对象对清除呢？&lt;br>
+答：在按照插入屏障机制完成三色标记法后，堆空间里被引用的对象肯定都标为黑色了，在清除白色对象前对栈空间的对象调用一次 STW ，重新从头扫描标记，以防止中途引入的对象没有被标记为黑色，然后再清除白色对象。&lt;/p>
+&lt;p>所以插入屏障的不足：结束时还是需要一次 STW 来重新扫描栈，大约需要 10～100ms。&lt;/p>
+&lt;p>2，删除屏障 &lt;br>
+对象被删除时触发的机制： &lt;br>
+把要被删除（被断开）的对象标记为灰色，不管它本身是灰色白色。&lt;/p>
+&lt;pre>&lt;code>// 伪码
+添加下游对象（当前下游对象 slot，新下游对象 ptr）{
+// 1
+if (slot 是灰色 ｜｜ slot 是白色){
+标记灰色（slot）
+}
+// 2
+slot=ptr
+}
+场景一：A.添加下游对象（B，nil） // A对象删除对B对象的引用。B 被 A 删除，被标记为灰色
+场景二：A.添加下游对象（B，C） // A对象更换下游对象为 C。B 被 A 删除，被标记为灰色
+&lt;/code>&lt;/pre>
+&lt;p>不足：回收精度低&lt;br>
+一个对象即使被删除了（不被引用了），仍可以活过这一轮，直到下一轮 GC 中被清理掉。&lt;/p>
+&lt;h3 id="3go-v18三色标记法混合写屏障机制">3，go v1.8：三色标记法+混合写屏障机制&lt;/h3>
+&lt;p>3.1 逻辑：&lt;br>
+1，GC 开始直接将栈上的全部可达对象扫描并标记黑色（之后就无需 STW 再二次重复扫描）；&lt;br>
+2，GC 期间，任何在栈上创建的新对象，均标为黑色；&lt;br>
+3，堆上被删除对象标记为灰色； &lt;br>
+4，堆上被添加的对象标记为灰色；&lt;/p>
+&lt;pre>&lt;code>// 伪码
+添加下游对象（当前下游对象 slot，新下游对象 ptr） {
+// 1
+标记灰色（slot）
+// 2
+标记灰色（ptr）
+// 3
+slot=ptr
+}&lt;/code>&lt;/pre></description></item><item><title>原来如此_2022</title><link>https://ldsdsy.github.io/p/%E5%8E%9F%E6%9D%A5%E5%A6%82%E6%AD%A4_2022/</link><pubDate>Sun, 19 Jun 2022 22:45:37 +0800</pubDate><guid>https://ldsdsy.github.io/p/%E5%8E%9F%E6%9D%A5%E5%A6%82%E6%AD%A4_2022/</guid><description>&lt;h1 id="原来如此_2022">原来如此_2022&lt;/h1>
 &lt;p>&lt;em>不经意间知道的东西。&lt;/em>&lt;/p>
 &lt;h2 id="灰姑娘的名字">灰姑娘的名字&lt;/h2>
 &lt;p>大家肯定都听过灰姑娘的故事，一直以来我认为灰姑娘这个名字只是为了契合她身世悲惨，所以给她取了一个这样的代称，当然也没去思考过她是否有真实的名字。前段时间偶然听了灰姑娘的英语版本，里面给她的名字由来做了如下解释：她原名叫 Ella，但后续由于遭到继母打压，她的姐姐们也嘲笑她说：“你每天都和灰尘煤渣作伴，那干脆就叫你 Cinderella 好了”（cinder —— 煤渣）。所以有些版本里会音译为 “辛德瑞拉”。这样来看，中文版翻译为灰姑娘倒是挺合适的。当然这只是一种版本，这种故事由来以久，各种版本也是层出不穷。而且仔细想想，灰姑娘，白雪公主，美女与野兽这些故事，都是后妈在作祟，额，就挺巧合。// 后妈 —— stepmother&lt;/p>
