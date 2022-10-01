@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ldsdsy Site</title><link>https://ldsdsy.github.io/</link><description>Recent content on ldsdsy Site</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 01 Oct 2022 21:52:24 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>K8s_搭建集群</title><link>https://ldsdsy.github.io/p/k8s_%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</link><pubDate>Sat, 01 Oct 2022 21:52:24 +0800</pubDate><guid>https://ldsdsy.github.io/p/k8s_%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</guid><description>&lt;h1 id="从零搭建-k8s-集群">从零搭建 k8s 集群&lt;/h1>
-&lt;p>&lt;em>家里的台式机闲置了，建了几个虚拟机就打算搭建一个一主一丛的集群，方便在家使用。&lt;/em>&lt;/p>
-&lt;p>一，安装容器运行时 —— docker&lt;br>
-&lt;em>k8s v1.24 之后就不用 docker 而使用 containerd 了，但是，安装 docker 时本身也需要安装 containerd ，而且 docker 还能用来构建镜像，所以还是决定安装 docker。&lt;/em>&lt;/p>
+&lt;p>&lt;em>家里的台式机闲置了，建了几个虚拟机就打算搭建一个一主一从的集群，方便在家使用。&lt;/em>&lt;/p>
+&lt;h2 id="一安装容器运行时--docker">一，安装容器运行时 —— docker&lt;/h2>
+&lt;p>&lt;em>k8s v1.24 之后就不用 docker 而使用 containerd 了，但是，安装 docker 时本身也需要安装 containerd ，而且 docker 还能用来构建镜像，所以还是决定安装 docker。&lt;/em>&lt;/p>
 &lt;p>1，进入 docker 官网&lt;br>
 &lt;em>&lt;a class="link" href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener"
 >https://docs.docker.com/engine/install/&lt;/a>&lt;/em>&lt;/p>
@@ -11,16 +11,16 @@ $ sudo yum-config-manager \
 --add-repo \
 https://download.docker.com/linux/centos/docker-ce.repo
 $ sudo yum install docker-ce docker-ce-cli containerd.io docker-compose-plugin
-// 安装最新的版本，指定版本网友上也有详细说明
+// 安装最新的版本，指定版本网页上也有详细说明
 $ sudo systemctl start docker
 $ sudo systemctl enable docker
 // 设置开机自启
 $ sudo docker run hello-world
 // 检测是否安装成功
-&lt;/code>&lt;/pre>&lt;p>二，安装 kubeadm，kubelet，kubectl&lt;/p>
+&lt;/code>&lt;/pre>&lt;h2 id="二安装-kubeadmkubeletkubectl">二，安装 kubeadm，kubelet，kubectl&lt;/h2>
 &lt;p>&lt;em>&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/" target="_blank" rel="noopener"
 >https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/&lt;/a>，centOS 是基于 Red Hat 的发行版。&lt;/em>&lt;/p>
-&lt;pre tabindex="0">&lt;code>cat &amp;lt;&amp;lt;EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+&lt;pre tabindex="0">&lt;code>$ cat &amp;lt;&amp;lt;EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
 baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
@@ -29,21 +29,21 @@ gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 exclude=kubelet kubeadm kubectl
 EOF
-# 将 SELinux 设置为 permissive 模式（相当于将其禁用）
-sudo setenforce 0
-sudo sed -i &amp;#39;s/^SELINUX=enforcing$/SELINUX=permissive/&amp;#39; /etc/selinux/config
-sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
-sudo systemctl enable --now kubelet
-&lt;/code>&lt;/pre>&lt;p>三，创建集群&lt;/p>
+// 将 SELinux 设置为 permissive 模式（相当于将其禁用）
+$ sudo setenforce 0
+$ sudo sed -i &amp;#39;s/^SELINUX=enforcing$/SELINUX=permissive/&amp;#39; /etc/selinux/config
+$ sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+$ sudo systemctl enable --now kubelet
+&lt;/code>&lt;/pre>&lt;h2 id="三创建集群">三，创建集群&lt;/h2>
 &lt;p>&lt;em>在执行 kubeadm init 之前还有些准备工作，不然会报错。如果 kubeadm init 没有成功执行，解决问题后都要先 kubeadm reset 再 kubeadm init，主从节点都是，如果从节点执行了 kubeadm join。&lt;/em>&lt;/p>
 &lt;p>1，此时直接执行 $ kubeadm init，有两条报错信息：&lt;/p>
-&lt;p>报错一：[WARNING Firewalled]&amp;hellip;
+&lt;p>报错一：[WARNING Firewalled]&amp;hellip; &lt;br>
 解决办法：需要关闭防火墙&lt;/p>
 &lt;pre tabindex="0">&lt;code>$ systemctl disable firewalld
 $ systemctl stop firewalld
-&lt;/code>&lt;/pre>&lt;p>报错二：[ERROR CRI]&amp;hellip;
-报错原因是当前的 containerd 是服务于 docker 的，它的配置文件也是由 docker 指定为 disable-plugins=[&amp;ldquo;cri&amp;rdquo;]。
-// docker:&amp;ldquo;You don&amp;rsquo;t need to be yourself, obey me!&amp;rdquo;
+&lt;/code>&lt;/pre>&lt;p>报错二：[ERROR CRI]&amp;hellip; &lt;br>
+报错原因是当前的 containerd 是服务于 docker 的，它的配置文件也是由 docker 指定为 disable-plugins=[&amp;ldquo;cri&amp;rdquo;]。 &lt;br>
+// docker:&amp;ldquo;You don&amp;rsquo;t need to be yourself, obey me!&amp;rdquo; &lt;br>
 解决办法：删除当前配置，并生成一个 containerd 单独运行用的默认配置。&lt;/p>
 &lt;pre tabindex="0">&lt;code>$ rm -rf /etc/containerd/config.toml
 $ containerd config default &amp;gt; /etc/containerd/config.toml
@@ -54,20 +54,20 @@ $ containerd config default &amp;gt; /etc/containerd/config.toml
 SystemdCgroup = true
 &lt;/code>&lt;/pre>&lt;p>2，处理网络问题&lt;/p>
 &lt;pre tabindex="0">&lt;code>// 准备工作：转发 IPv4 并让 iptables 看到桥接流量
-cat &amp;lt;&amp;lt;EOF | sudo tee /etc/modules-load.d/k8s.conf
+$ cat &amp;lt;&amp;lt;EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
 EOF
-sudo modprobe overlay
-sudo modprobe br_netfilter
-# 设置所需的 sysctl 参数，参数在重新启动后保持不变
-cat &amp;lt;&amp;lt;EOF | sudo tee /etc/sysctl.d/k8s.conf
+$ sudo modprobe overlay
+$ sudo modprobe br_netfilter
+// 设置所需的 sysctl 参数，参数在重新启动后保持不变
+$ cat &amp;lt;&amp;lt;EOF | sudo tee /etc/sysctl.d/k8s.conf
 net.bridge.bridge-nf-call-iptables = 1
 net.bridge.bridge-nf-call-ip6tables = 1
 net.ipv4.ip_forward = 1
 EOF
-# 应用 sysctl 参数而不重新启动
-sudo sysctl --system
+// 应用 sysctl 参数而不重新启动
+$ sudo sysctl --system
 &lt;/code>&lt;/pre>&lt;p>// 此时如果再执行 kubeadm reset; kubeadm init 那么是可以初始化成功的，但是，在安装网络插件时需要在 init 时添加子命令，那么又需要重新初始化集群，所以先看 calico 教程：&lt;/p>
 &lt;p>&lt;em>&lt;a class="link" href="https://projectcalico.docs.tigera.io/getting-started/kubernetes/quickstart" target="_blank" rel="noopener"
 >https://projectcalico.docs.tigera.io/getting-started/kubernetes/quickstart&lt;/a>&lt;/em>&lt;/p>
