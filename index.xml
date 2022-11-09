@@ -1,4 +1,50 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ldsdsy Site</title><link>https://ldsdsy.github.io/</link><description>Recent content on ldsdsy Site</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 01 Oct 2022 21:52:24 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>K8s_搭建集群</title><link>https://ldsdsy.github.io/p/k8s_%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</link><pubDate>Sat, 01 Oct 2022 21:52:24 +0800</pubDate><guid>https://ldsdsy.github.io/p/k8s_%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</guid><description>&lt;h1 id="从零搭建-k8s-集群">从零搭建 k8s 集群&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ldsdsy Site</title><link>https://ldsdsy.github.io/</link><description>Recent content on ldsdsy Site</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 09 Nov 2022 11:23:51 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>X-Pipe</title><link>https://ldsdsy.github.io/p/x-pipe/</link><pubDate>Wed, 09 Nov 2022 11:23:51 +0800</pubDate><guid>https://ldsdsy.github.io/p/x-pipe/</guid><description>&lt;h1 id="x-pipe">X-pipe&lt;/h1>
+&lt;p>&lt;em>携程开发的一款 redis 数据同步的工具。可以在数据中心一挂掉后通过控制台快速切换到数据中心二。&lt;/em>
+&lt;em>&lt;a class="link" href="https://github.com/ctripcorp/x-pipe" target="_blank" rel="noopener"
+>https://github.com/ctripcorp/x-pipe&lt;/a>&lt;/em>&lt;/p>
+&lt;h2 id="一创建">一，创建&lt;/h2>
+&lt;pre tabindex="0">&lt;code>/bin/bash -c &amp;#34;$(curl -sSL https://raw.githubusercontent.com/ctripcorp/x-pipe/master/redis/dockerPackage/start-xpipe-container.sh)&amp;#34;
+// 官方建议在一个新建的文件夹执行这条命令
+// 执行前需要先安装 docker-compose
+// 执行完成后，文件夹下会多出一个 docker-compose.yml 和一个关于 redis 配置的文件夹，并且会启动整套 x-pipe 的资源和八个 redis
+&lt;/code>&lt;/pre>&lt;h2 id="二布局">二，布局&lt;/h2>
+&lt;p>等待上述命令执行完成后，当前的部署图如下：
+&lt;figure
+>
+&lt;a href="https://ldsdsy.github.io/X-pipe1.png" >
+&lt;img src="https://ldsdsy.github.io/X-pipe1.png"
+loading="lazy"
+alt="picture">
+&lt;/a>
+&lt;figcaption>picture&lt;/figcaption>
+&lt;/figure> &lt;br>
+// 左上角是数据中心一，有四个 redis 形成了两个分片（一个分片就是一个主节点及其所有从节点）。 &lt;br>
+// 右下角是数据中心二，同样的四个 redis 形成了两个分片，跟数据中心一相对应。 &lt;br>
+// 中间则是 x-pipe 的组件，完成数据的同步。&lt;/p>
+&lt;p>x-pipe 同步数据是按分片对应同步的，如果在 0.10 里写入数据则会同步到 0.12/0.13，在 0.14 里写入的数据会同步到 0.16/0.17 。此时数据中心一里的 redis 是有主从关系，但数据中心二里面的 redis 全是作为 0.8（keeper）的从节点而存在（0.7 也是数据中心一里面主节点的 slave），当进行主机房迁移后，数据中心二里面的 redis 会进行选主操作，代替数据中心一。&lt;/p>
+&lt;h2 id="三控制台">三，控制台&lt;/h2>
+&lt;p>// 登陆控制台：localhost:8079/#/cluster_dc_shards/cluster1
+&lt;figure
+>
+&lt;a href="https://ldsdsy.github.io/X-pipe2.png" >
+&lt;img src="https://ldsdsy.github.io/X-pipe2.png"
+loading="lazy"
+alt="picture">
+&lt;/a>
+&lt;figcaption>picture&lt;/figcaption>
+&lt;/figure> &lt;br>
+&lt;figure
+>
+&lt;a href="https://ldsdsy.github.io/X-pipe3.png" >
+&lt;img src="https://ldsdsy.github.io/X-pipe3.png"
+loading="lazy"
+alt="picture">
+&lt;/a>
+&lt;figcaption>picture&lt;/figcaption>
+&lt;/figure>&lt;/p>
+&lt;h2 id="四总结">四，总结&lt;/h2>
+&lt;p>官方的样例中所有 redis 节点都只是普通的主从节点，没有开启集群模式（cluster_enabled=0）。也就是说，redis 的角色是由 x-pipe 来控制的，如果想要通过 x-pipe 来同步两个 redis 集群是不可行的，因为数据中心二里面的 keeper 无法再作为第二个 redis 集群里所有节点的主节点来完成同步。&lt;/p>
+&lt;p>// 官方解答：x-pipe 不支持 redis 集群模式，x-pipe 只是针对单纯的 redis 进行数据同步，节点之间不能组成集群，且主从角色由 keeper 来管理。&lt;/p></description></item><item><title>K8s_搭建集群</title><link>https://ldsdsy.github.io/p/k8s_%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</link><pubDate>Sat, 01 Oct 2022 21:52:24 +0800</pubDate><guid>https://ldsdsy.github.io/p/k8s_%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</guid><description>&lt;h1 id="从零搭建-k8s-集群">从零搭建 k8s 集群&lt;/h1>
 &lt;p>&lt;em>家里的台式机闲置了，建了几个虚拟机就打算搭建一个一主一从的集群，方便在家使用。&lt;/em>&lt;/p>
 &lt;h2 id="一安装容器运行时--docker">一，安装容器运行时 —— docker&lt;/h2>
 &lt;p>&lt;em>k8s v1.24 之后就不用 docker 而使用 containerd 了，但是，安装 docker 时本身也需要安装 containerd ，而且 docker 还能用来构建镜像，所以还是决定安装 docker。&lt;/em>&lt;/p>
@@ -639,7 +685,7 @@ b) $ cat /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">path&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">/home/centos/data&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>忆往昔_20220414</title><link>https://ldsdsy.github.io/p/%E5%BF%86%E5%BE%80%E6%98%94_20220414/</link><pubDate>Thu, 14 Apr 2022 21:18:07 +0800</pubDate><guid>https://ldsdsy.github.io/p/%E5%BF%86%E5%BE%80%E6%98%94_20220414/</guid><description>&lt;h1 id="忆往昔一">忆往昔（一）&lt;/h1>
 &lt;p>这件糗事我已经是第二次回想起来了，还是逗乐了自己，那就在这里记录一下吧。&lt;/p>
-&lt;p>考研的同学应该都知道汤老师吧，就是辅导考研数学的汤家凤老师，当初我备考的时候就听的是汤老师的课。当时汤老师的团队有在运营微信公众号，里面会时不时更新一些讲解试卷，知识总结之类的视频，我也就在公众号里看汤老师的课。不知道什么时候开始，视频的片头出现了黑底白字的警告，大意是说本人未在 b 站开通账号，请同学们注意之类的。我也没太在意，毕竟我也不在 b 站看汤老师。直到某一天，b 站的首页给我推荐了“考研汤家凤”，我心想，好家伙，这名儿取得这么明目张胆。于是我点了进去，这一看，头像是公众号里的，视频也是公众号里的，当时就给我气上头了，这人也太过分了，用着汤老师的劳动成果来谋取自己的利益，还披着汤老师的外衣让同学顶礼膜拜，无耻，真的无耻至极！当时我这正义感刷刷往上冒，要是我不站出来给汤老师正名，我还配当汤老师的学生吗？随即，我义正严辞地写下评论：“汤老师根本没在 b 站开通账号，你赶紧注销吧，汤老师已经在视频里维权了”。自豪感充斥着我整个胸腔，仿佛自己的身影都变得高大起来了。两三分钟后，有网友回复我了，网友一说：“这就是汤老师本人啊”，网友二说：“汤老师微博说开通 b 站了”，网友三也说：“这是真的汤老师，只是没去认证”。呵，还是个团伙作案，他居然还找托儿来证明自己，真是太太太无耻，气得我只想怼回去，但我想口说无凭，我要去公众号把视频的片头截屏出来，让这群家伙无地自容（气上头了，b 站也没法评论图片）。于是我找到最近的一期视频，打算截图，“本人已在 b 站授权&amp;hellip;&amp;hellip;”,哈，已在，不是未在吗！什么情况，是我看错了？惊讶，恐慌，羞愧，懊恼涌入我的脑海，即便四周无人，我也像被钉在耻辱柱上被千万人围观，脸红得说不出话来，我灰溜溜地回到评论区，不知如何是好。冷静了一会，也怕再多等一秒就会引来更多的网友来鞭笞我，组织好道歉语言，点击发送，删除评论，放下手机，唉～，还是太年轻冲动了些。&lt;/p></description></item><item><title>博物杂志_202202</title><link>https://ldsdsy.github.io/p/%E5%8D%9A%E7%89%A9%E6%9D%82%E5%BF%97_202202/</link><pubDate>Mon, 28 Feb 2022 13:50:36 +0800</pubDate><guid>https://ldsdsy.github.io/p/%E5%8D%9A%E7%89%A9%E6%9D%82%E5%BF%97_202202/</guid><description>&lt;h1 id="博物杂志_202202">博物杂志_2022/02&lt;/h1>
+&lt;p>考研的同学应该都知道汤老师吧，就是辅导考研数学的汤家凤老师，当初我备考的时候就听的是汤老师的课。当时汤老师的团队有在运营微信公众号，里面会时不时更新一些讲解试卷，知识总结之类的视频，我也就在公众号里看汤老师的课。不知道什么时候开始，视频的片头出现了黑底白字的警告，大意是说本人未在 b 站开通账号，请同学们注意之类的。我也没太在意，毕竟我也不在 b 站看汤老师。直到某一天，b 站的首页给我推荐了“考研汤家凤”，我心想，好家伙，这名儿取得这么明目张胆。于是我点了进去，这一看，头像是公众号里的，视频也是公众号里的，当时就给我气上头了，这人也太过分了，用着汤老师的劳动成果来谋取自己的利益，还披着汤老师的外衣让同学顶礼膜拜，无耻，真的无耻至极！当时我这正义感刷刷往上冒，要是我不站出来给汤老师正名，我还配当汤老师的学生吗？随即，我义正严辞地写下评论：“汤老师根本没在 b 站开通账号，你赶紧注销吧，汤老师已经在视频里维权了”。自豪感充斥着我整个胸腔，仿佛自己的身影都变得高大起来了。两三分钟后，有网友回复我了，网友一说：“这就是汤老师本人啊”，网友二说：“汤老师微博说开通 b 站了”，网友三也说：“这是真的汤老师，只是没去认证”。呵，还是个团伙作案，他居然还找托儿来证明自己，真是太太太无耻，气得我只想怼回去，但我想口说无凭，我要去公众号把视频的片头截屏出来，让这群家伙无地自容（气上头了，b 站也没法评论图片）。于是我找到最近的一期视频，打算截图，“本人已在 b 站授权&amp;hellip;&amp;hellip;”,哈，已在，不是未在吗！什么情况，是我看错了？惊讶，恐慌，羞愧，懊恼涌入我的脑海，即便四周无人，我也像被钉在耻辱柱上被千万人围观，脸红得说不出话来，我灰溜溜地回到评论区，不知如何是好。冷静了一会，也怕再多等一秒就会引来更多的网友来鞭笞我，组织好道歉语言，点击发送，删除评论，放下手机，唉～，还是太年轻冲动了些。&lt;/p></description></item><item><title>博物杂志_2022</title><link>https://ldsdsy.github.io/p/%E5%8D%9A%E7%89%A9%E6%9D%82%E5%BF%97_2022/</link><pubDate>Mon, 28 Feb 2022 13:50:36 +0800</pubDate><guid>https://ldsdsy.github.io/p/%E5%8D%9A%E7%89%A9%E6%9D%82%E5%BF%97_2022/</guid><description>&lt;h1 id="博物杂志_2022">博物杂志_2022&lt;/h1>
 &lt;p>&lt;em>由于 b 站无穷小亮的推荐，最近开始订阅博物杂志了，打算把一些有趣的点记录下来。&lt;/em>&lt;/p>
 &lt;h2 id="1马醉木">1，马醉木&lt;/h2>
 &lt;p>一种开小白花的低矮植株。马醉木的名字起源于日本，至于为什么叫这个名字，是传说马吃了其叶子都会轰然倒地宛如醉酒一般，而真实的原因是这种植物里面包含一种有毒物质，被食用后会有中毒迹象。&lt;/p>
