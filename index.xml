@@ -8,11 +8,11 @@
 // 执行前需要先安装 docker-compose
 // 执行完成后，文件夹下会多出一个 docker-compose.yml 和一个关于 redis 配置的文件夹，并且会启动整套 x-pipe 的资源和八个 redis
 &lt;/code>&lt;/pre>&lt;h2 id="二布局">二，布局&lt;/h2>
-&lt;p>等待上述命令执行完成后，当前的部署图如下：
+&lt;p>等待上述命令执行完成后，当前的部署图如下：&lt;br>
 &lt;figure
 >
-&lt;a href="https://ldsdsy.github.io/X-pipe1.png" >
-&lt;img src="https://ldsdsy.github.io/X-pipe1.png"
+&lt;a href="https://ldsdsy.github.io/image/X-pipe1.png" >
+&lt;img src="https://ldsdsy.github.io/image/X-pipe1.png"
 loading="lazy"
 alt="picture">
 &lt;/a>
@@ -23,11 +23,11 @@ alt="picture">
 // 中间则是 x-pipe 的组件，完成数据的同步。&lt;/p>
 &lt;p>x-pipe 同步数据是按分片对应同步的，如果在 0.10 里写入数据则会同步到 0.12/0.13，在 0.14 里写入的数据会同步到 0.16/0.17 。此时数据中心一里的 redis 是有主从关系，但数据中心二里面的 redis 全是作为 0.8（keeper）的从节点而存在（0.7 也是数据中心一里面主节点的 slave），当进行主机房迁移后，数据中心二里面的 redis 会进行选主操作，代替数据中心一。&lt;/p>
 &lt;h2 id="三控制台">三，控制台&lt;/h2>
-&lt;p>// 登陆控制台：localhost:8079/#/cluster_dc_shards/cluster1
+&lt;p>// 登陆控制台：localhost:8079/#/cluster_dc_shards/cluster1 &lt;br>
 &lt;figure
 >
-&lt;a href="https://ldsdsy.github.io/X-pipe2.png" >
-&lt;img src="https://ldsdsy.github.io/X-pipe2.png"
+&lt;a href="https://ldsdsy.github.io/image/X-pipe2.png" >
+&lt;img src="https://ldsdsy.github.io/image/X-pipe2.png"
 loading="lazy"
 alt="picture">
 &lt;/a>
@@ -35,14 +35,16 @@ alt="picture">
 &lt;/figure> &lt;br>
 &lt;figure
 >
-&lt;a href="https://ldsdsy.github.io/X-pipe3.png" >
-&lt;img src="https://ldsdsy.github.io/X-pipe3.png"
+&lt;a href="https://ldsdsy.github.io/image/X-pipe3.png" >
+&lt;img src="https://ldsdsy.github.io/image/X-pipe3.png"
 loading="lazy"
 alt="picture">
 &lt;/a>
 &lt;figcaption>picture&lt;/figcaption>
 &lt;/figure>&lt;/p>
-&lt;h2 id="四总结">四，总结&lt;/h2>
+&lt;h2 id="四结束">四，结束&lt;/h2>
+&lt;pre tabindex="0">&lt;code>$ docker-compose down
+&lt;/code>&lt;/pre>&lt;h2 id="五总结">五，总结&lt;/h2>
 &lt;p>官方的样例中所有 redis 节点都只是普通的主从节点，没有开启集群模式（cluster_enabled=0）。也就是说，redis 的角色是由 x-pipe 来控制的，如果想要通过 x-pipe 来同步两个 redis 集群是不可行的，因为数据中心二里面的 keeper 无法再作为第二个 redis 集群里所有节点的主节点来完成同步。&lt;/p>
 &lt;p>// 官方解答：x-pipe 不支持 redis 集群模式，x-pipe 只是针对单纯的 redis 进行数据同步，节点之间不能组成集群，且主从角色由 keeper 来管理。&lt;/p></description></item><item><title>K8s_搭建集群</title><link>https://ldsdsy.github.io/p/k8s_%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</link><pubDate>Sat, 01 Oct 2022 21:52:24 +0800</pubDate><guid>https://ldsdsy.github.io/p/k8s_%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</guid><description>&lt;h1 id="从零搭建-k8s-集群">从零搭建 k8s 集群&lt;/h1>
 &lt;p>&lt;em>家里的台式机闲置了，建了几个虚拟机就打算搭建一个一主一从的集群，方便在家使用。&lt;/em>&lt;/p>
