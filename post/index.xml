@@ -112,4 +112,9 @@ $ sudo apt-get install git</description></item><item><title>01_dart安装</title
 $ sudo apt-get update $ sudo apt-get install apt-transport-https //科学上网 $ sudo sh -c &amp;#39;wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -&amp;#39; $ sudo sh -c &amp;#39;wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list &amp;gt; /etc/apt/sources.list.d/dart_stable.list&amp;#39; 2.安装 Dart SDK:
 $ sudo apt-get update $ sudo apt-get install dart 3.输入 dart 检测是否安装完成。
 Adds:
-//查看 dart 安装在何处 $ which dart //查看系统环境变量 $ echo $PATH</description></item></channel></rss>
+//查看 dart 安装在何处 $ which dart //查看系统环境变量 $ echo $PATH</description></item><item><title/><link>https://ldsdsy.github.io/p/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ldsdsy.github.io/p/</guid><description>K8s 源码分析 —— scheduler（一） 基于 release-1.25 分支的代码分析
+一，疑问 Question：调度器挑选节点时，是根据节点当前的真实压力，还是根据 pod 的 request 值？
+Answer：是根据 pod 的 request 来判断的，但有些插件在尝试根据节点真实压力来判断。
+具体代码位于：pkg/scheduler/framework/plugins/noderesources/fit.go#L253
+二，代码分析 1，概括 AdmissionCheck() ——&amp;gt; Fits() ——&amp;gt; fitsRequest(computePodResourceRequest(pod), nodeInfo, nil, nil) picture 2，局部逻辑 2.1 computePodResourceRequest(pod)： 计算 pod 的资源申请量：pod 里面分 init 容器和普通容器，由于 init 容器是顺序运行的，所以取最大值（initMax） 就行，而普通容器取申请值总和（sum），然后再在取 max(initMax，sum) 作为最后的结果。
+Example: Pod: InitContainers IC1: CPU: 2 Memory: 1G IC2: CPU: 2 Memory: 3G Containers C1: CPU: 2 Memory: 1G C2: CPU: 1 Memory: 1G Result: CPU: 3, Memory: 3G 大致逻辑：</description></item></channel></rss>
