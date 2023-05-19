@@ -18,7 +18,7 @@ alt="picture">
 &lt;/figure>&lt;/p>
 &lt;h3 id="2局部逻辑">2，局部逻辑&lt;/h3>
 &lt;h3 id="21-computepodresourcerequestpod">2.1 computePodResourceRequest(pod)：&lt;/h3>
-&lt;p>&lt;em>计算 pod 的资源申请量：pod 里面分 init 容器和普通容器，由于 init 容器是顺序运行的，所以取最大值（initMax） 就行，而普通容器取申请值总和（sum），然后再在取 max(initMax，sum) 作为最后的结果。&lt;/em>&lt;/p>
+&lt;p>&lt;em>计算 pod 的资源申请量：pod 里面分 init 容器和普通容器，由于 init 容器是顺序运行的，所以取最大值（initMax） 就行，而普通容器取申请值总和（sum），然后再取 max(initMax，sum) 作为最后的结果。&lt;/em>&lt;/p>
 &lt;pre tabindex="0">&lt;code> Example:
 Pod:
 InitContainers
