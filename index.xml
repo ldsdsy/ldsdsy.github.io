@@ -121,7 +121,26 @@ alt="picture">
 &lt;p>官方的样例中所有 redis 节点都只是普通的主从节点，没有开启集群模式（cluster_enabled=0）。也就是说，redis 的角色是由 x-pipe 来控制的，如果想要通过 x-pipe 来同步两个 redis 集群是不可行的，因为数据中心二里面的 keeper 无法再作为第二个 redis 集群里所有节点的主节点来完成同步。&lt;/p>
 &lt;p>// 官方解答：x-pipe 不支持 redis 集群模式，x-pipe 只是针对单纯的 redis 进行数据同步，节点之间不能组成集群，且主从角色由 keeper 来管理。&lt;/p></description></item><item><title>K8s_搭建集群</title><link>https://ldsdsy.github.io/p/k8s_%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</link><pubDate>Sat, 01 Oct 2022 21:52:24 +0800</pubDate><guid>https://ldsdsy.github.io/p/k8s_%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4/</guid><description>&lt;h1 id="从零搭建-k8s-集群">从零搭建 k8s 集群&lt;/h1>
 &lt;p>&lt;em>家里的台式机闲置了，建了几个虚拟机就打算搭建一个一主一从的集群，方便在家使用。&lt;/em>&lt;/p>
-&lt;h2 id="一安装容器运行时--docker">一，安装容器运行时 —— docker&lt;/h2>
+&lt;h2 id="一准备工作">一，准备工作&lt;/h2>
+&lt;p>1，处理网络问题&lt;br>
+&lt;em>&lt;a class="link" href="https://kubernetes.io/docs/setup/production-environment/container-runtimes/#forwarding-ipv4-and-letting-iptables-see-bridged-traffic" target="_blank" rel="noopener"
+>https://kubernetes.io/docs/setup/production-environment/container-runtimes/#forwarding-ipv4-and-letting-iptables-see-bridged-traffic&lt;/a>&lt;/em>&lt;/p>
+&lt;pre tabindex="0">&lt;code>// ：转发 IPv4 并让 iptables 看到桥接流量
+$ cat &amp;lt;&amp;lt;EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+$ sudo modprobe overlay
+$ sudo modprobe br_netfilter
+// 设置所需的 sysctl 参数，参数在重新启动后保持不变
+$ cat &amp;lt;&amp;lt;EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward = 1
+EOF
+// 应用 sysctl 参数而不重新启动
+$ sudo sysctl --system
+&lt;/code>&lt;/pre>&lt;h2 id="二安装容器运行时--docker">二，安装容器运行时 —— docker&lt;/h2>
 &lt;p>&lt;em>k8s v1.24 之后就不用 docker 而使用 containerd 了，但是，安装 docker 时本身也需要安装 containerd ，而且 docker 还能用来构建镜像，所以还是决定安装 docker。&lt;/em>&lt;/p>
 &lt;p>1，进入 docker 官网&lt;br>
 &lt;em>&lt;a class="link" href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener"
@@ -138,7 +157,7 @@ $ sudo systemctl enable docker
 // 设置开机自启
 $ sudo docker run hello-world
 // 检测是否安装成功
-&lt;/code>&lt;/pre>&lt;h2 id="二安装-kubeadmkubeletkubectl">二，安装 kubeadm，kubelet，kubectl&lt;/h2>
+&lt;/code>&lt;/pre>&lt;h2 id="三安装-kubeadmkubeletkubectl">三，安装 kubeadm，kubelet，kubectl&lt;/h2>
 &lt;p>&lt;em>&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/" target="_blank" rel="noopener"
 >https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/&lt;/a>，centOS 是基于 Red Hat 的发行版。&lt;/em>&lt;/p>
 &lt;pre tabindex="0">&lt;code>$ cat &amp;lt;&amp;lt;EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
@@ -155,7 +174,7 @@ $ sudo setenforce 0
 $ sudo sed -i &amp;#39;s/^SELINUX=enforcing$/SELINUX=permissive/&amp;#39; /etc/selinux/config
 $ sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 $ sudo systemctl enable --now kubelet
-&lt;/code>&lt;/pre>&lt;h2 id="三创建集群">三，创建集群&lt;/h2>
+&lt;/code>&lt;/pre>&lt;h2 id="四创建集群">四，创建集群&lt;/h2>
 &lt;p>&lt;em>在执行 kubeadm init 之前还有些准备工作，不然会报错。如果 kubeadm init 没有成功执行，解决问题后都要先 kubeadm reset 再 kubeadm init，主从节点都是，如果从节点执行了 kubeadm join。&lt;/em>&lt;/p>
 &lt;p>1，此时直接执行 $ kubeadm init，有两条报错信息：&lt;/p>
 &lt;p>报错一：[WARNING Firewalled]&amp;hellip; &lt;br>
@@ -173,22 +192,6 @@ $ containerd config default &amp;gt; /etc/containerd/config.toml
 ...
 [plugins.&amp;#34;io.containerd.grpc.v1.cri&amp;#34;.containerd.runtimes.runc.options]
 SystemdCgroup = true
-&lt;/code>&lt;/pre>&lt;p>2，处理网络问题&lt;/p>
-&lt;pre tabindex="0">&lt;code>// 准备工作：转发 IPv4 并让 iptables 看到桥接流量
-$ cat &amp;lt;&amp;lt;EOF | sudo tee /etc/modules-load.d/k8s.conf
-overlay
-br_netfilter
-EOF
-$ sudo modprobe overlay
-$ sudo modprobe br_netfilter
-// 设置所需的 sysctl 参数，参数在重新启动后保持不变
-$ cat &amp;lt;&amp;lt;EOF | sudo tee /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-iptables = 1
-net.bridge.bridge-nf-call-ip6tables = 1
-net.ipv4.ip_forward = 1
-EOF
-// 应用 sysctl 参数而不重新启动
-$ sudo sysctl --system
 &lt;/code>&lt;/pre>&lt;p>// 此时如果再执行 kubeadm reset; kubeadm init 那么是可以初始化成功的，但是，在安装网络插件时需要在 init 时添加子命令，那么又需要重新初始化集群，所以先看 calico 教程：&lt;/p>
 &lt;p>&lt;em>&lt;a class="link" href="https://projectcalico.docs.tigera.io/getting-started/kubernetes/quickstart" target="_blank" rel="noopener"
 >https://projectcalico.docs.tigera.io/getting-started/kubernetes/quickstart&lt;/a>&lt;/em>&lt;/p>
@@ -203,13 +206,19 @@ $ watch kubectl get pods -n calico-system
 &lt;/code>&lt;/pre>&lt;p>3，加入 worker 节点&lt;/p>
 &lt;p>在上一步执行完 sudo kubeadm init &amp;ndash;pod-network-cidr=192.168.0.0/16 后，会出现一条 kubeadm join 的命令，复制到 worker 节点执行就行。&lt;/p>
 &lt;p>// 以上几乎所有操作都是要在所有节点上运行的，只是 init 以及安装 calico 只在主节点上执行，join 只在从节点上执行。&lt;/p>
-&lt;h2 id="四追加">四，追加&lt;/h2>
-&lt;p>后期使用时发现 master 节点跟 pod 不通，但是 worker 节点是通的。暂不清楚原因。改用 flannel 正常：&lt;/p>
+&lt;h2 id="五注意事项">五，注意事项&lt;/h2>
+&lt;p>1，如果当前节点之前已经执行过 kubeadm init/join，再重建 k8s 集群时一定要先 kubeadm reset。&lt;br>
+2，把网络插件从 calico 改成 flannel 后，kube-system 下面的 coredns 起不来，原因是 kubelet 会从默认目录读取配置文件，如果有多个配置文件，那么它会按字母顺序应用先出现的配置文件中的 CNI 插件。解决办法：到 coredns 所在的节点上删除 /etc/cni/net.d/ 目录下面关于 calico 的两个相关文件。&lt;/p>
+&lt;h2 id="六追加">六，追加&lt;/h2>
+&lt;p>1，后期使用时发现 master 节点跟 pod 不通，但是 worker 节点是通的。暂不清楚原因。改用 flannel 正常：&lt;/p>
 &lt;pre tabindex="0">&lt;code>$ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 $ kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
-&lt;/code>&lt;/pre>&lt;h2 id="五注意事项">五，注意事项&lt;/h2>
-&lt;p>1，如果当前节点之前已经执行过 kubeadm init/join，再重建 k8s 集群时一定要先 kubeadm reset。
-2，把网络插件从 calico 改成 flannel 后，kube-system 下面的 coredns 起不来，原因是 kubelet 会从默认目录读取配置文件，如果有多个配置文件，那么它会按字母顺序应用先出现的配置文件中的 CNI 插件。解决办法：到 coredns 所在的节点上删除 /etc/cni/net.d/ 目录下面关于 calico 的两个相关文件。&lt;/p></description></item><item><title>Go_GC</title><link>https://ldsdsy.github.io/p/go_gc/</link><pubDate>Wed, 31 Aug 2022 21:07:48 +0800</pubDate><guid>https://ldsdsy.github.io/p/go_gc/</guid><description>&lt;h1 id="go--gc垃圾回收">Go —— GC（垃圾回收）&lt;/h1>
+&lt;/code>&lt;/pre>&lt;p>2，2023/07/26 在新的机器上搭建最新的 k8s1.27，三台机器的系统分别是 alma，opensuse，debian： &lt;br>
+1）alma 正常；&lt;br>
+2）opensuse 多次修正均报错：&lt;/p>
+&lt;pre tabindex="0">&lt;code>The HTTP call equal to &amp;#39;curl -sSL http://localhost:10248/healthz&amp;#39; failed with error: Get &amp;#34;http://localhost:10248/healthz&amp;#34;: dial tcp [::1]:10248: connect: connection refused.
+// opensuse 的软件包有些问题，安装的 kubelet 无法正常使用，后续换成 ubuntu 系统正常
+&lt;/code>&lt;/pre>&lt;p>3）debian 报错：CRI 没有正常运行，但查看 containerd 的状态又是 running 的，原因是通过 apt 安装的 containerd 版本太低不适配 k8s1.27 ，通过 docker 官网的提示安装最新的 containerd 就行（1.6.21 可以）。&lt;/p></description></item><item><title>Go_GC</title><link>https://ldsdsy.github.io/p/go_gc/</link><pubDate>Wed, 31 Aug 2022 21:07:48 +0800</pubDate><guid>https://ldsdsy.github.io/p/go_gc/</guid><description>&lt;h1 id="go--gc垃圾回收">Go —— GC（垃圾回收）&lt;/h1>
 &lt;p>&lt;em>本博客为一课程笔记，方便快速回顾。此课程所讲的 GC 有针对栈空间，但大多数博客均称 golang GC 只针对堆，不针对栈。&lt;/em>&lt;/p>
 &lt;h2 id="一gc-存在的意义">一，GC 存在的意义&lt;/h2>
 &lt;p>让人能更专注于业务的编写，而不用担心内存的回收问题。&lt;/p>
