@@ -1,4 +1,78 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ldsdsy Site</title><link>https://ldsdsy.github.io/</link><description>Recent content on ldsdsy Site</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 19 May 2023 18:33:03 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>K8s_scheduler 源码分析(一)</title><link>https://ldsdsy.github.io/p/k8s_scheduler-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B8%80/</link><pubDate>Fri, 19 May 2023 18:33:03 +0800</pubDate><guid>https://ldsdsy.github.io/p/k8s_scheduler-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B8%80/</guid><description>&lt;h1 id="k8s-源码分析--scheduler一">K8s 源码分析 —— scheduler（一）&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ldsdsy Site</title><link>https://ldsdsy.github.io/</link><description>Recent content on ldsdsy Site</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 23 Aug 2023 17:33:28 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>K8s_Dashboard</title><link>https://ldsdsy.github.io/p/k8s_dashboard/</link><pubDate>Wed, 23 Aug 2023 17:33:28 +0800</pubDate><guid>https://ldsdsy.github.io/p/k8s_dashboard/</guid><description>&lt;h1 id="kubernetes-dashboard">Kubernetes Dashboard：&lt;/h1>
+&lt;p>&lt;em>&lt;a class="link" href="https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/" target="_blank" rel="noopener"
+>https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/&lt;/a>&lt;/em>&lt;/p>
+&lt;h2 id="一简介">一，简介&lt;/h2>
+&lt;p>Dashboard 是 K8s 官方出的一个管理集群的可视化网页工具。&lt;/p>
+&lt;h2 id="二部署">二，部署&lt;/h2>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>ldsdsy@ml-redhat ~&lt;span class="o">]&lt;/span>$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">namespace/kubernetes-dashboard created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">serviceaccount/kubernetes-dashboard created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">service/kubernetes-dashboard created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">secret/kubernetes-dashboard-certs created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">secret/kubernetes-dashboard-csrf created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">secret/kubernetes-dashboard-key-holder created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">configmap/kubernetes-dashboard-settings created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">role.rbac.authorization.k8s.io/kubernetes-dashboard created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">clusterrole.rbac.authorization.k8s.io/kubernetes-dashboard created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">clusterrolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deployment.apps/kubernetes-dashboard created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">service/dashboard-metrics-scraper created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deployment.apps/dashboard-metrics-scraper created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>ldsdsy@ml-redhat ~&lt;span class="o">]&lt;/span>$
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="三暴露服务">三，暴露服务&lt;/h2>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">// 方式一：
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>ldsdsy@ml-redhat ~&lt;span class="o">]&lt;/span>$ kubectl proxy
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Starting to serve on 127.0.0.1:8001
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 这种方式需要在执行这条命令的机器上打开网页，但我的集群都是虚拟机，所以再加后面一步
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ ssh -L8001:localhost:8001 ldsdsy@master_ip
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 把本地主机的 &lt;span class="m">8001&lt;/span> 映射到 ldsdsy@ml-redhat 这台 master 节点的 &lt;span class="m">8001&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 方式二：
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 直接把名为 kubernetes-dashboard 的 svc 类型改为 NodePort
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>ldsdsy@ml-redhat ~&lt;span class="o">]&lt;/span>$ k edit -n kubernetes-dashboard svc kubernetes-dashboard
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">service/kubernetes-dashboard edited
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>ldsdsy@ml-redhat ~&lt;span class="o">]&lt;/span>$ k get -n kubernetes-dashboard svc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME TYPE CLUSTER-IP EXTERNAL-IP PORT&lt;span class="o">(&lt;/span>S&lt;span class="o">)&lt;/span> AGE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dashboard-metrics-scraper ClusterIP 10.111.78.87 &amp;lt;none&amp;gt; 8000/TCP 3m10s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubernetes-dashboard NodePort 10.109.113.255 &amp;lt;none&amp;gt; 443:31018/TCP 3m10s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>ldsdsy@ml-redhat ~&lt;span class="o">]&lt;/span>$
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="四访问登录页面">四，访问登录页面&lt;/h2>
+&lt;p>// 方式一：&lt;br>
+&lt;em>http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/&lt;/em>&lt;/p>
+&lt;p>// 方式二：&lt;br>
+&lt;em>https://nodeIP:31018/&lt;/em>&lt;/p>
+&lt;p>&lt;figure
+>
+&lt;a href="https://ldsdsy.github.io/image/Dashboard1.png" >
+&lt;img src="https://ldsdsy.github.io/image/Dashboard1.png"
+loading="lazy"
+alt="picture">
+&lt;/a>
+&lt;figcaption>picture&lt;/figcaption>
+&lt;/figure>&lt;/p>
+&lt;p>// 如图所示需要 token
+&lt;em>&lt;a class="link" href="https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md" target="_blank" rel="noopener"
+>https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md&lt;/a>&lt;/em>&lt;/p>
+&lt;p>如文档所示，在集群里创建 Service Account 和 ClusterRoleBinding 保存为 dashboard-adminuser.yaml&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ kubectl apply -f dashboard-adminuser.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ kubectl -n kubernetes-dashboard create token admin-user
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">// 获取到 token 输入到网页点击登录
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="五dashboard-页面">五，Dashboard 页面&lt;/h2>
+&lt;p>&lt;figure
+>
+&lt;a href="https://ldsdsy.github.io/image/Dashboard2.png" >
+&lt;img src="https://ldsdsy.github.io/image/Dashboard2.png"
+loading="lazy"
+alt="picture">
+&lt;/a>
+&lt;figcaption>picture&lt;/figcaption>
+&lt;/figure>&lt;/p>
+&lt;h2 id="六使用">六，使用&lt;/h2>
+&lt;p>界面很简洁，上侧是 ns 选择区和一个搜索框，左侧以列表形式展示的各种集群资源，结合 ns 一起过滤显示资源。以 Pod 为例，除了基本的信息显示外，还可在页面对它进行查看日志，进入容器，编辑，删除这四种操作。同时在右上方有一个 + 图标，点击 + 可在页面直接创建资源，当前 v2.7.0 的版本有三种创建方式：直接编辑 yaml/json 文本，从本地选取 yaml/josn 文件，设定部分关键信息来创建。简单说 Dashboard 的功能就是对集群资源进行增删改查，部署简单，适合一些基础的使用需求。&lt;/p></description></item><item><title>K8s_scheduler 源码分析(一)</title><link>https://ldsdsy.github.io/p/k8s_scheduler-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B8%80/</link><pubDate>Fri, 19 May 2023 18:33:03 +0800</pubDate><guid>https://ldsdsy.github.io/p/k8s_scheduler-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B8%80/</guid><description>&lt;h1 id="k8s-源码分析--scheduler一">K8s 源码分析 —— scheduler（一）&lt;/h1>
 &lt;p>&lt;em>基于 release-1.25 分支的代码分析&lt;/em>&lt;/p>
 &lt;h2 id="一疑问">一，疑问&lt;/h2>
 &lt;p>Question：调度器挑选节点时，是根据节点当前的真实压力，还是根据 pod 的 request 值？&lt;/p>
