@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ldsdsy Site</title><link>https://ldsdsy.github.io/</link><description>Recent content on ldsdsy Site</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 23 Aug 2023 17:33:28 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>K8s_Dashboard</title><link>https://ldsdsy.github.io/p/k8s_dashboard/</link><pubDate>Wed, 23 Aug 2023 17:33:28 +0800</pubDate><guid>https://ldsdsy.github.io/p/k8s_dashboard/</guid><description>&lt;h1 id="kubernetes-dashboard">Kubernetes Dashboard：&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ldsdsy Site</title><link>https://ldsdsy.github.io/</link><description>Recent content on ldsdsy Site</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 23 Aug 2023 17:33:28 +0800</lastBuildDate><atom:link href="https://ldsdsy.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>K8s_Dashboard</title><link>https://ldsdsy.github.io/p/k8s_dashboard/</link><pubDate>Wed, 23 Aug 2023 17:33:28 +0800</pubDate><guid>https://ldsdsy.github.io/p/k8s_dashboard/</guid><description>&lt;h1 id="kubernetes-dashboard">Kubernetes Dashboard&lt;/h1>
 &lt;p>&lt;em>&lt;a class="link" href="https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/" target="_blank" rel="noopener"
 >https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/&lt;/a>&lt;/em>&lt;/p>
 &lt;h2 id="一简介">一，简介&lt;/h2>
@@ -54,7 +54,7 @@ alt="picture">
 &lt;/a>
 &lt;figcaption>picture&lt;/figcaption>
 &lt;/figure>&lt;/p>
-&lt;p>// 如图所示需要 token
+&lt;p>// 如图所示需要 token &lt;br>
 &lt;em>&lt;a class="link" href="https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md" target="_blank" rel="noopener"
 >https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md&lt;/a>&lt;/em>&lt;/p>
 &lt;p>如文档所示，在集群里创建 Service Account 和 ClusterRoleBinding 保存为 dashboard-adminuser.yaml&lt;/p>
