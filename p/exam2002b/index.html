@@ -68,8 +68,8 @@ on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button cl
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;fmt&#34;</span>
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1>//Huiwen is used to output the number of replies
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>Huiwen</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=c1>//Huiwen is used to output the number of replies</span>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>Huiwen</span><span class=p>()</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>	<span class=kd>var</span> <span class=nx>a</span> <span class=p>[</span><span class=mi>10</span><span class=p>]</span><span class=kt>int</span>
 </span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=nx>i</span> <span class=o>:=</span> <span class=mi>0</span><span class=p>;</span> <span class=nx>i</span> <span class=p>&lt;</span> <span class=mi>256</span><span class=p>;</span> <span class=nx>i</span><span class=o>++</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>		<span class=nx>n</span> <span class=o>:=</span> <span class=nx>i</span> <span class=o>*</span> <span class=nx>i</span>
@@ -80,8 +80,8 @@ on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button cl
 </span></span><span class=line><span class=cl>			<span class=nx>t</span> <span class=o>/=</span> <span class=mi>10</span>
 </span></span><span class=line><span class=cl>		<span class=p>}</span>
 </span></span><span class=line><span class=cl>		<span class=nx>t</span> <span class=p>=</span> <span class=mi>0</span>
-</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=nx>k</span> <span class=o>:=</span> <span class=mi>0</span><span class=p>;</span> <span class=nx>k</span> <span class=p>&lt;</span> <span class=nx>j</span><span class=p>;</span> <span class=nx>k</span><span class=o>++</span> <span class=p>{</span> <span class=c1>//反向组数
-</span></span></span><span class=line><span class=cl><span class=c1></span>			<span class=nx>t</span> <span class=p>=</span> <span class=nx>t</span><span class=o>*</span><span class=mi>10</span> <span class=o>+</span> <span class=nx>a</span><span class=p>[</span><span class=nx>k</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=nx>k</span> <span class=o>:=</span> <span class=mi>0</span><span class=p>;</span> <span class=nx>k</span> <span class=p>&lt;</span> <span class=nx>j</span><span class=p>;</span> <span class=nx>k</span><span class=o>++</span> <span class=p>{</span> <span class=c1>//反向组数</span>
+</span></span><span class=line><span class=cl>			<span class=nx>t</span> <span class=p>=</span> <span class=nx>t</span><span class=o>*</span><span class=mi>10</span> <span class=o>+</span> <span class=nx>a</span><span class=p>[</span><span class=nx>k</span><span class=p>]</span>
 </span></span><span class=line><span class=cl>		<span class=p>}</span>
 </span></span><span class=line><span class=cl>		<span class=k>if</span> <span class=nx>t</span> <span class=o>==</span> <span class=nx>n</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>			<span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;%d &#34;</span><span class=p>,</span> <span class=nx>i</span><span class=p>)</span>
@@ -135,8 +135,8 @@ on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button cl
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;fmt&#34;</span>
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1>//Fibonacci is used to calculate the number
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>Fibonacci</span><span class=p>(</span><span class=nx>j</span> <span class=kt>int</span><span class=p>)</span> <span class=kt>int</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=c1>//Fibonacci is used to calculate the number</span>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>Fibonacci</span><span class=p>(</span><span class=nx>j</span> <span class=kt>int</span><span class=p>)</span> <span class=kt>int</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=nx>j</span> <span class=o>==</span> <span class=mi>1</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>		<span class=k>return</span> <span class=mi>0</span>
 </span></span><span class=line><span class=cl>	<span class=p>}</span> <span class=k>else</span> <span class=k>if</span> <span class=nx>j</span> <span class=o>==</span> <span class=mi>2</span> <span class=p>{</span>
@@ -145,8 +145,8 @@ on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button cl
 </span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=nf>Fibonacci</span><span class=p>(</span><span class=nx>j</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span> <span class=o>+</span> <span class=nf>Fibonacci</span><span class=p>(</span><span class=nx>j</span><span class=o>-</span><span class=mi>2</span><span class=p>)</span>
 </span></span><span class=line><span class=cl><span class=p>}</span>
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=c1>//Triangle is used to print Triangle of Fibonacci
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=nf>Triangle</span><span class=p>(</span><span class=nx>n</span> <span class=kt>int</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=c1>//Triangle is used to print Triangle of Fibonacci</span>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>Triangle</span><span class=p>(</span><span class=nx>n</span> <span class=kt>int</span><span class=p>)</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=nx>i</span> <span class=o>:=</span> <span class=mi>1</span><span class=p>;</span> <span class=nx>i</span> <span class=o>&lt;=</span> <span class=nx>n</span><span class=p>;</span> <span class=nx>i</span><span class=o>++</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=nx>k</span> <span class=o>:=</span> <span class=mi>1</span><span class=p>;</span> <span class=nx>k</span> <span class=o>&lt;=</span> <span class=nx>n</span><span class=o>-</span><span class=nx>i</span><span class=p>;</span> <span class=nx>k</span><span class=o>++</span> <span class=p>{</span>
 </span></span><span class=line><span class=cl>			<span class=nx>fmt</span><span class=p>.</span><span class=nf>Print</span><span class=p>(</span><span class=s>&#34;   &#34;</span><span class=p>)</span>
